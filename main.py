@@ -13,7 +13,7 @@ if not os.path.exists("images"):
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Salton_39"
+site_name = f"Salton_39_test36"
 site_path = f'../../Python/Brightway/Geothermal_brines/Salton_Sea_39.xlsx'
 water_name = f"Water_39"
 water_path = f'../../Python/Brightway/Geothermal_brines/Water_39.xlsx'
@@ -21,19 +21,15 @@ biosphere = f"biosphere3"
 
 site_location = site_name[:3]
 
-project = f'Site_{site_name}_3'
-bd.projects.set_current(project)
-
 # Biosphere
 if __name__ == '__main__':
+
+    project = f'Site_{site_name}_3'
+    bd.projects.set_current(project)
 
     choice = input("BW2?")
 
     if choice == "yes":
-
-        # Get a list of all projects
-        #print(bd.projects)
-        print(bd.methods)
 
         choice = input("Do you want to make any changes in databases?: ").lower()
 
@@ -148,19 +144,27 @@ if __name__ == '__main__':
 
 
 
-        from rsc.Brightway2.AWARE import import_AWARE
+        #from rsc.Brightway2.AWARE import import_AWARE
 
-        import_AWARE(ei_reg, bio)
+        #import_AWARE(ei_reg, bio)
 
-        from rsc.Brightway2.PM_method import import_PM
+        #from rsc.Brightway2.PM_method import import_PM
 
-        import_PM(ei_reg, bio)
+        #import_PM(ei_reg, bio)
 
     else:
         pass
 
 
 locations = [("Salton Sea", "Sal"), ("Upper Rhine Valley", "URG")]
+
+bio = bd.Database('biosphere3')
+water = bd.Database(water_name)
+site = bd.Database(site_name)
+ei_reg = bd.Database(ei_name)
+
+country_location = "US-WECC"
+
 
 from rsc.lithium_production.processes import loop_functions
 eff = 0.5
@@ -169,8 +173,18 @@ abbrev_loc = "Sal"
 location = "Salton Sea"
 loop_functions(eff, Li_conc, op_location=location, abbrev_loc=abbrev_loc)
 
+#print all brightway2 databases
+print(bd.databases)
+
 #from rsc.lithium_production.creating_inventories import inventories
 #demand_all, df = inventories(Li_conc= 0.04, max_eff = 0.9, min_eff = 0.3, eff_steps = 0.1,
 #                             max_number_boreholes = 0, borehole_depth = 0)
+
+from rsc.Brightway2.lithium_site_db import check_database
+
+check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
+               eff=0.5, Li_conc=0.04, op_location="Salton Sea",
+               abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
+
 
 
