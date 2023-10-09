@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# my local files
+data/ecoinvent 3.9.1_cutoff_ecoSpold02 
