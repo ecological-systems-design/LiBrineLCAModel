@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 # my local files
-data/ecoinvent 3.9.1_cutoff_ecoSpold02 
+data/ecoinvent 3.9.1_cutoff_ecoSpold02
+.idea
