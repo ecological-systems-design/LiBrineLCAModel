@@ -19,6 +19,7 @@ water_name = f"Water_39"
 water_path = f'../../Python/Brightway/Geothermal_brines/Water_39.xlsx'
 biosphere = f"biosphere3"
 
+
 site_location = site_name[:3]
 
 # Biosphere
@@ -185,5 +186,4 @@ from rsc.Brightway2.lithium_site_db import check_database
 check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
                eff=0.5, Li_conc=0.04, op_location="Salton Sea",
                abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
-
 

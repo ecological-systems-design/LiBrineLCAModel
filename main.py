@@ -4,8 +4,8 @@ import pandas as pd
 # from Processes import *
 # from chemical_formulas import *
 # from operational_data_salton import *
-from rsc.Brightway2.set_up_bw2 import import_biosphere
-from rsc.Brightway2.import_db import import_ecoinvent
+from rsc.Brightway2.set_up_bw2 import import_biosphere, import_ecoinvent
+
 
 import os
 
@@ -26,9 +26,12 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_7'
+    project = f'Site_{site_name}_16'
     bd.projects.set_current(project)
     print(project)
+
+    del bd.databases[site_name]
+
 
     if biosphere not in bd.databases :
         import_biosphere(biosphere)
@@ -66,6 +69,20 @@ if __name__ == '__main__' :
 
     from rsc.Brightway2.lithium_site_db import check_database
 
-    check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
+    site = check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
                    eff=0.5, Li_conc=0.04, op_location="Salton Sea",
                    abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
+    print(bd.databases)
+
+    # activities in site database
+    # Loop through all activities in the database
+    for activity in site :
+        print("Activity:", activity)
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges() :
+            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit)
+
+
+
+
+

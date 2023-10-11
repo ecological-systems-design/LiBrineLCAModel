@@ -8,13 +8,6 @@ water_name = f"Water_39"
 biosphere = f"biosphere3"
 
 
-# Ecoinvent
-def import_ecoinvent(ei_path_f, ei_name_f):
-    ei = bi.SingleOutputEcospold2Importer(ei_path_f, ei_name_f)
-    ei.apply_strategies()
-    ei.match_database(db_name="biosphere3", fields=('name', 'category', 'unit', 'location'))
-    ei.statistics()
-    ei.write_database()
 
 
 def water_database(water_path, water_name_f):

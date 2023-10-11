@@ -1,5 +1,4 @@
 import bw2data as bd
-import bw2io as bi
 from rsc.lithium_production.processes import loop_functions
 
 
@@ -8,42 +7,49 @@ def find_activity_by_name_and_location(name, ei_name, location) :
         raise ValueError(f"Database {ei_name} does not exist.")
 
     ei_reg = bd.Database(ei_name)
-    new_act = [act for act in ei_reg if act['name'] == str(name) and act['location'] == location]
+    return next((act for act in ei_reg if act['name'] == str(name) and act['location'] == location), None)
 
-    if not new_act :
-        raise ValueError(f"No activity found with name '{name}' and location '{location}' in database '{ei_name}'.")
 
-    return new_act
-
-def find_bio_flow_by_name_and_category(name, database, categories):
-    bio_flow = [bio_flow for bio_flow in database if bio_flow['name'] == str(name)
-                and bio_flow['categories'] == categories][0]
+def find_bio_flow_by_name_and_category(name, database, categories) :
+    bio_flow = next((bio_flow for bio_flow in database if bio_flow['name'] == str(name)
+                     and bio_flow['categories'] == categories), None)
     print(bio_flow)
     return bio_flow
 
 
+def create_exchanges(activity, exchanges) :
+    for key, amount, unit, type_, location, categories in exchanges :
+        activity.new_exchange(input=key, amount=amount, unit=unit, type=type_,
+                              location=location, categories=categories).save()
 
-def check_database(database_name, country_location, elec_location, eff, Li_conc, op_location, abbrev_loc, ei_name, biosphere):
+
+def check_database(database_name, country_location, elec_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
+                   biosphere) :
     ei_reg = bd.Database(ei_name)
-    bio= bd.Database(biosphere)
+    bio = bd.Database(biosphere)
+
     if database_name not in bd.databases :
         print(f"{database_name} does not exist.")
-
-        # create bd.database
         db = bd.Database(database_name)
         db.register()
-        dfs, _, _ = loop_functions(eff, Li_conc, op_location, abbrev_loc)  # dfs is a list of DataFrames
+        dfs, _, _ = loop_functions(eff, Li_conc, op_location, abbrev_loc)
 
-        # Required activities from ecoinvent and biosphere3
-
-        elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name,
-                                                         elec_location)
-        print(elec_search)
+        # Required activities and flows
+        elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, elec_location)
         wastewater_search = find_activity_by_name_and_location("market for wastewater, average", ei_name, "RoW")
-        bio_search = find_bio_flow_by_name_and_category("Water, unspecified natural origin", bio,
-                                                        ("natural resource", "in ground"))
+        waste_solid_search = find_activity_by_name_and_location("market for hazardous waste, for underground deposit",
+                                                                ei_name, "RoW")
         heat_search = find_activity_by_name_and_location("heat production, natural gas, at industrial furnace >100kW",
                                                          ei_name, "RoW")
+        steam_search = find_activity_by_name_and_location("market for steam, in chemical industry", ei_name, "RoW")
+
+        #bio flows
+        bio_search = find_bio_flow_by_name_and_category("Water, unspecified natural origin", bio,
+                                                        ("natural resource", "in ground"))
+        Li_search = find_bio_flow_by_name_and_category("Lithium", bio, ("natural resource", "in ground"))
+        Na_search = find_bio_flow_by_name_and_category("Sodium", bio, ("water",))
+        Cl_search = find_bio_flow_by_name_and_category("Chlorine", bio, ("water",))
+        heat_waste_search = find_bio_flow_by_name_and_category("Heat, waste", bio, ("air",))
 
         chemical_map = {
             "HCl" : {
@@ -52,7 +58,7 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
             "NaOH" : {
                 "activity_name" : "sodium hydroxide to generic market for neutralising agent",
                 "location" : "GLO"},
-            "Soda ash" : {
+            "sodaash" : {
                 "activity_name" : "market for soda ash, light",
                 "location" : "GLO"},
             "limestone" : {
@@ -66,32 +72,22 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
                 "location" : "RoW"}
             }
 
-        # Loop over each index of dfs
-        for i in range(len(dfs)) :
-            df = dfs[i]  # Current DataFrame
-            prev_df = dfs[i - 1] if i > 0 else None  # Previous DataFrame or None if current is the first one
-
-            # Get all unique m_output entries
+        for i, df in enumerate(dfs) :
+            prev_df = dfs[i - 1] if i > 0 else None
             m_outputs = df[df['Variables'].str.contains('m_output_df_')]
-            print(m_outputs)
 
-            # For each m_output entry, create an activity and its exchanges
             for _, m_output_row in m_outputs.iterrows() :
-                # Extract process name from the "Variables" column
                 activity_name = m_output_row["Variables"].split('m_output_')[1]
-
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
                                           location=country_location)
                 new_act.save()
                 print(f"Created {activity_name} activity.")
 
-                # Add exchanges for the activity
-                # Filter dataframe to get rows related to this activity's process
-                exchanges_df = df[df['Variables'].str.contains(activity_name)][1 : :]
+                exchanges_df = df[df['Variables'].str.contains(activity_name)][1 :]
 
-                # Loop over each row in the filtered dataframe
                 for _, exchange_row in exchanges_df.iterrows() :
-                    if exchange_row['Variables'] == f"m_in_{activity_name}" :
+                    var = exchange_row['Variables']
+                    if var == f"m_in_{activity_name}" :
                         # If you want to do something with the previous DataFrame
                         if prev_df is not None :
                             # Extract the activity name from prev_df, assuming the name can be derived similarly
@@ -99,90 +95,78 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
                             prev_activity_name = prev_m_output_row["Variables"].split('m_output_')[1]
                             # Get the previously created activity from the database using the extracted name
                             prev_act = next((act for act in db if act['name'] == prev_activity_name), None)
-                            print(prev_act)
                             # Create the exchange
-                            new_act.new_exchange(input=prev_act.key, amount=exchange_row['Value'], unit="kilogram",
+                            new_act.new_exchange(input=prev_act.key, amount=exchange_row['per kg'], unit="kilogram",
                                                  type="technosphere").save()
                             print(f"Created exchange for {activity_name} activity.")
                         else :
                             pass
 
-                    elif exchange_row['Variables'] == f"elec_{activity_name}" :
-                        new_act.new_exchange(input=elec_search.key, amount=exchange_row['Value'], unit="kilowatt hour",
-                                             type="technosphere").save()
-                        print(f"Created exchange for {activity_name} activity.")
-
-                    elif exchange_row['Variables'].startswith(f"water_") :
-                        act_search = [act for act in db if act['name'] == f'Water_{abbrev_loc}'][0]
-                        if act_search is None :
+                    elif "m_Li" in var :
+                        create_exchanges(new_act,
+                                         [(Li_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, None)])
+                        print(f"Created {Li_search} exchange for {activity_name} activity.")
+                    elif var == f"elec_{activity_name}" :
+                        create_exchanges(new_act, [
+                            (elec_search.key, exchange_row['per kg'], "kilowatt hour", "technosphere", None, None)])
+                        print(f"Created {elec_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f"water_") :
+                        act_search = next((act for act in db if act['name'] == f'Water_{abbrev_loc}'), None)
+                        if not act_search :
                             water_act = db.new_activity(amount=1, code=f"Water_{abbrev_loc}",
-                                                        name=f"Water_{abbrev_loc}",
-                                                        unit="kilogram", location=country_location,
-                                                        type="production")
+                                                        name=f"Water_{abbrev_loc}", unit="kilogram",
+                                                        location=country_location, type="production")
                             water_act.save()
-                            # act_search = [act for act in ei_name if act['name'] == "market for electricity, high voltage"
-                            #              and act['location'] == country_location][0]
-                            water_act.new_exchange(input=elec_search.key, amount=0.007206, location=country_location,
-                                                   unit="kilowatt hour", type="technosphere").save()
-
-                            # act_search = [act for act in ei_name if act['name'] == "market for wastewater, average" and
-                            #              act['location'] == "RoW"][0]
-                            water_act.new_exchange(input=wastewater_search.key, amount=-0.00025, location="RoW",
-                                                   type="technosphere", unit="cubic meter").save()
-
-                            # bio_search = [bio_act for bio_act in bio_name if bio_act['name'] == "Water, unspecified natural origin"]
-                            water_act.new_exchange(input=bio_search.key, amount=0.00025, unit="cubic meter",
-                                                   type="biosphere",
-                                                   categories=("natural resource", "in ground")).save()
-
+                            exchanges = [
+                                (elec_search.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
+                                (wastewater_search.key, -0.00025, "cubic meter", "technosphere", "RoW", None),
+                                (bio_search.key, 0.00025, "cubic meter", "biosphere", None,
+                                 ("natural resource", "in ground"))
+                                ]
+                            create_exchanges(water_act, exchanges)
                             print(f"Created Water_{abbrev_loc} activity.")
                         else :
-                            new_act.new_exchange(input=act_search.key, amount=exchange_row['Value'], unit="kilogram",
-                                                 type="technosphere").save()
-                            print(f"Created exchange for {activity_name} activity.")
-
-                    elif exchange_row['Variables'].startswith(f"E_") :
-                        new_act.new_exchange(input=heat_search.key, amount=exchange_row['Value'], unit="megajoule",
-                                             type="technosphere").save()
-                        print(f"Created exchange for {activity_name} activity.")
-
-
-                    elif "chemical_" in exchange_row['Variables'] :
-
+                            create_exchanges(new_act, [
+                                (act_search.key, exchange_row['per kg'], "kilogram", "technosphere", None, None)])
+                            print(f"Created {act_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f"E_") :
+                        create_exchanges(new_act, [
+                            (heat_search.key, exchange_row['per kg'], "megajoule", "technosphere", None, None)])
+                        print(f"Created {heat_search} exchange for {activity_name} activity.")
+                    elif "chemical_" in var :
                         for chem, details in chemical_map.items() :
-
-                            if chem in exchange_row['Variables'] :
-                                act_search = [act for act in db if
-                                              act['name'] == details['activity_name'] and act['location'] == details[
-                                                  'location']][0]
-
-                                new_act.new_exchange(input=act_search.key, amount=exchange_row['Value'],
-                                                     unit="kilogram", type="technosphere").save()
-                                break
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        else :
-                            # Handle the case where there is no previous DataFrame (i.e., current df is the first one)
-                            pass
-
+                            if chem in var :
+                                act_search = find_activity_by_name_and_location(details['activity_name'], ei_name,
+                                                                                details['location'])
+                                create_exchanges(new_act, [
+                                    (act_search.key, exchange_row['per kg'], "kilogram", "technosphere",
+                                     details['location'], None)])
+                                print(f"Created {act_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f'steam') :
+                        create_exchanges(new_act, [
+                            (steam_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+                        print(f"Created {steam_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f"waste_solid") :
+                        create_exchanges(new_act, [
+                            (waste_solid_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+                        print(f"Created {waste_solid_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f'waste_liquid') :
+                        create_exchanges(new_act, [
+                            (wastewater_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+                        print(f"Created {wastewater_search} exchange for {activity_name} activity.")
+                    elif var.startswith(f'waste_heat') :
+                        create_exchanges(new_act, [
+                                         (heat_waste_search.key, exchange_row['per kg'], "megajoule", "biosphere", None, ('air',))])
+                    elif var.startswith(f'waste_Na'):
+                        create_exchanges(new_act, [
+                            (Na_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
+                    elif var.startswith(f'waste_Cl'):
+                        create_exchanges(new_act, [
+                            (Cl_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
 
 
 
     else :
-
         print(f"{database_name} already exists.")
-        pass
+
+    return db

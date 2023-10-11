@@ -219,6 +219,7 @@ def proc_CaMg_removal_sodiumhydrox(Ca_mass_leftover, m_in=m_out) :
 
     sodaash_Ca = Ca_mass / Ca * (2 * Na + C + 3 * O)
     water_sodaash_Ca = sodaash_Ca / 0.25  # with process water
+    water_sum = water_sodaash_Ca + water_NaOH
     deion_water.append(water_sodaash_Ca)
 
     waste_MgBaSr = -((Mg_mass / Mg) * (Mg + 2 * (O + H)) + (Ba_mass / Ba) * (Ba + 2 * (O + H)) + (Sr_mass / Sr) * (
@@ -233,18 +234,16 @@ def proc_CaMg_removal_sodiumhydrox(Ca_mass_leftover, m_in=m_out) :
             f"m_output_{process_name}",
             f"m_in_{process_name}",
             f"NaOH_{process_name}",
-            f"water_NaOH_{process_name}",
+            f"water_sum_{process_name}",
             f"chemical_sodaash_{process_name}",
-            f"water_sodaash_{process_name}",
             f"waste_solid_{process_name}"
             ],
         "Values" : [
             m_output,
             m_in,
             NaOH,
-            water_NaOH,
+            water_sum,
             sodaash_Ca,
-            water_sodaash_Ca,
             waste_sum
             ],
         }
@@ -294,7 +293,7 @@ def proc_Mg_removal_soda(m_in=m_out) :
             f"m_in_{process_name}",
             f"E_{process_name}",
             f"chemical_sodaash_{process_name}",
-            f"water_soda_{process_name}",
+            f"water_sodaash_{process_name}",
             f"waste_solid_{process_name}",
             ],
         "Values" : [
