@@ -4,63 +4,58 @@ import bw2calc as bc
 import bw2io as bi
 import bw2data as bd
 
-df = inventories(0.001, 0.9, 0.5, 0.1, 5, 3000)
 
-def create_db(location = "Sal"):
-    if location not in bd.databases:
-        db = bd.Database(location)
-        db.register()
-    else:
-        pass
-    return db
+def calculate_impacts(activity, amount, methods) :
+    """
+    Calculate impacts of a given activity and amount using specified methods.
 
-def creating_BW2_processing(inven = df, location = "Sal", country_location = "US-WECC"):
-    db = create_db(location)
-    name_list = ['df_SiFe_removal_limestone', 'df_MnZn_removal_lime', 'df_acidification', 'df_Li_adsorption',
-                 'df_CaMg_removal_sodiumhydrox', 'df_ion_exchange_L', 'df_reverse_osmosis', 'df_triple_evaporator',
-                 'df_Liprec_TG', 'df_centrifuge_TG', 'df_washing_TG', 'df_dissolution', 'df_Liprec_BG',
-                 'df_centrifuge_BG',
-                 'df_washing_BG', 'df_centrifuge_wash', 'df_rotary'
-                 ]
-    #when "Variables" contain name of name_list, create activity
-    for name in name_list:
-        if name not in db:
-               if name in inven["Variable"]:
-                    act = db.new_activity(code = name, name = name, unit = "kg", amount = 1, location = country_location)
-                    act.save()
-                    #create exchanges based on the "Variable" column in inven
-                    for i in range(len(inven["Variable"])):
-                        if inven["Variable"][i] == name:
-                            exc = act.new_exchange(input = inven["Input"][i], amount = inven["Amount"][i],
-                                                   type = inven["Type"][i], unit = inven["Unit"][i])
-                            exc.save()
-                        else:
-                            pass
+    :param activity: A tuple (database, code) identifying the activity.
+    :param amount: Amount of the activity.
+    :param methods: List of method tuples to be used for LCA calculations.
+    :return: Dictionary of impacts for each method.
+    """
 
-               else:
-                   pass
-        else:
-            pass
+    impacts = {}
+
+    for method in methods :
+        lca = bc.LCA({activity : amount}, method=method)
+        lca.lci()
+        lca.lcia()
+        impacts[method] = lca.score
+
+    return impacts
 
 
+def calculate_impacts_for_selected_methods(activities, amounts) :
+    """
+    Calculate LCA impacts for given activities using selected methods and return a dataframe.
 
+    :param activities: List of activity tuples.
+    :param amounts: List of amounts for the activities.
+    :return: Pandas DataFrame with LCA results.
+    """
 
+    # Filter methods based on your criteria
+    method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
+                 and 'global warming potential' in str(m)][-20]
 
-    return db
+    method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
+    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
 
+    # Consolidate all methods
+    methods = method_cc + [method_water, method_PM]
 
+    # Gather results for all activities
+    data = []
+    for activity, amount in zip(activities, amounts) :
+        impacts = calculate_impacts(activity, amount, methods)
+        data.append(impacts)
 
+    # Convert to dataframe
+    df = pd.DataFrame(data, index=activities)
 
-
-
-
-def initialize_lca(act_new, method):
-    lca = bc.LCA({act_new: 1}, method)
-    lca.lci()
-    lca.lcia()
-    return lca.score
-
+    return df
 
 def calculating_impacts(Li_conc, drilling_per_year, method, method_PM, method_water):
 

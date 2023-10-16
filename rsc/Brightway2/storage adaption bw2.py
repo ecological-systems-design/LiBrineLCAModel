@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
         if choice == "yes":
 
-            from rsc.Brightway2.set_up_bw2 import import_biosphere
+            from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere
 
             import_biosphere(biosphere)
 
@@ -132,7 +132,10 @@ if __name__ == '__main__':
             act = ei_reg.search('hard coal mine operation and hard coal preparation')[2]
             chinese_coal(act)
 
+            country_location = "WECC"
             final_prod = [act for act in site if "df_rotary" in act['name']][0]
+            drilling = [act for act in ei_reg if "deep well drilling, for deep geothermal power reg" in act['name']
+                        and country_location in act['location']][0]
             location_drill = "WECC"
             create_new_act(final_prod, location_drill)
         elif choice == "no":

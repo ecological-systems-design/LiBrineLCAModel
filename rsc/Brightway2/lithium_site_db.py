@@ -23,7 +23,7 @@ def create_exchanges(activity, exchanges) :
                               location=location, categories=categories).save()
 
 
-def check_database(database_name, country_location, elec_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
+def check_database(database_name, country_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
                    biosphere) :
     ei_reg = bd.Database(ei_name)
     bio = bd.Database(biosphere)
@@ -35,7 +35,7 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
         dfs, _, _ = loop_functions(eff, Li_conc, op_location, abbrev_loc)
 
         # Required activities and flows
-        elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, elec_location)
+        elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, country_location)
         wastewater_search = find_activity_by_name_and_location("market for wastewater, average", ei_name, "RoW")
         waste_solid_search = find_activity_by_name_and_location("market for hazardous waste, for underground deposit",
                                                                 ei_name, "RoW")
@@ -81,7 +81,7 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
                                           location=country_location)
                 new_act.save()
-                print(f"Created {activity_name} activity.")
+                print(f"Created {activity_name}, {country_location} activity.")
 
                 exchanges_df = df[df['Variables'].str.contains(activity_name)][1 :]
 
@@ -167,6 +167,19 @@ def check_database(database_name, country_location, elec_location, eff, Li_conc,
 
 
     else :
+        db = bd.Database(database_name)
         print(f"{database_name} already exists.")
 
     return db
+
+#copy database so that at a later stage it can be changed
+def copy_database(database_name, new_database_name) :
+    if database_name not in bd.databases :
+        raise ValueError(f"Database {database_name} does not exist.")
+
+    if new_database_name in bd.databases :
+        raise ValueError(f"Database {new_database_name} already exists.")
+
+    bd.Database(new_database_name).write(bd.Database(database_name).load())
+
+    return bd.Database(new_database_name) # return the database object

@@ -1,23 +1,11 @@
 import bw2data as bd
 
-location = 'US-WECC'
-activity_to_copy = "electricity production, deep geothermal"
-new_activity = activity_to_copy + "reg"
-activities_to_copy = [(activity_to_copy, location, new_activity)]
-ei_name = "ecoinvent 3.9.1 cutoff"
-ei_reg = bd.Database(ei_name)
-site_name = f"Salton_39"
-site_location = site_name[:3]
-water_name = f"Water_39"
-water = bd.Database(water_name)
-site = bd.Database(site_name)
 
-
-def creating_new_act(activities_to_copy, new_location) :
+def creating_new_act(activities_to_copy, new_location, db) :
     for act_name, act_location, new_activity in activities_to_copy :
-        new_act = [act for act in ei_reg if new_activity == act['name'] and new_location == act['location']]
+        new_act = [act for act in db if new_activity == act['name'] and new_location == act['location']]
         if len(new_act) == 0 :
-            existing_act = [act for act in ei_reg if act_name == act['name'] and act_location == act['location']]
+            existing_act = [act for act in db if act_name == act['name'] and act_location == act['location']]
             assert len(existing_act) == 1
             existing_act = existing_act[0]
             # Copy existing activity, but change location
@@ -28,14 +16,15 @@ def creating_new_act(activities_to_copy, new_location) :
             print(f"{new_act} was successfully created.")
         else :
             print(f"{new_act} already exists")
-        return new_act
+    return db, new_act
 
 
-def creating_supplychain(activities_to_copy, location) :
+def creating_supplychain(activities_to_copy, location,db) :
     for act_name, act_location, new_activity in activities_to_copy :
-        new_act = [act for act in ei_reg if new_activity == act['name'] and location == act['location']]
+        new_act = [act for act in db if new_activity == act['name'] and location == act['location']]
         if len(new_act) == 0 :
-            existing_act = [act for act in ei_reg if act_name == act['name'] and act_location == act['location']]
+            existing_act = [act for act in db if act_name == act['name'] and "WECC" == act['location']]
+            print(existing_act)
             assert len(existing_act) == 1
             existing_act = existing_act[0]
             # Copy existing activity, but change location
@@ -44,39 +33,39 @@ def creating_supplychain(activities_to_copy, location) :
             new_act['location'] = location
             new_act.save()
 
-            el_subst = [act for act in ei_reg if "deep well drilling, for deep geothermal power reg" in act['name']][0]
+            el_subst = [act for act in db if "deep well drilling, for deep geothermal power reg" in act['name']][0]
             exc = [exc for exc in el_subst.exchanges() if "electricity" in exc['name']][0]
             exc['amount'] = 0
             exc.save()
             el_subst.save()
 
-            el_subst = [act for act in ei_reg if act['name'] == 'deep well drilling, for deep geothermal power'
-                        and act['location'] == location]
+            el_subst = [act for act in db if act['name'] == 'deep well drilling, for deep geothermal power'
+                        and act['location'] == "WECC"]
 
-            act_replace = [act for act in ei_reg if act['name'] == 'market for deep well, drilled, for geothermal ' \
+            act_replace = [act for act in db if act['name'] == 'market for deep well, drilled, for geothermal ' \
                                                                    'power reg'][0]
 
             act_replace.new_exchange(input=el_subst[0].key, amount=1, unit='meter', type='technosphere').save()
 
-            act_replace = [act for act in ei_reg if act['name'] == "geothermal power plant construction reg"][0]
+            act_replace = [act for act in db if act['name'] == "geothermal power plant construction reg"][0]
 
-            el_subst = [act for act in ei_reg if act['name'] == 'deep well drilling, for deep geothermal power reg' and
+            el_subst = [act for act in db if act['name'] == 'deep well drilling, for deep geothermal power reg' and
                         act['location'] == location][0]
 
             [exc for exc in act_replace.exchanges()][1].delete()
 
             act_replace.new_exchange(input=el_subst.key, amount=32000, unit='meter', type='technosphere').save()
 
-            act_replace = [act for act in ei_reg if act['name'] == "market for geothermal power plant, 5.5MWel reg"][0]
-            el_subst = [act for act in ei_reg if act['name'] == 'geothermal power plant construction reg'][0]
+            act_replace = [act for act in db if act['name'] == "market for geothermal power plant, 5.5MWel reg"][0]
+            el_subst = [act for act in db if act['name'] == 'geothermal power plant construction reg'][0]
 
             for exc in act_replace.exchanges() :
                 exc.delete()
 
             act_replace.new_exchange(input=el_subst.key, amount=1, unit='unit', type='technosphere').save()
 
-            act_replace = [act for act in ei_reg if act['name'] == "electricity production, deep geothermal reg"][0]
-            el_subst = [act for act in ei_reg if act['name'] == 'market for geothermal power plant, 5.5MWel reg'][0]
+            act_replace = [act for act in db if act['name'] == "electricity production, deep geothermal reg"][0]
+            el_subst = [act for act in db if act['name'] == 'market for geothermal power plant, 5.5MWel reg'][0]
             [exc for exc in act_replace.exchanges()][2].delete()
 
             act_replace.new_exchange(input=el_subst.key, amount=5.77700751010976e-10, unit='unit',
@@ -85,10 +74,11 @@ def creating_supplychain(activities_to_copy, location) :
             print(f"{new_act} was successfully created and supply chain was created.")
         else :
             print(f"{new_act} already exists")
+    return db
 
 
-def changing_electricity(act_list_f) :
-    el_subst = [act for act in ei_reg if act['name'] == 'electricity production, deep geothermal reg']
+def changing_electricity(act_list_f, db) :
+    el_subst = [act for act in db if act['name'] == 'electricity production, deep geothermal reg']
 
     for act in act_list_f :
         for exc in act.exchanges() :
@@ -108,8 +98,8 @@ def changing_electricity(act_list_f) :
                 pass
 
 
-def changing_heat(act_f) :
-    el_subst = [act for act in ei_reg if act['name'] == 'electricity production, deep geothermal reg'][0]
+def changing_heat(act_f, db) :
+    el_subst = [act for act in db if act['name'] == 'electricity production, deep geothermal reg'][0]
     print(el_subst['name'])
     for exc in act_f.exchanges() :
         name = exc.input['name']
@@ -121,42 +111,53 @@ def changing_heat(act_f) :
             pass
 
 
-def changing_water_electricity(act_f) :
+def changing_water_electricity(act_f, db) :
     exc = [exc for exc in act_f.exchanges()][1]
     exc.delete()
-    el_subst = [act for act in ei_reg if act['name'] == 'electricity production, deep geothermal reg'][0]
+    el_subst = [act for act in db if act['name'] == 'electricity production, deep geothermal reg'][0]
     act_f.new_exchange(input=el_subst.key, amount=exc.amount, unit='unit', type='technosphere').save()
 
 
-def wastewater(act_f) :
-    el_subst = [act for act in ei_reg if "treatment of wastewater, average, wastewater treatment reg"
-                in act['name'] and site_location in act['location']][0]
-    exc = [exc for exc in act_f.exchanges()][3]
-    exc.delete()
-    act_f.new_exchange(input=el_subst.key, amount=exc.amount, unit='unit', type='technosphere').save()
-
-
-def chinese_coal(act_f) :
+def wastewater(act_f, site_location, db) :
     for activity, location in act_f:
-        act = [act for act in ei_reg if act['name'] == activity and act['location'] == location][0]
-        [exc for exc in act_f.exchanges()][5].delete()
-        el_subst = [act for act in ei_reg if act['name'] == 'market group for electricity, high voltage'
+        el_subst = [act for act in db if "treatment of wastewater, average, wastewater treatment reg"
+                    in act['name'] and site_location in act['location']][0]
+        act_new = [act for act in db if act['name'] == activity and act['location'] == location][0]
+        exc = [exc for exc in act_new.exchanges()][3]
+        exc.delete()
+        act_new.new_exchange(input=el_subst.key, amount=exc.amount, unit='unit', type='technosphere').save()
+    return db
+
+def chinese_coal(act_f,db) :
+    for activity, location in act_f:
+        act = [act for act in db if act['name'] == activity and act['location'] == location][0]
+        [exc for exc in act.exchanges()][5].delete()
+        el_subst = [act for act in db if act['name'] == 'market group for electricity, high voltage'
                     and act['location'] == 'CN'][0]
         act.new_exchange(input=el_subst.key, amount=0.0242, unit='kilowatt hour', type='technosphere').save()
+    return db
 
 
-def create_new_act(act_f, location_f) :
-    lithium_carb = water.new_activity(amount=1, code="Geothermal Li", name="Geothermal Li", unit="kilogram",
-                                      location=location)
+def create_fu(activity_list, db, site_location) :
+    site_db = bd.Database("site_db")
+    lithium_carb = db.new_activity(amount=1, code="Geothermal Li", name="Geothermal Li", unit="kilogram",
+                                  location=site_location)
     lithium_carb.save()
-    drilling = [act for act in ei_reg if "deep well drilling, for deep geothermal power reg" in act['name']
-                and "WECC" in act['location']][0]
-    lithium_carb.new_exchange(amount=1, input=act_f, type="technosphere").save()
-    lithium_carb.new_exchange(amount=3600, input=drilling, type="technosphere").save()
+    print(lithium_carb)
+    for activity, location, unit, act_db in activity_list:
+        act = [act for act in act_db if act['name'] == activity and act['location'] == location][0]
+        print(act)
+        lithium_carb.new_exchange(amount=1, input=act, unit = unit, type="technosphere").save()
     lithium_carb.save()
+    return db, site_db
 
 
-def adaptions_deposit_type(deposit_type, country_location, site_location):
+#act = [act for act in act_db if act['name'] == activity and act['location'] == location][0]
+def adaptions_deposit_type(deposit_type, country_location, site_location, ei_name, site_name):
+
+    ei_db = bd.Database(ei_name)
+    site_db = bd.Database(site_name)
+
     activity_list = [('heat production, natural gas, at industrial furnace >100kW', "RoW",
                            "heat production, natural gas, at industrial furnace >100kW"),
                      ("market for wastewater, average", "RoW",
@@ -164,10 +165,14 @@ def adaptions_deposit_type(deposit_type, country_location, site_location):
                      ("treatment of wastewater, average, wastewater treatment", "RoW",
                            "treatment of wastewater, average, wastewater treatment" + " reg")]
 
-    creating_new_act(activity_list, site_location)
+    db, _ = creating_new_act(activity_list, site_location, ei_db)
+
 
     act = [('hard coal mine operation and hard coal preparation', "CN")]
-    chinese_coal(act)
+    db = chinese_coal(act, db)
+
+    act = [('market for wastewater, average reg', site_location)]
+    db = wastewater(act, site_location, db)
 
     if deposit_type == "geothermal" :
         activity_list = [("electricity production, deep geothermal", country_location,
@@ -179,18 +184,30 @@ def adaptions_deposit_type(deposit_type, country_location, site_location):
                          ("market for deep well, drilled, for geothermal power", "GLO",
                                "market for deep well, drilled, for geothermal power" + " reg")]
 
-        creating_new_act(activity_list, country_location)
+        db, _ = creating_new_act(activity_list, country_location, db)
 
-        if country_location == "US-WECC":
-            country_location = "WECC"
-        else:
-            pass
+
+        #if country_location == "US-WECC":
+        #    country_location = "WECC"
+        #else:
+        #    pass
 
         activity_list = [('deep well drilling, for deep geothermal power', country_location,
                                "deep well drilling, for deep geothermal power" + " reg")]
 
-        creating_supplychain(activity_list, country_location)
+        db = creating_supplychain(activity_list, country_location, db)
+
+        activity_list = [
+            ('df_rotary', country_location, 'kilogram', site_db),
+            ('deep well drilling, for deep geothermal power reg', country_location, 'meter', db)
+            ]
+
+        db, site_db = create_fu(activity_list, db, site_location)
+
+
 
     else:
         pass
+
+    return db, site_db
 
