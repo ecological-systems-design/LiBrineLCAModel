@@ -23,7 +23,7 @@ def database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, c
     #adapt site database to deposit type
     ei_reg, site_db = adaptions_deposit_type(deposit_type, country_location, op_location, ei_name, site_name)
 
-    site_db_new = copy_database(site_name, f"{site_name}_new")
+    site_db_new = copy_database(site_name, f"{site_name}_copy")
 
     return ei_reg, site_db, site_db_new, bio
 

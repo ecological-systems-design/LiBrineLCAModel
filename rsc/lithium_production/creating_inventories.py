@@ -1,5 +1,5 @@
 
-from rsc.lithium_production.processes import *
+from rsc.lithium_production.licarbonate_processes import *
 import pandas as pd
 import os
 
@@ -7,7 +7,7 @@ if not os.path.exists("../../inventories") :
     os.mkdir("../../inventories")
 
 
-def inventories(Li_conc, max_eff, min_eff, eff_steps, max_number_boreholes, borehole_depth) :
+def inventories(Li_conc, Li_conc_steps, max_eff, min_eff, eff_steps, max_number_boreholes, borehole_depth, op_location) :
     overall_eff = []
     while max_eff >= min_eff :
         overall_eff.append(max_eff)
@@ -16,7 +16,8 @@ def inventories(Li_conc, max_eff, min_eff, eff_steps, max_number_boreholes, bore
     Li_conc_all = []
     while Li_conc > 0 :
         Li_conc_all.append(Li_conc)
-        Li_conc = Li_conc - 0.001
+        Li_conc = Li_conc - Li_conc_steps
+
 
     drilling_scenarios = []
 
@@ -27,7 +28,21 @@ def inventories(Li_conc, max_eff, min_eff, eff_steps, max_number_boreholes, bore
     else:
         drilling_scenarios = [0]
 
+    ini_data = extract_data(op_location, abbrev_loc, Li_conc=Li_conc)
 
+    prod = ini_data[abbrev_loc]["production"]  # Production of lithium carbonate [kg/yr]
+    op_days = ini_data[abbrev_loc]["operation_days"]  # Operational days per year
+    life = ini_data[abbrev_loc]["lifetime"]  # Expected time of mining activity [yr]
+    v_pumpbrs = ini_data[abbrev_loc]["Brine_vol"]  # Brine pumped to the surface [L/s]
+    v_pumpfrw = ini_data[abbrev_loc]["Freshwater_vol"]  # Fresh water pumped to the surface at evaporation ponds [L/s]
+    eff = ini_data[abbrev_loc]["Li_efficiency"]  # Overall Li efficiency
+    elev = ini_data[abbrev_loc]["elevation"]  # Elevation of mine site
+    boil_point = ini_data[abbrev_loc]["boilingpoint_process"]  # Boiling point at processing plant [°C]
+    T_out = ini_data[abbrev_loc]["annual_airtemp"]  # Annual air temperature [°C]
+    Dens_ini = ini_data[abbrev_loc]["density_brine"]  # Density of initial brine [g/cm3]
+
+    vec_end = ini_data[abbrev_loc]['vec_end']
+    Li_conc = vec_end[0]
 
     energy_tot = []
     deion_water_tot = []
@@ -59,14 +74,17 @@ def inventories(Li_conc, max_eff, min_eff, eff_steps, max_number_boreholes, bore
             energy = []
             electricity = []
             production = []
-            df_list, summary_df, summary_tot_df = loop_functions(eff=eff, Li_conc = Li_c)
-            df_inven = df_list
+            df_list, summary_df, summary_tot_df = loop_functions(eff=eff, Li_conc = Li_c, location = op_location, abbrev_loc= abbrev_loc)
+            energy.append(summary_tot_df['Energy_sum per output'].iloc[0])
+            deion_water.append(summary_tot_df['Water_sum per output'].iloc[0])
+            electricity.append(summary_tot_df['Electricity_sum per output'].iloc[0])
+
             energy_tot = energy_tot + energy
             deion_water_tot = deion_water_tot + deion_water
             electricity_tot = electricity_tot + electricity
             production_tot = production_tot + production
 
-            df = df + df_inven
+            df = df + df_list
             drilling_per_year.append(drill)
 
     data = {
@@ -77,12 +95,14 @@ def inventories(Li_conc, max_eff, min_eff, eff_steps, max_number_boreholes, bore
         'Mn' : pd.Series(list_Mn_c, dtype='float64'),
         'Zn' : pd.Series(list_Zn_c, dtype='float64'),
         'Si' : pd.Series(list_Si_c, dtype='float64'),
-        'energy' : pd.Series(energy_tot, dtype='float64').sum(),
-        'electricity' : pd.Series(electricity_tot, dtype='float64').sum(),
-        'water' : pd.Series(deion_water_tot, dtype='float64').sum()
+        'Energy': pd.Series(energy_tot, dtype='float64'),
+        'Water': pd.Series(deion_water_tot, dtype='float64'),
+        'Electricity': pd.Series(electricity_tot, dtype='float64'),
         }
 
+
     demand_all = pd.DataFrame(data)
+    print(demand_all)
     return demand_all, df
 
 

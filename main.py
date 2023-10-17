@@ -27,7 +27,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_37'
+    project = f'Site_{site_name}_40'
     bd.projects.set_current(project)
     print(project)
 
@@ -54,7 +54,7 @@ if __name__ == '__main__' :
 
     country_location = "US-WECC"
 
-    from rsc.lithium_production.processes import loop_functions
+    from rsc.lithium_production.licarbonate_processes import loop_functions
 
     eff = 0.5
     Li_conc = 0.04
@@ -78,8 +78,21 @@ if __name__ == '__main__' :
 
     from rsc.Brightway2.setting_up_db_env import database_environment
 
-    ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
+    ei_reg, site_db, site_db_new, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                              eff, Li_conc, op_location, abbrev_loc)
+
+    from rsc.Brightway2.lci_method_aware import import_aware
+    import_aware(ei_reg, bio)
+
+    from rsc.Brightway2.lci_method_pm import import_PM
+    import_PM(ei_reg, bio)
+
+
+    from rsc.Brightway2.calculating_impacts import  calculate_impacts_for_selected_methods
+    fu = [act for act in site_db if "Geothermal Li" in act['name']]
+    results = calculate_impacts_for_selected_methods(activities=fu, amounts=[1])
+
+    print(results)
 
 
     # activities in site database

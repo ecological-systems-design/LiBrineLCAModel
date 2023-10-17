@@ -12,7 +12,7 @@ import tabulate
 
 
 
-def import_AWARE(ei, bio_f):
+def import_aware(ei, bio_f):
     if "AWARE regionalized" not in str(bd.methods) :
         plant_classi = ('EcoSpold01Categories', 'agricultural production/plant production')
         bio_acts = [act for act in bio_f if "water" in act['name'].lower() and

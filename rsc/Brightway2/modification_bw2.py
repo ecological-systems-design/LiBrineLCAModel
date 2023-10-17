@@ -138,25 +138,31 @@ def chinese_coal(act_f,db) :
     return db
 
 
-def create_fu(activity_list, db, site_location) :
-    site_db = bd.Database("site_db")
-    lithium_carb = db.new_activity(amount=1, code="Geothermal Li", name="Geothermal Li", unit="kilogram",
-                                  location=site_location)
-    lithium_carb.save()
-    print(lithium_carb)
-    for activity, location, unit, act_db in activity_list:
-        act = [act for act in act_db if act['name'] == activity and act['location'] == location][0]
-        print(act)
-        lithium_carb.new_exchange(amount=1, input=act, unit = unit, type="technosphere").save()
-    lithium_carb.save()
+def create_fu(activity_list, db, site_db, site_location) :
+    act = [act for act in site_db if "Geothermal Li" in act['name']]
+    if len(act) == 0 :
+        print(site_db)
+        print(type(site_db))
+        lithium_carb = site_db.new_activity(amount=1, code="Geothermal Li", name="Geothermal Li", unit="kilogram",
+                                      location = site_location, type = "production")
+        print(lithium_carb)
+        for activity, location, unit, act_db in activity_list:
+            act = [act for act in bd.Database(act_db) if act['name'] == activity and act['location'] == location][0]
+            print(act)
+            lithium_carb.new_exchange(amount=1, input=act, unit = unit, type="technosphere").save()
+        lithium_carb.save()
+    else :
+        print(f'{act} already exists')
+        pass
     return db, site_db
 
 
 #act = [act for act in act_db if act['name'] == activity and act['location'] == location][0]
 def adaptions_deposit_type(deposit_type, country_location, site_location, ei_name, site_name):
 
-    ei_db = bd.Database(ei_name)
+    db = bd.Database(ei_name)
     site_db = bd.Database(site_name)
+
 
     activity_list = [('heat production, natural gas, at industrial furnace >100kW', "RoW",
                            "heat production, natural gas, at industrial furnace >100kW"),
@@ -165,8 +171,7 @@ def adaptions_deposit_type(deposit_type, country_location, site_location, ei_nam
                      ("treatment of wastewater, average, wastewater treatment", "RoW",
                            "treatment of wastewater, average, wastewater treatment" + " reg")]
 
-    db, _ = creating_new_act(activity_list, site_location, ei_db)
-
+    db, _ = creating_new_act(activity_list, site_location, db)
 
     act = [('hard coal mine operation and hard coal preparation', "CN")]
     db = chinese_coal(act, db)
@@ -198,11 +203,11 @@ def adaptions_deposit_type(deposit_type, country_location, site_location, ei_nam
         db = creating_supplychain(activity_list, country_location, db)
 
         activity_list = [
-            ('df_rotary', country_location, 'kilogram', site_db),
-            ('deep well drilling, for deep geothermal power reg', country_location, 'meter', db)
+            ('df_rotary', country_location, 'kilogram', site_name),
+            ('deep well drilling, for deep geothermal power reg', country_location, 'meter', ei_name)
             ]
 
-        db, site_db = create_fu(activity_list, db, site_location)
+        db, site_db = create_fu(activity_list, db,site_db, site_location)
 
 
 

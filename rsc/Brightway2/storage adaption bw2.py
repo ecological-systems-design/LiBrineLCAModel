@@ -170,7 +170,7 @@ ei_reg = bd.Database(ei_name)
 country_location = "US-WECC"
 
 
-from rsc.lithium_production.processes import loop_functions
+from rsc.lithium_production.licarbonate_processes import loop_functions
 eff = 0.5
 Li_conc = 0.04
 abbrev_loc = "Sal"

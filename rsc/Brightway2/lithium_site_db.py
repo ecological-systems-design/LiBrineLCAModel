@@ -1,5 +1,5 @@
 import bw2data as bd
-from rsc.lithium_production.processes import loop_functions
+from rsc.lithium_production.licarbonate_processes import loop_functions
 
 
 def find_activity_by_name_and_location(name, ei_name, location) :
@@ -79,7 +79,7 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
             for _, m_output_row in m_outputs.iterrows() :
                 activity_name = m_output_row["Variables"].split('m_output_')[1]
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
-                                          location=country_location)
+                                          location=country_location, type = "production")
                 new_act.save()
                 print(f"Created {activity_name}, {country_location} activity.")
 
@@ -173,13 +173,22 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
     return db
 
 #copy database so that at a later stage it can be changed
-def copy_database(database_name, new_database_name) :
-    if database_name not in bd.databases :
-        raise ValueError(f"Database {database_name} does not exist.")
+def copy_database(source_db_name, target_db_name):
+    print(bd.databases)
 
-    if new_database_name in bd.databases :
-        raise ValueError(f"Database {new_database_name} already exists.")
+    # Check if source database exists
+    if source_db_name not in bd.databases:
+        print(f"Source database {source_db_name} does not exist.")
+        return None
 
-    bd.Database(new_database_name).write(bd.Database(database_name).load())
+    # Check if target database already exists
+    if target_db_name in bd.databases:
+        print(f"Target database {target_db_name} already exists.")
+        return None
 
-    return bd.Database(new_database_name) # return the database object
+    # Now that we've checked both conditions, we can safely copy
+    source_db = bd.Database(source_db_name)
+    target_db = source_db.copy(target_db_name)
+
+    return target_db
+

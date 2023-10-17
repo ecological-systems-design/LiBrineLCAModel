@@ -53,6 +53,9 @@ T_dissol = 10  # Temperature for dissolution of Li2CO3
 T_RO = 40  # Temperature of reverse osmosis
 T_evap = 70  # Temperature of triple evaporator
 T_desorp = 40  # Temperature in Li-ion adsorption (desorption)
+T_adsorp = 85  # Temperature in Li-ion adsorption (adsorption)
+
+adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 
 
 heat_loss = 0.85

@@ -31,7 +31,6 @@ def extract_data(location, abbrev_loc, Li_conc):
         f"vec_end" : vec_end
         }
 
-    print(extracted_database)
 
     return extracted_database
 
