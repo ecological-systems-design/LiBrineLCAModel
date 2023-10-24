@@ -74,7 +74,9 @@ def inventories(Li_conc, Li_conc_steps, max_eff, min_eff, eff_steps, max_number_
             energy = []
             electricity = []
             production = []
-            df_list, summary_df, summary_tot_df = loop_functions(eff=eff, Li_conc = Li_c, location = op_location, abbrev_loc= abbrev_loc)
+            df_list, summary_df, summary_tot_df = calculate_processingsequence(eff=eff, Li_conc=Li_c,
+                                                                               location=op_location,
+                                                                               abbrev_loc=abbrev_loc)
             energy.append(summary_tot_df['Energy_sum per output'].iloc[0])
             deion_water.append(summary_tot_df['Water_sum per output'].iloc[0])
             electricity.append(summary_tot_df['Electricity_sum per output'].iloc[0])

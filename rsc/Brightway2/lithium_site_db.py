@@ -1,5 +1,5 @@
 import bw2data as bd
-from rsc.lithium_production.licarbonate_processes import loop_functions
+from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
 
 
 def find_activity_by_name_and_location(name, ei_name, location) :
@@ -32,7 +32,7 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
         print(f"{database_name} does not exist.")
         db = bd.Database(database_name)
         db.register()
-        dfs, _, _ = loop_functions(eff, Li_conc, op_location, abbrev_loc)
+        dfs, _, _ = calculate_processingsequence(eff, Li_conc, op_location, abbrev_loc)
 
         # Required activities and flows
         elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, country_location)

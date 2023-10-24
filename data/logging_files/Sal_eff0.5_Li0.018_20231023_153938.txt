@@ -1,0 +1,600 @@
+2023-10-23 15:39:38,388 - ProcessManager - INFO - Logging setup for Sal_eff0.5_Li0.018.txt
+2023-10-23 15:39:38,388 - ProcessManager - INFO - Arguments for SiFe_removal_limestone: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 28031025887.99999)
+2023-10-23 15:39:38,408 - ProcessManager - INFO - Dataframe for SiFe_removal_limestone:                                       Variables        Values    per kg
+0            m_output_df_SiFe_removal_limestone  2.784764e+10  1.000000
+1                m_Li_df_SiFe_removal_limestone  5.045585e+06  0.000181
+2                   E_df_SiFe_removal_limestone  0.000000e+00  0.000000
+3  chemical_limestone_df_SiFe_removal_limestone  8.771317e+07  0.003150
+4         waste_solid_df_SiFe_removal_limestone -2.711008e+08 -0.009735
+2023-10-23 15:39:38,408 - ProcessManager - INFO - Arguments for MnZn_removal_lime: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 27847638228.528072)
+2023-10-23 15:39:38,418 - ProcessManager - INFO - Dataframe for MnZn_removal_lime:                             Variables        Values    per kg
+0       m_output_df_MnZn_removal_lime  2.787516e+10  1.000000
+1           m_in_df_MnZn_removal_lime  2.784764e+10  0.999013
+2              E_df_MnZn_removal_lime  0.000000e+00  0.000000
+3  chemical_lime_df_MnZn_removal_lime  4.550263e+07  0.001632
+4          water_df_MnZn_removal_lime  1.461741e+07  0.000524
+5    waste_solid_df_MnZn_removal_lime -5.082441e+07 -0.001823
+6        Ca_mass_df_MnZn_removal_lime  1.822142e+07  0.000654
+2023-10-23 15:39:38,418 - ProcessManager - INFO - Arguments for acidification: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 27875155285.984695)
+2023-10-23 15:39:38,426 - ProcessManager - INFO - Dataframe for acidification:                        Variables        Values    per kg
+0      m_output_df_acidification  2.789979e+10  1.000000
+1          m_in_df_acidification  2.787516e+10  0.999117
+2  chemical_HCl_df_acidification  2.463044e+07  0.000883
+2023-10-23 15:39:38,426 - ProcessManager - INFO - Arguments for Li_adsorption: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 27899785726.15234)
+2023-10-23 15:39:38,432 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables        Values    per kg
+0            m_output_df_Li_adsorption  3.153490e+10  1.000000
+1                m_in_df_Li_adsorption  2.789979e+10  0.884727
+2  chemical_adsorbent_df_Li_adsorption  1.366513e+07  0.000433
+3     water_adsorbent_df_Li_adsorption  3.153490e+10  1.000000
+4         elec_adsorp_df_Li_adsorption  4.390663e+07  0.001392
+5            E_adsorp_df_Li_adsorption  9.793257e+09  0.310553
+2023-10-23 15:39:38,432 - ProcessManager - INFO - Arguments for CaMg_removal_sodiumhydrox: (18221419.733082183, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 31534904124.0)
+2023-10-23 15:39:38,438 - ProcessManager - INFO - Dataframe for CaMg_removal_sodiumhydrox:                                        Variables        Values        per kg
+0          m_output_df_CaMg_removal_sodiumhydrox  3.153640e+10  1.000000e+00
+1              m_in_df_CaMg_removal_sodiumhydrox  3.153490e+10  9.999527e-01
+2              NaOH_df_CaMg_removal_sodiumhydrox  5.233406e+03  1.659481e-07
+3         water_sum_df_CaMg_removal_sodiumhydrox  1.557710e+06  4.939404e-05
+4  chemical_sodaash_df_CaMg_removal_sodiumhydrox  3.887203e+05  1.232609e-05
+5       waste_solid_df_CaMg_removal_sodiumhydrox -4.602313e+05 -1.459366e-05
+2023-10-23 15:39:38,438 - ProcessManager - INFO - Arguments for ion_exchange_L: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 31536395556.368675)
+2023-10-23 15:39:38,451 - ProcessManager - INFO - Dataframe for ion_exchange_L:                          Variables        Values   per kg
+0       m_output_df_ion_exchange_L  3.153640e+10  1.00000
+1           m_in_df_ion_exchange_L  3.153640e+10  1.00000
+2           elec_df_ion_exchange_L  2.585984e+07  0.00082
+3          water_df_ion_exchange_L  3.469004e+10  1.10000
+4   chemical_HCl_df_ion_exchange_L  7.568735e+06  0.00024
+5  chemical_NaOH_df_ion_exchange_L  3.784367e+06  0.00012
+6     waste_heat_df_ion_exchange_L -5.108896e+07 -0.00162
+7       waste_Cl_df_ion_exchange_L -7.253371e+06 -0.00023
+8       waste_Na_df_ion_exchange_L -2.207548e+06 -0.00007
+2023-10-23 15:39:38,451 - ProcessManager - INFO - Arguments for reverse_osmosis: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 31536395556.368675)
+2023-10-23 15:39:38,458 - ProcessManager - INFO - Dataframe for reverse_osmosis:                        Variables        Values    per kg
+0    m_output_df_reverse_osmosis  1.576820e+10  1.000000
+1        m_in_df_reverse_osmosis  3.153640e+10  2.000000
+2        elec_df_reverse_osmosis  8.776579e+07  0.005566
+3  waterother_df_reverse_osmosis  1.576820e+10  1.000000
+2023-10-23 15:39:38,458 - ProcessManager - INFO - Arguments for triple_evaporator: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15768197778.184338)
+2023-10-23 15:39:38,466 - ProcessManager - INFO - Dataframe for triple_evaporator:                          Variables        Values    per kg
+0    m_output_df_triple_evaporator  2.628033e+09  1.000000
+1        m_in_df_triple_evaporator  1.576820e+10  6.000000
+2           E_df_triple_evaporator  2.078535e+09  0.790909
+3        elec_df_triple_evaporator  2.866945e+07  0.010909
+4       steam_df_triple_evaporator  1.642521e+08  0.062500
+5  waterother_df_triple_evaporator  1.314016e+10  5.000000
+2023-10-23 15:39:38,466 - ProcessManager - INFO - Arguments for Liprec_TG: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 2628032963.0307226)
+2023-10-23 15:39:38,468 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  2.793154e+09  1.000000
+1              m_in_df_Liprec_TG  2.628033e+09  0.940884
+2                 E_df_Liprec_TG  6.072807e+08  0.217418
+3  chemical_sodaash_df_Liprec_TG  2.752014e+07  0.009853
+4       waste_solid_df_Liprec_TG  1.062190e+07  0.003803
+5             water_df_Liprec_TG  1.376007e+08  0.049264
+2023-10-23 15:39:38,468 - ProcessManager - INFO - Arguments for centrifuge_TG: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 2793153823.5475364)
+2023-10-23 15:39:38,478 - ProcessManager - INFO - Dataframe for centrifuge_TG:                          Variables        Values      per kg
+0        m_output_df_centrifuge_TG  2.014453e+07    1.000000
+1            m_in_df_centrifuge_TG  2.793154e+09  138.655674
+2            elec_df_centrifuge_TG  3.213363e+06    0.159515
+3    waste_liquid_df_centrifuge_TG -2.218407e+06   -0.110125
+4  recycled_waste_df_centrifuge_TG  5.546019e+08   27.531135
+2023-10-23 15:39:38,478 - ProcessManager - INFO - Arguments for washing_TG: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 20144533.105885692)
+2023-10-23 15:39:38,487 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  4.700391e+07  1.000000
+1      m_in_df_washing_TG  2.014453e+07  0.428571
+2     water_df_washing_TG  2.685938e+07  0.571429
+3         E_df_washing_TG  1.032727e+07  0.219711
+2023-10-23 15:39:38,487 - ProcessManager - INFO - Arguments for dissolution: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 47003910.58039995)
+2023-10-23 15:39:38,491 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  3.052672e+08  1.000000
+1      m_in_df_dissolution  4.700391e+07  0.153976
+2     water_df_dissolution  2.582632e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-10-23 15:39:38,491 - ProcessManager - INFO - Arguments for Liprec_BG: (9598752.24617717, 24703008.007499065, 13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 305267155.52765244)
+2023-10-23 15:39:38,502 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values        per kg
+0    m_output_df_Liprec_BG  3.058237e+08      1.000000
+1        m_in_df_Liprec_BG  3.052672e+08      0.998180
+2  waste_heat_df_Liprec_BG -8.535655e+12 -27910.376062
+3           E_df_Liprec_BG  1.274154e+08      0.416630
+2023-10-23 15:39:38,502 - ProcessManager - INFO - Arguments for centrifuge_BG: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 305823732.9536381)
+2023-10-23 15:39:38,508 - ProcessManager - INFO - Dataframe for centrifuge_BG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  2.014453e+07   1.000000
+1          m_in_df_centrifuge_BG  3.058237e+08  15.181475
+2          elec_df_centrifuge_BG  3.518326e+05   0.017465
+3  waste_liquid_df_centrifuge_BG -2.856792e+05  -0.014181
+2023-10-23 15:39:38,508 - ProcessManager - INFO - Arguments for washing_BG: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 20144533.105885692)
+2023-10-23 15:39:38,508 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  4.700391e+07  1.000000
+1      m_in_df_washing_BG  2.014453e+07  0.428571
+2     water_df_washing_BG  2.685938e+07  0.571429
+3         E_df_washing_BG  1.032727e+07  0.219711
+2023-10-23 15:39:38,508 - ProcessManager - INFO - Arguments for centrifuge_wash: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 47003910.58039995)
+2023-10-23 15:39:38,518 - ProcessManager - INFO - Dataframe for centrifuge_wash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  2.014453e+07  1.000000
+1          m_in_df_centrifuge_wash  4.700391e+07  2.333333
+2          elec_df_centrifuge_wash  5.407530e+04  0.002684
+3  waste_liquid_df_centrifuge_wash -2.685938e+04 -0.001333
+2023-10-23 15:39:38,518 - ProcessManager - INFO - Arguments for rotary_dryer: (13429688.737257129, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.018, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 20144533.105885692)
+2023-10-23 15:39:38,528 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  1.342969e+07  1.000000
+1      m_in_df_rotary_dryer  2.014453e+07  1.500000
+2         E_df_rotary_dryer  3.317923e+07  2.470588
+3      elec_df_rotary_dryer  4.028907e+06  0.300000
+2023-10-23 15:39:38,657 - ProcessManager - INFO - Logging setup for Sal_eff0.9_Li0.02.txt
+2023-10-23 15:39:38,657 - ProcessManager - INFO - Arguments for SiFe_removal_limestone: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15572792159.999994)
+2023-10-23 15:39:38,666 - ProcessManager - INFO - Dataframe for SiFe_removal_limestone:                                       Variables        Values    per kg
+0            m_output_df_SiFe_removal_limestone  1.547091e+10  1.000000
+1                m_Li_df_SiFe_removal_limestone  3.114558e+06  0.000201
+2                   E_df_SiFe_removal_limestone  0.000000e+00  0.000000
+3  chemical_limestone_df_SiFe_removal_limestone  4.872954e+07  0.003150
+4         waste_solid_df_SiFe_removal_limestone -1.506116e+08 -0.009735
+2023-10-23 15:39:38,667 - ProcessManager - INFO - Arguments for MnZn_removal_lime: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15470910126.960041)
+2023-10-23 15:39:38,669 - ProcessManager - INFO - Dataframe for MnZn_removal_lime:                             Variables        Values    per kg
+0       m_output_df_MnZn_removal_lime  1.548620e+10  1.000000
+1           m_in_df_MnZn_removal_lime  1.547091e+10  0.999013
+2              E_df_MnZn_removal_lime  0.000000e+00  0.000000
+3  chemical_lime_df_MnZn_removal_lime  2.527924e+07  0.001632
+4          water_df_MnZn_removal_lime  8.120785e+06  0.000524
+5    waste_solid_df_MnZn_removal_lime -2.823578e+07 -0.001823
+6        Ca_mass_df_MnZn_removal_lime  1.012301e+07  0.000654
+2023-10-23 15:39:38,669 - ProcessManager - INFO - Arguments for acidification: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15486197381.10261)
+2023-10-23 15:39:38,681 - ProcessManager - INFO - Dataframe for acidification:                        Variables        Values    per kg
+0      m_output_df_acidification  1.549988e+10  1.000000
+1          m_in_df_acidification  1.548620e+10  0.999117
+2  chemical_HCl_df_acidification  1.368358e+07  0.000883
+2023-10-23 15:39:38,681 - ProcessManager - INFO - Arguments for Li_adsorption: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15499880958.973524)
+2023-10-23 15:39:38,688 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables        Values    per kg
+0            m_output_df_Li_adsorption  3.503878e+10  1.000000
+1                m_in_df_Li_adsorption  1.549988e+10  0.442364
+2  chemical_adsorbent_df_Li_adsorption  1.518347e+07  0.000433
+3     water_adsorbent_df_Li_adsorption  3.503878e+10  1.000000
+4         elec_adsorp_df_Li_adsorption  3.733480e+07  0.001066
+5            E_adsorp_df_Li_adsorption  1.088140e+10  0.310553
+2023-10-23 15:39:38,688 - ProcessManager - INFO - Arguments for CaMg_removal_sodiumhydrox: (10123010.962823434, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35038782360.0)
+2023-10-23 15:39:38,697 - ProcessManager - INFO - Dataframe for CaMg_removal_sodiumhydrox:                                        Variables        Values        per kg
+0          m_output_df_CaMg_removal_sodiumhydrox  3.504042e+10  1.000000e+00
+1              m_in_df_CaMg_removal_sodiumhydrox  3.503878e+10  9.999533e-01
+2              NaOH_df_CaMg_removal_sodiumhydrox  5.814895e+03  1.659482e-07
+3         water_sum_df_CaMg_removal_sodiumhydrox  1.709373e+06  4.878290e-05
+4  chemical_sodaash_df_CaMg_removal_sodiumhydrox  4.265576e+05  1.217330e-05
+5       waste_solid_df_CaMg_removal_sodiumhydrox -5.050988e+05 -1.441475e-05
+2023-10-23 15:39:38,697 - ProcessManager - INFO - Arguments for ion_exchange_L: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35040419006.968834)
+2023-10-23 15:39:38,702 - ProcessManager - INFO - Dataframe for ion_exchange_L:                          Variables        Values   per kg
+0       m_output_df_ion_exchange_L  3.504042e+10  1.00000
+1           m_in_df_ion_exchange_L  3.504042e+10  1.00000
+2           elec_df_ion_exchange_L  2.873314e+07  0.00082
+3          water_df_ion_exchange_L  3.854446e+10  1.10000
+4   chemical_HCl_df_ion_exchange_L  8.409701e+06  0.00024
+5  chemical_NaOH_df_ion_exchange_L  4.204850e+06  0.00012
+6     waste_heat_df_ion_exchange_L -5.676548e+07 -0.00162
+7       waste_Cl_df_ion_exchange_L -8.059296e+06 -0.00023
+8       waste_Na_df_ion_exchange_L -2.452829e+06 -0.00007
+2023-10-23 15:39:38,706 - ProcessManager - INFO - Arguments for reverse_osmosis: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35040419006.968834)
+2023-10-23 15:39:38,711 - ProcessManager - INFO - Dataframe for reverse_osmosis:                        Variables        Values    per kg
+0    m_output_df_reverse_osmosis  1.752021e+10  1.000000
+1        m_in_df_reverse_osmosis  3.504042e+10  2.000000
+2        elec_df_reverse_osmosis  9.751749e+07  0.005566
+3  waterother_df_reverse_osmosis  1.752021e+10  1.000000
+2023-10-23 15:39:38,711 - ProcessManager - INFO - Arguments for triple_evaporator: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520209503.484417)
+2023-10-23 15:39:38,719 - ProcessManager - INFO - Dataframe for triple_evaporator:                          Variables        Values    per kg
+0    m_output_df_triple_evaporator  2.920035e+09  1.000000
+1        m_in_df_triple_evaporator  1.752021e+10  6.000000
+2           E_df_triple_evaporator  2.309482e+09  0.790909
+3        elec_df_triple_evaporator  3.185493e+07  0.010909
+4       steam_df_triple_evaporator  1.825022e+08  0.062500
+5  waterother_df_triple_evaporator  1.460017e+10  5.000000
+2023-10-23 15:39:38,719 - ProcessManager - INFO - Arguments for Liprec_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 2920034917.2474027)
+2023-10-23 15:39:38,726 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  3.103503e+09  1.000000
+1              m_in_df_Liprec_TG  2.920035e+09  0.940884
+2                 E_df_Liprec_TG  6.747560e+08  0.217418
+3  chemical_sodaash_df_Liprec_TG  3.057794e+07  0.009853
+4       waste_solid_df_Liprec_TG  1.180211e+07  0.003803
+5             water_df_Liprec_TG  1.528897e+08  0.049264
+2023-10-23 15:39:38,726 - ProcessManager - INFO - Arguments for centrifuge_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 3103502540.043863)
+2023-10-23 15:39:38,733 - ProcessManager - INFO - Dataframe for centrifuge_TG:                          Variables        Values      per kg
+0        m_output_df_centrifuge_TG  2.238281e+07    1.000000
+1            m_in_df_centrifuge_TG  3.103503e+09  138.655598
+2            elec_df_centrifuge_TG  3.570401e+06    0.159515
+3    waste_liquid_df_centrifuge_TG -2.464896e+06   -0.110124
+4  recycled_waste_df_centrifuge_TG  6.162239e+08   27.531120
+2023-10-23 15:39:38,733 - ProcessManager - INFO - Arguments for washing_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:38,738 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  5.222657e+07  1.000000
+1      m_in_df_washing_TG  2.238281e+07  0.428571
+2     water_df_washing_TG  2.984375e+07  0.571429
+3         E_df_washing_TG  1.147475e+07  0.219711
+2023-10-23 15:39:38,738 - ProcessManager - INFO - Arguments for dissolution: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 52226567.311555505)
+2023-10-23 15:39:38,746 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  3.391857e+08  1.000000
+1      m_in_df_dissolution  5.222657e+07  0.153976
+2     water_df_dissolution  2.869592e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-10-23 15:39:38,746 - ProcessManager - INFO - Arguments for Liprec_BG: (10665280.273530189, 27447786.67499896, 14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 339185728.36405826)
+2023-10-23 15:39:38,752 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values        per kg
+0    m_output_df_Liprec_BG  3.398041e+08      1.000000
+1        m_in_df_Liprec_BG  3.391857e+08      0.998180
+2  waste_heat_df_Liprec_BG -9.484062e+12 -27910.376062
+3           E_df_Liprec_BG  1.415726e+08      0.416630
+2023-10-23 15:39:38,753 - ProcessManager - INFO - Arguments for centrifuge_BG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 339804147.7262646)
+2023-10-23 15:39:38,758 - ProcessManager - INFO - Dataframe for centrifuge_BG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  2.238281e+07   1.000000
+1          m_in_df_centrifuge_BG  3.398041e+08  15.181475
+2          elec_df_centrifuge_BG  3.909251e+05   0.017465
+3  waste_liquid_df_centrifuge_BG -3.174213e+05  -0.014181
+2023-10-23 15:39:38,758 - ProcessManager - INFO - Arguments for washing_BG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:38,768 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  5.222657e+07  1.000000
+1      m_in_df_washing_BG  2.238281e+07  0.428571
+2     water_df_washing_BG  2.984375e+07  0.571429
+3         E_df_washing_BG  1.147475e+07  0.219711
+2023-10-23 15:39:38,768 - ProcessManager - INFO - Arguments for centrifuge_wash: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 52226567.311555505)
+2023-10-23 15:39:38,777 - ProcessManager - INFO - Dataframe for centrifuge_wash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  2.238281e+07  1.000000
+1          m_in_df_centrifuge_wash  5.222657e+07  2.333333
+2          elec_df_centrifuge_wash  6.008366e+04  0.002684
+3  waste_liquid_df_centrifuge_wash -2.984375e+04 -0.001333
+2023-10-23 15:39:38,777 - ProcessManager - INFO - Arguments for rotary_dryer: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:38,784 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  1.492188e+07  1.000000
+1      m_in_df_rotary_dryer  2.238281e+07  1.500000
+2         E_df_rotary_dryer  3.686581e+07  2.470588
+3      elec_df_rotary_dryer  4.476563e+06  0.300000
+2023-10-23 15:39:38,816 - ProcessManager - INFO - Logging setup for Sal_eff0.9_Li0.01.txt
+2023-10-23 15:39:38,816 - ProcessManager - INFO - Arguments for SiFe_removal_limestone: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15572792159.999994)
+2023-10-23 15:39:38,819 - ProcessManager - INFO - Dataframe for SiFe_removal_limestone:                                       Variables        Values    per kg
+0            m_output_df_SiFe_removal_limestone  1.547091e+10  1.000000
+1                m_Li_df_SiFe_removal_limestone  1.557279e+06  0.000101
+2                   E_df_SiFe_removal_limestone  0.000000e+00  0.000000
+3  chemical_limestone_df_SiFe_removal_limestone  4.872954e+07  0.003150
+4         waste_solid_df_SiFe_removal_limestone -1.506116e+08 -0.009735
+2023-10-23 15:39:38,819 - ProcessManager - INFO - Arguments for MnZn_removal_lime: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15470910126.960041)
+2023-10-23 15:39:38,828 - ProcessManager - INFO - Dataframe for MnZn_removal_lime:                             Variables        Values    per kg
+0       m_output_df_MnZn_removal_lime  1.548620e+10  1.000000
+1           m_in_df_MnZn_removal_lime  1.547091e+10  0.999013
+2              E_df_MnZn_removal_lime  0.000000e+00  0.000000
+3  chemical_lime_df_MnZn_removal_lime  2.527924e+07  0.001632
+4          water_df_MnZn_removal_lime  8.120785e+06  0.000524
+5    waste_solid_df_MnZn_removal_lime -2.823578e+07 -0.001823
+6        Ca_mass_df_MnZn_removal_lime  1.012301e+07  0.000654
+2023-10-23 15:39:38,828 - ProcessManager - INFO - Arguments for acidification: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15486197381.10261)
+2023-10-23 15:39:38,841 - ProcessManager - INFO - Dataframe for acidification:                        Variables        Values    per kg
+0      m_output_df_acidification  1.549988e+10  1.000000
+1          m_in_df_acidification  1.548620e+10  0.999117
+2  chemical_HCl_df_acidification  1.368358e+07  0.000883
+2023-10-23 15:39:38,841 - ProcessManager - INFO - Arguments for Li_adsorption: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 15499880958.973524)
+2023-10-23 15:39:38,851 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables        Values    per kg
+0            m_output_df_Li_adsorption  1.751939e+10  1.000000
+1                m_in_df_Li_adsorption  1.549988e+10  0.884727
+2  chemical_adsorbent_df_Li_adsorption  7.591736e+06  0.000433
+3     water_adsorbent_df_Li_adsorption  1.751939e+10  1.000000
+4         elec_adsorp_df_Li_adsorption  2.439257e+07  0.001392
+5            E_adsorp_df_Li_adsorption  5.440698e+09  0.310553
+2023-10-23 15:39:38,851 - ProcessManager - INFO - Arguments for CaMg_removal_sodiumhydrox: (10123010.962823434, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17519391180.0)
+2023-10-23 15:39:38,861 - ProcessManager - INFO - Dataframe for CaMg_removal_sodiumhydrox:                                        Variables        Values        per kg
+0          m_output_df_CaMg_removal_sodiumhydrox  1.752022e+10  1.000000e+00
+1              m_in_df_CaMg_removal_sodiumhydrox  1.751939e+10  9.999527e-01
+2              NaOH_df_CaMg_removal_sodiumhydrox  2.907448e+03  1.659481e-07
+3         water_sum_df_CaMg_removal_sodiumhydrox  8.653944e+05  4.939404e-05
+4  chemical_sodaash_df_CaMg_removal_sodiumhydrox  2.159557e+05  1.232609e-05
+5       waste_solid_df_CaMg_removal_sodiumhydrox -2.556841e+05 -1.459366e-05
+2023-10-23 15:39:38,861 - ProcessManager - INFO - Arguments for ion_exchange_L: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520219753.53816)
+2023-10-23 15:39:38,872 - ProcessManager - INFO - Dataframe for ion_exchange_L:                          Variables        Values   per kg
+0       m_output_df_ion_exchange_L  1.752022e+10  1.00000
+1           m_in_df_ion_exchange_L  1.752022e+10  1.00000
+2           elec_df_ion_exchange_L  1.436658e+07  0.00082
+3          water_df_ion_exchange_L  1.927224e+10  1.10000
+4   chemical_HCl_df_ion_exchange_L  4.204853e+06  0.00024
+5  chemical_NaOH_df_ion_exchange_L  2.102426e+06  0.00012
+6     waste_heat_df_ion_exchange_L -2.838276e+07 -0.00162
+7       waste_Cl_df_ion_exchange_L -4.029651e+06 -0.00023
+8       waste_Na_df_ion_exchange_L -1.226415e+06 -0.00007
+2023-10-23 15:39:38,878 - ProcessManager - INFO - Arguments for reverse_osmosis: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520219753.53816)
+2023-10-23 15:39:38,887 - ProcessManager - INFO - Dataframe for reverse_osmosis:                        Variables        Values    per kg
+0    m_output_df_reverse_osmosis  8.760110e+09  1.000000
+1        m_in_df_reverse_osmosis  1.752022e+10  2.000000
+2        elec_df_reverse_osmosis  4.875877e+07  0.005566
+3  waterother_df_reverse_osmosis  8.760110e+09  1.000000
+2023-10-23 15:39:38,887 - ProcessManager - INFO - Arguments for triple_evaporator: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 8760109876.76908)
+2023-10-23 15:39:38,900 - ProcessManager - INFO - Dataframe for triple_evaporator:                          Variables        Values    per kg
+0    m_output_df_triple_evaporator  1.460018e+09  1.000000
+1        m_in_df_triple_evaporator  8.760110e+09  6.000000
+2           E_df_triple_evaporator  1.154742e+09  0.790909
+3        elec_df_triple_evaporator  1.592747e+07  0.010909
+4       steam_df_triple_evaporator  9.125114e+07  0.062500
+5  waterother_df_triple_evaporator  7.300092e+09  5.000000
+2023-10-23 15:39:38,900 - ProcessManager - INFO - Arguments for Liprec_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 1460018312.7948465)
+2023-10-23 15:39:38,907 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  1.551752e+09  1.000000
+1              m_in_df_Liprec_TG  1.460018e+09  0.940884
+2                 E_df_Liprec_TG  3.373782e+08  0.217418
+3  chemical_sodaash_df_Liprec_TG  1.528897e+07  0.009853
+4       waste_solid_df_Liprec_TG  5.901056e+06  0.003803
+5             water_df_Liprec_TG  7.644484e+07  0.049264
+2023-10-23 15:39:38,907 - ProcessManager - INFO - Arguments for centrifuge_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 1551752124.1930766)
+2023-10-23 15:39:38,916 - ProcessManager - INFO - Dataframe for centrifuge_TG:                          Variables        Values      per kg
+0        m_output_df_centrifuge_TG  1.119141e+07    1.000000
+1            m_in_df_centrifuge_TG  1.551752e+09  138.655674
+2            elec_df_centrifuge_TG  1.785202e+06    0.159515
+3    waste_liquid_df_centrifuge_TG -1.232449e+06   -0.110125
+4  recycled_waste_df_centrifuge_TG  3.081121e+08   27.531135
+2023-10-23 15:39:38,916 - ProcessManager - INFO - Arguments for washing_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:38,919 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  2.611328e+07  1.000000
+1      m_in_df_washing_TG  1.119141e+07  0.428571
+2     water_df_washing_TG  1.492188e+07  0.571429
+3         E_df_washing_TG  5.737374e+06  0.219711
+2023-10-23 15:39:38,919 - ProcessManager - INFO - Arguments for dissolution: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 26113283.655777752)
+2023-10-23 15:39:38,931 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  1.695929e+08  1.000000
+1      m_in_df_dissolution  2.611328e+07  0.153976
+2     water_df_dissolution  1.434796e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-10-23 15:39:38,931 - ProcessManager - INFO - Arguments for Liprec_BG: (5332640.1367650945, 13723893.33749948, 7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 169592864.18202913)
+2023-10-23 15:39:38,941 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values        per kg
+0    m_output_df_Liprec_BG  1.699021e+08      1.000000
+1        m_in_df_Liprec_BG  1.695929e+08      0.998180
+2  waste_heat_df_Liprec_BG -4.742031e+12 -27910.376062
+3           E_df_Liprec_BG  7.078632e+07      0.416630
+2023-10-23 15:39:38,941 - ProcessManager - INFO - Arguments for centrifuge_BG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 169902073.8631323)
+2023-10-23 15:39:38,952 - ProcessManager - INFO - Dataframe for centrifuge_BG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  1.119141e+07   1.000000
+1          m_in_df_centrifuge_BG  1.699021e+08  15.181475
+2          elec_df_centrifuge_BG  1.954626e+05   0.017465
+3  waste_liquid_df_centrifuge_BG -1.587107e+05  -0.014181
+2023-10-23 15:39:38,952 - ProcessManager - INFO - Arguments for washing_BG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:38,956 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  2.611328e+07  1.000000
+1      m_in_df_washing_BG  1.119141e+07  0.428571
+2     water_df_washing_BG  1.492188e+07  0.571429
+3         E_df_washing_BG  5.737374e+06  0.219711
+2023-10-23 15:39:38,961 - ProcessManager - INFO - Arguments for centrifuge_wash: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 26113283.655777752)
+2023-10-23 15:39:38,967 - ProcessManager - INFO - Dataframe for centrifuge_wash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  1.119141e+07  1.000000
+1          m_in_df_centrifuge_wash  2.611328e+07  2.333333
+2          elec_df_centrifuge_wash  3.004183e+04  0.002684
+3  waste_liquid_df_centrifuge_wash -1.492188e+04 -0.001333
+2023-10-23 15:39:38,968 - ProcessManager - INFO - Arguments for rotary_dryer: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:38,970 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  7.460938e+06  1.000000
+1      m_in_df_rotary_dryer  1.119141e+07  1.500000
+2         E_df_rotary_dryer  1.843291e+07  2.470588
+3      elec_df_rotary_dryer  2.238281e+06  0.300000
+2023-10-23 15:39:39,006 - ProcessManager - INFO - Logging setup for Sal_eff0.8_Li0.02.txt
+2023-10-23 15:39:39,006 - ProcessManager - INFO - Arguments for SiFe_removal_limestone: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17519391179.999996)
+2023-10-23 15:39:39,012 - ProcessManager - INFO - Dataframe for SiFe_removal_limestone:                                       Variables        Values    per kg
+0            m_output_df_SiFe_removal_limestone  1.740477e+10  1.000000
+1                m_Li_df_SiFe_removal_limestone  3.503878e+06  0.000201
+2                   E_df_SiFe_removal_limestone  0.000000e+00  0.000000
+3  chemical_limestone_df_SiFe_removal_limestone  5.482073e+07  0.003150
+4         waste_solid_df_SiFe_removal_limestone -1.694380e+08 -0.009735
+2023-10-23 15:39:39,012 - ProcessManager - INFO - Arguments for MnZn_removal_lime: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17404773892.830048)
+2023-10-23 15:39:39,018 - ProcessManager - INFO - Dataframe for MnZn_removal_lime:                             Variables        Values    per kg
+0       m_output_df_MnZn_removal_lime  1.742197e+10  1.000000
+1           m_in_df_MnZn_removal_lime  1.740477e+10  0.999013
+2              E_df_MnZn_removal_lime  0.000000e+00  0.000000
+3  chemical_lime_df_MnZn_removal_lime  2.843914e+07  0.001632
+4          water_df_MnZn_removal_lime  9.135883e+06  0.000524
+5    waste_solid_df_MnZn_removal_lime -3.176525e+07 -0.001823
+6        Ca_mass_df_MnZn_removal_lime  1.138839e+07  0.000654
+2023-10-23 15:39:39,018 - ProcessManager - INFO - Arguments for acidification: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17421972053.740437)
+2023-10-23 15:39:39,026 - ProcessManager - INFO - Dataframe for acidification:                        Variables        Values    per kg
+0      m_output_df_acidification  1.743737e+10  1.000000
+1          m_in_df_acidification  1.742197e+10  0.999117
+2  chemical_HCl_df_acidification  1.539403e+07  0.000883
+2023-10-23 15:39:39,026 - ProcessManager - INFO - Arguments for Li_adsorption: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17437366078.845215)
+2023-10-23 15:39:39,033 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables        Values    per kg
+0            m_output_df_Li_adsorption  3.503878e+10  1.000000
+1                m_in_df_Li_adsorption  1.743737e+10  0.497659
+2  chemical_adsorbent_df_Li_adsorption  1.518347e+07  0.000433
+3     water_adsorbent_df_Li_adsorption  3.503878e+10  1.000000
+4         elec_adsorp_df_Li_adsorption  3.876609e+07  0.001106
+5            E_adsorp_df_Li_adsorption  1.088140e+10  0.310553
+2023-10-23 15:39:39,033 - ProcessManager - INFO - Arguments for CaMg_removal_sodiumhydrox: (11388387.333176365, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35038782360.0)
+2023-10-23 15:39:39,040 - ProcessManager - INFO - Dataframe for CaMg_removal_sodiumhydrox:                                        Variables        Values        per kg
+0          m_output_df_CaMg_removal_sodiumhydrox  3.504042e+10  1.000000e+00
+1              m_in_df_CaMg_removal_sodiumhydrox  3.503878e+10  9.999532e-01
+2              NaOH_df_CaMg_removal_sodiumhydrox  5.814895e+03  1.659482e-07
+3         water_sum_df_CaMg_removal_sodiumhydrox  1.712050e+06  4.885929e-05
+4  chemical_sodaash_df_CaMg_removal_sodiumhydrox  4.272268e+05  1.219240e-05
+5       waste_solid_df_CaMg_removal_sodiumhydrox -5.058825e+05 -1.443711e-05
+2023-10-23 15:39:39,040 - ProcessManager - INFO - Arguments for ion_exchange_L: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35040421569.48227)
+2023-10-23 15:39:39,047 - ProcessManager - INFO - Dataframe for ion_exchange_L:                          Variables        Values   per kg
+0       m_output_df_ion_exchange_L  3.504042e+10  1.00000
+1           m_in_df_ion_exchange_L  3.504042e+10  1.00000
+2           elec_df_ion_exchange_L  2.873315e+07  0.00082
+3          water_df_ion_exchange_L  3.854446e+10  1.10000
+4   chemical_HCl_df_ion_exchange_L  8.409701e+06  0.00024
+5  chemical_NaOH_df_ion_exchange_L  4.204851e+06  0.00012
+6     waste_heat_df_ion_exchange_L -5.676548e+07 -0.00162
+7       waste_Cl_df_ion_exchange_L -8.059297e+06 -0.00023
+8       waste_Na_df_ion_exchange_L -2.452830e+06 -0.00007
+2023-10-23 15:39:39,047 - ProcessManager - INFO - Arguments for reverse_osmosis: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 35040421569.48227)
+2023-10-23 15:39:39,057 - ProcessManager - INFO - Dataframe for reverse_osmosis:                        Variables        Values    per kg
+0    m_output_df_reverse_osmosis  1.752021e+10  1.000000
+1        m_in_df_reverse_osmosis  3.504042e+10  2.000000
+2        elec_df_reverse_osmosis  9.751749e+07  0.005566
+3  waterother_df_reverse_osmosis  1.752021e+10  1.000000
+2023-10-23 15:39:39,057 - ProcessManager - INFO - Arguments for triple_evaporator: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520210784.741135)
+2023-10-23 15:39:39,058 - ProcessManager - INFO - Dataframe for triple_evaporator:                          Variables        Values    per kg
+0    m_output_df_triple_evaporator  2.920035e+09  1.000000
+1        m_in_df_triple_evaporator  1.752021e+10  6.000000
+2           E_df_triple_evaporator  2.309482e+09  0.790909
+3        elec_df_triple_evaporator  3.185493e+07  0.010909
+4       steam_df_triple_evaporator  1.825022e+08  0.062500
+5  waterother_df_triple_evaporator  1.460018e+10  5.000000
+2023-10-23 15:39:39,058 - ProcessManager - INFO - Arguments for Liprec_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 2920035130.790189)
+2023-10-23 15:39:39,069 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  3.103503e+09  1.000000
+1              m_in_df_Liprec_TG  2.920035e+09  0.940884
+2                 E_df_Liprec_TG  6.747560e+08  0.217418
+3  chemical_sodaash_df_Liprec_TG  3.057794e+07  0.009853
+4       waste_solid_df_Liprec_TG  1.180211e+07  0.003803
+5             water_df_Liprec_TG  1.528897e+08  0.049264
+2023-10-23 15:39:39,069 - ProcessManager - INFO - Arguments for centrifuge_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 3103502753.586649)
+2023-10-23 15:39:39,076 - ProcessManager - INFO - Dataframe for centrifuge_TG:                          Variables        Values      per kg
+0        m_output_df_centrifuge_TG  2.238281e+07    1.000000
+1            m_in_df_centrifuge_TG  3.103503e+09  138.655608
+2            elec_df_centrifuge_TG  3.570401e+06    0.159515
+3    waste_liquid_df_centrifuge_TG -2.464896e+06   -0.110124
+4  recycled_waste_df_centrifuge_TG  6.162240e+08   27.531122
+2023-10-23 15:39:39,076 - ProcessManager - INFO - Arguments for washing_TG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:39,086 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  5.222657e+07  1.000000
+1      m_in_df_washing_TG  2.238281e+07  0.428571
+2     water_df_washing_TG  2.984375e+07  0.571429
+3         E_df_washing_TG  1.147475e+07  0.219711
+2023-10-23 15:39:39,087 - ProcessManager - INFO - Arguments for dissolution: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 52226567.311555505)
+2023-10-23 15:39:39,088 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  3.391857e+08  1.000000
+1      m_in_df_dissolution  5.222657e+07  0.153976
+2     water_df_dissolution  2.869592e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-10-23 15:39:39,088 - ProcessManager - INFO - Arguments for Liprec_BG: (10665280.273530189, 27447786.67499896, 14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 339185728.36405826)
+2023-10-23 15:39:39,100 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values        per kg
+0    m_output_df_Liprec_BG  3.398041e+08      1.000000
+1        m_in_df_Liprec_BG  3.391857e+08      0.998180
+2  waste_heat_df_Liprec_BG -9.484062e+12 -27910.376062
+3           E_df_Liprec_BG  1.415726e+08      0.416630
+2023-10-23 15:39:39,100 - ProcessManager - INFO - Arguments for centrifuge_BG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 339804147.7262646)
+2023-10-23 15:39:39,108 - ProcessManager - INFO - Dataframe for centrifuge_BG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  2.238281e+07   1.000000
+1          m_in_df_centrifuge_BG  3.398041e+08  15.181475
+2          elec_df_centrifuge_BG  3.909251e+05   0.017465
+3  waste_liquid_df_centrifuge_BG -3.174213e+05  -0.014181
+2023-10-23 15:39:39,108 - ProcessManager - INFO - Arguments for washing_BG: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:39,108 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  5.222657e+07  1.000000
+1      m_in_df_washing_BG  2.238281e+07  0.428571
+2     water_df_washing_BG  2.984375e+07  0.571429
+3         E_df_washing_BG  1.147475e+07  0.219711
+2023-10-23 15:39:39,108 - ProcessManager - INFO - Arguments for centrifuge_wash: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 52226567.311555505)
+2023-10-23 15:39:39,118 - ProcessManager - INFO - Dataframe for centrifuge_wash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  2.238281e+07  1.000000
+1          m_in_df_centrifuge_wash  5.222657e+07  2.333333
+2          elec_df_centrifuge_wash  6.008366e+04  0.002684
+3  waste_liquid_df_centrifuge_wash -2.984375e+04 -0.001333
+2023-10-23 15:39:39,118 - ProcessManager - INFO - Arguments for rotary_dryer: (14921876.374730144, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.02, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 22382814.562095217)
+2023-10-23 15:39:39,130 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  1.492188e+07  1.000000
+1      m_in_df_rotary_dryer  2.238281e+07  1.500000
+2         E_df_rotary_dryer  3.686581e+07  2.470588
+3      elec_df_rotary_dryer  4.476563e+06  0.300000
+2023-10-23 15:39:39,168 - ProcessManager - INFO - Logging setup for Sal_eff0.8_Li0.01.txt
+2023-10-23 15:39:39,168 - ProcessManager - INFO - Arguments for SiFe_removal_limestone: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17519391179.999996)
+2023-10-23 15:39:39,177 - ProcessManager - INFO - Dataframe for SiFe_removal_limestone:                                       Variables        Values    per kg
+0            m_output_df_SiFe_removal_limestone  1.740477e+10  1.000000
+1                m_Li_df_SiFe_removal_limestone  1.751939e+06  0.000101
+2                   E_df_SiFe_removal_limestone  0.000000e+00  0.000000
+3  chemical_limestone_df_SiFe_removal_limestone  5.482073e+07  0.003150
+4         waste_solid_df_SiFe_removal_limestone -1.694380e+08 -0.009735
+2023-10-23 15:39:39,177 - ProcessManager - INFO - Arguments for MnZn_removal_lime: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17404773892.830048)
+2023-10-23 15:39:39,185 - ProcessManager - INFO - Dataframe for MnZn_removal_lime:                             Variables        Values    per kg
+0       m_output_df_MnZn_removal_lime  1.742197e+10  1.000000
+1           m_in_df_MnZn_removal_lime  1.740477e+10  0.999013
+2              E_df_MnZn_removal_lime  0.000000e+00  0.000000
+3  chemical_lime_df_MnZn_removal_lime  2.843914e+07  0.001632
+4          water_df_MnZn_removal_lime  9.135883e+06  0.000524
+5    waste_solid_df_MnZn_removal_lime -3.176525e+07 -0.001823
+6        Ca_mass_df_MnZn_removal_lime  1.138839e+07  0.000654
+2023-10-23 15:39:39,185 - ProcessManager - INFO - Arguments for acidification: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17421972053.740437)
+2023-10-23 15:39:39,191 - ProcessManager - INFO - Dataframe for acidification:                        Variables        Values    per kg
+0      m_output_df_acidification  1.743737e+10  1.000000
+1          m_in_df_acidification  1.742197e+10  0.999117
+2  chemical_HCl_df_acidification  1.539403e+07  0.000883
+2023-10-23 15:39:39,191 - ProcessManager - INFO - Arguments for Li_adsorption: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17437366078.845215)
+2023-10-23 15:39:39,198 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables        Values    per kg
+0            m_output_df_Li_adsorption  1.751939e+10  1.000000
+1                m_in_df_Li_adsorption  1.743737e+10  0.995318
+2  chemical_adsorbent_df_Li_adsorption  7.591736e+06  0.000433
+3     water_adsorbent_df_Li_adsorption  1.751939e+10  1.000000
+4         elec_adsorp_df_Li_adsorption  2.582386e+07  0.001474
+5            E_adsorp_df_Li_adsorption  5.440698e+09  0.310553
+2023-10-23 15:39:39,198 - ProcessManager - INFO - Arguments for CaMg_removal_sodiumhydrox: (11388387.333176365, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17519391180.0)
+2023-10-23 15:39:39,206 - ProcessManager - INFO - Dataframe for CaMg_removal_sodiumhydrox:                                        Variables        Values        per kg
+0          m_output_df_CaMg_removal_sodiumhydrox  1.752022e+10  1.000000e+00
+1              m_in_df_CaMg_removal_sodiumhydrox  1.751939e+10  9.999526e-01
+2              NaOH_df_CaMg_removal_sodiumhydrox  2.907448e+03  1.659481e-07
+3         water_sum_df_CaMg_removal_sodiumhydrox  8.680714e+05  4.954682e-05
+4  chemical_sodaash_df_CaMg_removal_sodiumhydrox  2.166250e+05  1.236428e-05
+5       waste_solid_df_CaMg_removal_sodiumhydrox -2.564677e+05 -1.463838e-05
+2023-10-23 15:39:39,206 - ProcessManager - INFO - Arguments for ion_exchange_L: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520222316.051594)
+2023-10-23 15:39:39,211 - ProcessManager - INFO - Dataframe for ion_exchange_L:                          Variables        Values   per kg
+0       m_output_df_ion_exchange_L  1.752022e+10  1.00000
+1           m_in_df_ion_exchange_L  1.752022e+10  1.00000
+2           elec_df_ion_exchange_L  1.436658e+07  0.00082
+3          water_df_ion_exchange_L  1.927224e+10  1.10000
+4   chemical_HCl_df_ion_exchange_L  4.204853e+06  0.00024
+5  chemical_NaOH_df_ion_exchange_L  2.102427e+06  0.00012
+6     waste_heat_df_ion_exchange_L -2.838276e+07 -0.00162
+7       waste_Cl_df_ion_exchange_L -4.029651e+06 -0.00023
+8       waste_Na_df_ion_exchange_L -1.226416e+06 -0.00007
+2023-10-23 15:39:39,211 - ProcessManager - INFO - Arguments for reverse_osmosis: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 17520222316.051594)
+2023-10-23 15:39:39,220 - ProcessManager - INFO - Dataframe for reverse_osmosis:                        Variables        Values    per kg
+0    m_output_df_reverse_osmosis  8.760111e+09  1.000000
+1        m_in_df_reverse_osmosis  1.752022e+10  2.000000
+2        elec_df_reverse_osmosis  4.875878e+07  0.005566
+3  waterother_df_reverse_osmosis  8.760111e+09  1.000000
+2023-10-23 15:39:39,220 - ProcessManager - INFO - Arguments for triple_evaporator: ({'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 8760111158.025797)
+2023-10-23 15:39:39,230 - ProcessManager - INFO - Dataframe for triple_evaporator:                          Variables        Values    per kg
+0    m_output_df_triple_evaporator  1.460019e+09  1.000000
+1        m_in_df_triple_evaporator  8.760111e+09  6.000000
+2           E_df_triple_evaporator  1.154742e+09  0.790909
+3        elec_df_triple_evaporator  1.592747e+07  0.010909
+4       steam_df_triple_evaporator  9.125116e+07  0.062500
+5  waterother_df_triple_evaporator  7.300093e+09  5.000000
+2023-10-23 15:39:39,230 - ProcessManager - INFO - Arguments for Liprec_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 1460018526.3376327)
+2023-10-23 15:39:39,237 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  1.551752e+09  1.000000
+1              m_in_df_Liprec_TG  1.460019e+09  0.940884
+2                 E_df_Liprec_TG  3.373782e+08  0.217418
+3  chemical_sodaash_df_Liprec_TG  1.528897e+07  0.009853
+4       waste_solid_df_Liprec_TG  5.901056e+06  0.003803
+5             water_df_Liprec_TG  7.644484e+07  0.049264
+2023-10-23 15:39:39,237 - ProcessManager - INFO - Arguments for centrifuge_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 1551752337.7358627)
+2023-10-23 15:39:39,237 - ProcessManager - INFO - Dataframe for centrifuge_TG:                          Variables        Values      per kg
+0        m_output_df_centrifuge_TG  1.119141e+07    1.000000
+1            m_in_df_centrifuge_TG  1.551752e+09  138.655693
+2            elec_df_centrifuge_TG  1.785202e+06    0.159515
+3    waste_liquid_df_centrifuge_TG -1.232449e+06   -0.110125
+4  recycled_waste_df_centrifuge_TG  3.081122e+08   27.531139
+2023-10-23 15:39:39,237 - ProcessManager - INFO - Arguments for washing_TG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:39,251 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  2.611328e+07  1.000000
+1      m_in_df_washing_TG  1.119141e+07  0.428571
+2     water_df_washing_TG  1.492188e+07  0.571429
+3         E_df_washing_TG  5.737374e+06  0.219711
+2023-10-23 15:39:39,251 - ProcessManager - INFO - Arguments for dissolution: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 26113283.655777752)
+2023-10-23 15:39:39,261 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  1.695929e+08  1.000000
+1      m_in_df_dissolution  2.611328e+07  0.153976
+2     water_df_dissolution  1.434796e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-10-23 15:39:39,261 - ProcessManager - INFO - Arguments for Liprec_BG: (5332640.1367650945, 13723893.33749948, 7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 169592864.18202913)
+2023-10-23 15:39:39,269 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values        per kg
+0    m_output_df_Liprec_BG  1.699021e+08      1.000000
+1        m_in_df_Liprec_BG  1.695929e+08      0.998180
+2  waste_heat_df_Liprec_BG -4.742031e+12 -27910.376062
+3           E_df_Liprec_BG  7.078632e+07      0.416630
+2023-10-23 15:39:39,269 - ProcessManager - INFO - Arguments for centrifuge_BG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 169902073.8631323)
+2023-10-23 15:39:39,277 - ProcessManager - INFO - Dataframe for centrifuge_BG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  1.119141e+07   1.000000
+1          m_in_df_centrifuge_BG  1.699021e+08  15.181475
+2          elec_df_centrifuge_BG  1.954626e+05   0.017465
+3  waste_liquid_df_centrifuge_BG -1.587107e+05  -0.014181
+2023-10-23 15:39:39,277 - ProcessManager - INFO - Arguments for washing_BG: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:39,286 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  2.611328e+07  1.000000
+1      m_in_df_washing_BG  1.119141e+07  0.428571
+2     water_df_washing_BG  1.492188e+07  0.571429
+3         E_df_washing_BG  5.737374e+06  0.219711
+2023-10-23 15:39:39,286 - ProcessManager - INFO - Arguments for centrifuge_wash: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 26113283.655777752)
+2023-10-23 15:39:39,291 - ProcessManager - INFO - Dataframe for centrifuge_wash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  1.119141e+07  1.000000
+1          m_in_df_centrifuge_wash  2.611328e+07  2.333333
+2          elec_df_centrifuge_wash  3.004183e+04  0.002684
+3  waste_liquid_df_centrifuge_wash -1.492188e+04 -0.001333
+2023-10-23 15:39:39,291 - ProcessManager - INFO - Arguments for rotary_dryer: (7460938.187365072, {'production': 13335654.81024, 'operating_days': 328.5, 'lifetime': 30.0, 'Brine_vol': 437.0, 'Freshwater_vol': nan, 'Li_efficiency': 0.5, 'elevation': -71.0, 'boilingpoint_process': 100.0, 'annual_airtemp': 22.0, 'density_brine': 1.13, 'vec_end': [0.01, 12.567699115044249, 4.358318584070797, 1.2802654867256638, 2.272920353982301, 0.009646017699115045, 0.0051858407079646025, 0.026371681415929205, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0]}, 11191407.281047609)
+2023-10-23 15:39:39,301 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  7.460938e+06  1.000000
+1      m_in_df_rotary_dryer  1.119141e+07  1.500000
+2         E_df_rotary_dryer  1.843291e+07  2.470588
+3      elec_df_rotary_dryer  2.238281e+06  0.300000

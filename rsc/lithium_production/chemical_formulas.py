@@ -56,6 +56,8 @@ T_desorp = 40  # Temperature in Li-ion adsorption (desorption)
 T_adsorp = 85  # Temperature in Li-ion adsorption (adsorption)
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
-
+Li_out_RO = 5000 # Li concentration in RO permeate [mg/L]
+Li_in_RO = 2500 # Li concentration in RO feed [mg/L]
+Li_out_evaporator = 30000 # Li concentration in evaporator brine [mg/L]
 
 heat_loss = 0.85

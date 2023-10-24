@@ -170,12 +170,12 @@ ei_reg = bd.Database(ei_name)
 country_location = "US-WECC"
 
 
-from rsc.lithium_production.licarbonate_processes import loop_functions
+from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
 eff = 0.5
 Li_conc = 0.04
 abbrev_loc = "Sal"
 location = "Salton Sea"
-loop_functions(eff, Li_conc, op_location=location, abbrev_loc=abbrev_loc)
+calculate_processingsequence(eff, Li_conc, op_location=location, abbrev_loc=abbrev_loc)
 
 #print all brightway2 databases
 print(bd.databases)

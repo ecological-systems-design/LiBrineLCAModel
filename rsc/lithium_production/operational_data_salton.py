@@ -19,7 +19,7 @@ def extract_data(location, abbrev_loc, Li_conc):
     # Use the provided abbreviation for the dictionary key
     extracted_database[abbrev_loc] = {
         f"production" : dat[location][0],  # Production of lithium carbonate [kg/yr]
-        f"operation_days" : dat[location][1],  # Operational days per year
+        f"operating_days" : dat[location][1],  # Operational days per year
         f"lifetime" : dat[location][2],  # Expected time of mining activity [yr]
         f"Brine_vol" : dat[location][3],  # Brine pumped to the surface [L/s]
         f"Freshwater_vol" : dat[location][4],  # Fresh water pumped to the surface at evaporation ponds [L/s]
@@ -33,4 +33,22 @@ def extract_data(location, abbrev_loc, Li_conc):
 
 
     return extracted_database
+
+
+def update_config_value(config, key, new_value):
+    """
+    Update a specific key in the config dictionary with a new value.
+
+    Args:
+        config (dict): The configuration dictionary.
+        key (str): The key to update.
+        new_value: The new value to assign to the key.
+
+    Returns:
+        None
+    """
+    if key in config:
+        config[key] = new_value
+    else:
+        print(f"Key '{key}' not found in the {config} dictionary.")
 

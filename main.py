@@ -54,7 +54,7 @@ if __name__ == '__main__' :
 
     country_location = "US-WECC"
 
-    from rsc.lithium_production.licarbonate_processes import loop_functions
+    from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
 
     eff = 0.5
     Li_conc = 0.04
