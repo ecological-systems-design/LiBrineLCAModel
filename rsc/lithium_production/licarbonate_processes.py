@@ -2,12 +2,16 @@ from rsc.lithium_production.chemical_formulas import *
 
 from rsc.lithium_production.operational_data_salton import *
 
+from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+
 import pandas as pd
 import os
 import logging
 import inspect
 import json
 import datetime
+import numpy as np
+import pickle
 
 if not os.path.exists("../../images") :
     os.mkdir("../../images")
@@ -1268,6 +1272,58 @@ class ProcessManager :
             energy_per_prod_mass = elec_per_prod_mass = water_per_prod_mass = None
 
         return energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass
+
+    def run_simulation(self, op_location, abbrev_loc, process_sequence, max_eff,
+                       min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min) :
+
+        eff_range = np.arange(max_eff, min_eff - eff_steps + 0.001, -eff_steps)
+
+        Li_conc_range = [Li_conc_max]
+        while Li_conc_range[-1] > Li_conc_min :
+            next_value = Li_conc_range[-1] - Li_conc_steps
+            if next_value < 0 :
+                break
+            elif next_value < Li_conc_min :
+                next_value = Li_conc_min
+            Li_conc_range.append(next_value)
+
+        Li_conc_range = np.array(Li_conc_range)
+
+        results_dict = {}
+
+        for eff in eff_range :
+            results_dict[eff] = {}
+            for Li in Li_conc_range :
+                filename = f"{abbrev_loc}_eff{eff}_Li{Li}.txt"
+                print(filename)
+
+                initial_data = extract_data(op_location, abbrev_loc, Li)
+                print(Li)
+                print(eff)
+
+                prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+
+                manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+
+                result_df = manager.run(filename)
+
+                energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass = manager.calculate_resource_per_prod_mass(
+                    result_df, prod)
+
+                results_dict[eff][Li] = {
+                    'data_frames' : result_df,
+                    'resources_per_kg' : (energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass)
+                    }
+
+        with open(f"results_dict_{abbrev_loc}_{Li}_{eff}.pkl", "wb") as f :
+            pickle.dump(results_dict, f)
+
+        print("Simulation completed and results stored in the dictionary.")
+
+        print(results_dict)
+
+        viz = Visualization()
+        viz.plot_resources_per_kg(results_dict, abbrev_loc)
 
 
 

@@ -3,8 +3,8 @@ from rsc.lithium_production.licarbonate_processes import *
 import pandas as pd
 import os
 
-if not os.path.exists("../../inventories") :
-    os.mkdir("../../inventories")
+if not os.path.exists("../inventories") :
+    os.mkdir("../inventories")
 
 
 def inventories(Li_conc, Li_conc_steps, max_eff, min_eff, eff_steps, max_number_boreholes, borehole_depth, op_location) :
