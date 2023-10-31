@@ -30,6 +30,8 @@ if __name__ == '__main__' :
     project = f'Site_{site_name}_52'
     bd.projects.set_current(project)
     print(project)
+    list = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    print(list)
 
     #del bd.databases[site_name]
     #del bd.databases[ei_name]
@@ -53,14 +55,6 @@ if __name__ == '__main__' :
     #ei_reg = bd.Database(ei_name)
 
     country_location = "US-WECC"
-
-    #from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
-
-    eff = 0.5
-    Li_conc = 0.04
-    abbrev_loc = "Sal"
-    op_location = "Salton Sea"
-    #loop_functions(eff, Li_conc, op_location=op_location, abbrev_loc=abbrev_loc)
 
     # print all brightway2 databases
     print(bd.databases)
@@ -122,11 +116,11 @@ if __name__ == '__main__' :
 
 
     max_eff = 0.9
-    min_eff = 0.9
+    min_eff = 0.8
     eff_steps = 0.1
     Li_conc_steps = 0.01
     Li_conc_max = 0.03
-    Li_conc_min = 0.03
+    Li_conc_min = 0.01
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                    min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
@@ -140,8 +134,8 @@ if __name__ == '__main__' :
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                              eff, Li_conc, op_location, abbrev_loc, dataframes_dict)
 
-    #from rsc.Brightway2.lci_method_aware import import_aware
-    #import_aware(ei_reg, bio)
+    from rsc.Brightway2.lci_method_aware import import_aware
+    import_aware(ei_reg, bio)
 
     from rsc.Brightway2.lci_method_pm import import_PM
     import_PM(ei_reg, bio)
@@ -173,11 +167,11 @@ if __name__ == '__main__' :
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
                  and 'global warming potential' in str(m)][-20]
 
-    #method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
+    method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
     method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
 
-    method_list = [method_cc]
+    method_list = [method_cc, method_PM, method_water]
 
     from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
 
@@ -186,5 +180,10 @@ if __name__ == '__main__' :
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
                                                        site_name, ei_name, eff_range, Li_conc_range,
                                                        abbrev_loc)
+
+    from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+    # Plot the results
+    Visualization.plot_impact_categories(impacts, abbrev_loc)
+
 
 

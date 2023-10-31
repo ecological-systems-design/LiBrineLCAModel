@@ -12,7 +12,8 @@ import tabulate
 
 
 def import_PM(ei, bio_f) :
-    if "PM regionalized" not in str(bd.methods) :
+    m = [m for m in bd.methods if "PM regionalized" in str(m)]
+    if len(m) == 0 :
         particulates = [act for act in bio_f if 'particulate' in act['name'].lower() or 'sulfur dioxide' in act[
             'name'].lower() or 'nitrogen oxides' in act['name'].lower() or 'ammonia' in act['name'].lower()]
         bio_acts = particulates
@@ -66,7 +67,7 @@ def import_PM(ei, bio_f) :
             'num_cfs' : len(flows_list),
             'description' : 'xyz',
             }
-        # aware_method.deregister()
+
         aware_method.validate(flows_list)
         aware_method.register()
         aware_method.write(flows_list)
@@ -103,10 +104,11 @@ def import_PM(ei, bio_f) :
                         # Mark that the exchange has been replaced
                         exc['replaced with regionalized'] = True
                         exc.save()
-
         print('PM is imported.')
         pass
 
     else :
         print("PM already exists as a method.")
         pass
+
+    return None

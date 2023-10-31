@@ -166,9 +166,6 @@ def chinese_coal(act_f,db) :
         act.save()
 
         print(f'Adapted {act, act["type"]}')
-        for exchange in act.exchanges() :
-            exchange_type = exchange.get('type', 'Type not specified')
-            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
     return db
 
 

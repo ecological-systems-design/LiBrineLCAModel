@@ -36,6 +36,9 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
     for act in site_db :
         act_name = act['name']
 
+        if act_name.startswith('df_') :
+            act_name = act_name[3 :]
+
         # Filtering the dataframe based on the process name in the "Variable" column "
         if act_name in selected_dataframe:
             filtered_df = selected_dataframe[act_name]
@@ -43,7 +46,7 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
             # Iterating over the exchanges of the activity
             for exc in act.exchanges() :
                 exc_name = exc.input['name']
-                print(exc_name)
+                exc_type = exc.get('type', 'Type not specified')
 
                 #Checking if the exchange needs to be updated
                 if exc_name in inventory_map.keys():
@@ -56,16 +59,31 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
                     exc['amount'] = new_value
                     exc.save()
 
-
-                else:
-                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_in')]['per kg'].values[0]
+                elif exc_name.startswith('df_') and exc_type == 'production':
+                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_output')]['per kg'].iloc[0]
 
                     # Updating the exchange amount
                     exc['amount'] = new_value
                     exc.save()
 
-                print(f"Activity {act_name} was updated.")
+                elif exc_name.startswith('df_') and exc_type == 'technosphere':
+                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_in')]['per kg'].iloc[0]
+
+                    # Updating the exchange amount
+                    exc['amount'] = new_value
+                    exc.save()
+
+                else:
+                    pass
+
+                #print(f"Activity {act_name} was updated.")
                 act.save()
+                for activity in site_db :
+                    print("Activity:", activity, activity['type'])
+                    # Loop through all exchanges for the current activity
+                    for exchange in activity.exchanges() :
+                        exchange_type = exchange.get('type', 'Type not specified')
+                        print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
 
     print("Database has been updated successfully.")
     return site_db

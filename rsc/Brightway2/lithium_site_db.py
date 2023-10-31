@@ -14,7 +14,6 @@ def find_activity_by_name_and_location(name, ei_name, location) :
 def find_bio_flow_by_name_and_category(name, database, categories) :
     bio_flow = next((bio_flow for bio_flow in database if bio_flow['name'] == str(name)
                      and bio_flow['categories'] == categories), None)
-    print(bio_flow)
     return bio_flow
 
 

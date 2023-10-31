@@ -19,6 +19,8 @@ Zn = 65.38
 Ba = 137.33
 Sr = 87.62
 
+gravity_constant = 9.81  #Gravity constant [m/s2]
+
 #Heat capacities of chemicals
 #At 100 °C
 hCC = 849  #Heat capacity of gaseous CO2
@@ -42,6 +44,8 @@ dens_CaCl = 2150  #Density of calcium chloride [kg/m3]
 dens_Licarb = 2100  #Density of lithium carbonate [kg/m3]
 dens_H2O = 1000  #Density of water [kg/m3]
 dens_pulp = 2 / 3 * dens_H2O + 1 / 3 * dens_Licarb  #Assumed density of the pulp [kg/m3]
+dens_frw= 1100 #Density of fresh water extracted at the Salar de Atacama [kg/m3]
+dens_organicsolvent = 818 #Density of organic solvent [kg/m3]
 
 #Dissolution constant of Li2CO3 at 10 °C
 dissol_cons = 0.052  #in kg/kg
@@ -54,10 +58,28 @@ T_RO = 40  # Temperature of reverse osmosis
 T_evap = 70  # Temperature of triple evaporator
 T_desorp = 40  # Temperature in Li-ion adsorption (desorption)
 T_adsorp = 85  # Temperature in Li-ion adsorption (adsorption)
+T_boron = 10 # Temperature in boron removal
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 Li_out_RO = 5000 # Li concentration in RO permeate [mg/L]
 Li_in_RO = 2500 # Li concentration in RO feed [mg/L]
 Li_out_evaporator = 30000 # Li concentration in evaporator brine [mg/L]
+eff_pw = 0.95 # Efficiency of pumping well
 
 heat_loss = 0.85
+
+# Proxy values
+proxy_freshwater_EP = 0.002726891764265545 # mass of pumped fresh water per kg m_saltbri
+proxy_harvest = 8.565755621167364e-05
+
+# Boron removal - specific constants
+pH_ini = 11  # Initial pH of concentrated brine
+pOH_ini = 14 - pH_ini  # Initial pOH of concentrated brine
+pH_aft = 1.8  # End pH of concentrated brine by adding HCl solution
+pOH_aft = 14 - pH_aft  # End pOH of concentrated brine by adding HCl solution
+
+recycling_rate = 0.985 # Recycling rate of organic solvent
+sodiumhydroxide_solution = 0.3 # Assumed 30 wt. % sodium hydroxide solution
+
+
+

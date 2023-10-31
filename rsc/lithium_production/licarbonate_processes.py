@@ -17,8 +17,271 @@ if not os.path.exists("../../images") :
     os.mkdir("../../images")
 
 # Evaporation ponds
+class evaporation_ponds :
+    def execute(self, site_parameters, m_in) :
+        process_name = 'df_evaporation_ponds'
+        op_days = site_parameters['operating_days']  # Operational days per year
+        vec_ini = site_parameters['vec_ini']  # vector of chemical composition of initial brine
+        vec_end = site_parameters['vec_end']  # vector of chemical composition of enriched brine sent to processing plant
+        density_initial_brine = site_parameters['density_brine']  # density of initial brine
+        density_enriched_brine = site_parameters['density_enriched_brine']  # density of enriched brine TODO insert that in function
+        eff1=prod/((vec_ini[0]/100*m_pumpbr)/(2*Li/(2*Li+C+O*3))) #Overall Li-efficiency, Li2CO3 production compared with the initial Li mass in the brine
+        quicklime_reported = site_parameters['quicklime_reported']  # question if quicklime is used or not in the evaporation ponds
+        freshwater_reported = site_parameters['freshwater_reported']    # question if freshwater is reported or not in the evaporation ponds
+        second_Li_enrichment_reported = site_parameters['second_Li_enrichment_reported']  # question if second Li enrichment is reported or not in the evaporation ponds
+        second_Li_enrichment = site_parameters['second_Li_enrichment']  # second Li enrichment, either 0 or reported value
+        diesel_reported = site_parameters['diesel_reported']    # question if diesel is reported or not in the evaporation ponds
+        depth_well_brine = site_parameters['well_depth_brine']  # depth of the well for brines
+        depth_well_freshwater = site_parameters['well_depth_freshwater']  # depth of the well for freshwater
+        life = site_parameters['lifetime']  # lifetime of the plant
+
+        operating_time = op_days * 24 * 60 * 60  # Operating time in seconds
+
+        # Volume and mass changes during evaporation
+        brinemass_req = vec_end[0] / (
+                    vec_ini[0] * eff1)  # Required mass of brine to gain 1 kg concentrated brine with 6 wt. % Li
+        brinemass_proc = 1.00
+        brinemass_evap = brinemass_req - brinemass_proc  # Required mass which needs to be evaporated and precipitated
+
+        # Elemental losses during evaporation based on chemical composition
+        vec_loss = [0 for x in range (0,9)]
+        for i in range(0, 9) :
+            vec_loss[i] = brinemass_req * (vec_ini[i] / 100) - (vec_end[i] / 100) * brinemass_proc
+
+        # Calculation of precipitated salts and brine sent to the processsing plant
+        m_salt = (brinemass_evap + vec_loss[
+            8]) / brinemass_req * m_pumpbr  # mass of salt precipitating in evaporation ponds [kg]
+        m_saltbri = brinemass_evap / brinemass_req * m_pumpbr
+        m_bri_proc = m_pumpbr - m_saltbri  # mass of concentrated brine sent to processing plant [kg]
+
+        # Quicklime demand if reported
+        if quicklime_reported == 1 :
+            water_quicklime, chemical_quicklime, m_output, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbri, m_bri_proc,
+                                                                                               brinemass_evap, second_Li_enrichment)
+
+        else:
+            water_quicklime = 0
+            chemical_quicklime = 0
+            pass
+
+        # Freshwater demand if reported
+        if freshwater_reported == 1 :
+            water_pipewashing = (v_pumpfrw / 1000) * dens_frw * operating_time # mass of fresh water pumped per year [kg/year], in evaporation ponds
+
+        else:
+            water_pipewashing = self.freshwater_usage(proxy_freshwater_EP, m_saltbri, m_saltbrine2)
+            pass
+
+        # Overall water demand in evaporation ponds
+        water_evaporationponds = water_pipewashing + water_quicklime
+
+        # Land use to produce 1 kg concentrated brine
+        area_occup = brinemass_evap / 1000 / evap
+        transf = area_occup / life
+        m_Li = m_pumpbr * vec_ini[0] / 100  # mass of lithium in the annual pumped brine [kg]
+
+        # Well field system
+        power_well = gravity_constant * (
+                    density_initial_brine * v_pumpbrs * depth_well_brine + v_pumpfrw * depth_well_freshwater) / eff_pw  # Electricity for pumping activity of wells required for brine and fresh water [kWh]
+        electric_well = power_well * 1.1 * (1 / (3600 * 1000)) * operating_time
+
+        # Salt harvesting until processing plant
+        if diesel_reported == 1 :
+            hrs_excav = site_parameters['hrs_excav']/37  # working hours for excavators
+        else:
+            hrs_excav = self.diesel_usage_proxy(proxy_harvest, m_saltbri)
+
+        m_output = m_pumpbr - m_saltbri #m_bri_proc
+
+        df_data = {
+            'Variables' : [f'm_output_{process_name}',
+                           f'm_Li_{process_name}',
+                           f'elec_{process_name}',
+                           f'diesel_machine_{process_name}',
+                           f'water_{process_name}',
+                           f'land_occupation_{process_name}',
+                           f'land_transform_unknown_{process_name}',
+                           f'land_transform_minesite_{process_name}',
+                           f'chemical_quicklime_{process_name}',
+                           f'waste_solid_salt_{process_name}'],
+            'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf, chemical_quicklime, m_salt]
+            }
+
+        df_process = pd.DataFrame(df_data)
+        df_process['per kg'] = df_process['Values'] / df_process.iloc[0][1]
+
+        m_out = df_process.iloc[0]['Values']
+
+        return {
+            'process_name' : process_name,
+            'm_out' : m_out,
+            'data_frame' : df_process,
+            'mass_CO2' : None,
+            'prod_libicarb' : None,
+            'water_RO' : None,
+            'water_evap' : None,
+            'Ca_mass_brine' : None
+            }
+
+    def quicklime_usage(self, vec_loss, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment) :
+        """
+           Calculate quicklime usage and related parameters.
+
+           :param vec_loss: List of elemental losses during evaporation.
+           :param vec_end: Vector of chemical composition of enriched brine.
+           :param m_saltbri: Mass of salt in brine.
+           :param m_bri_proc: Mass of concentrated brine sent to processing plant.
+           :param bri_evap: Required mass which needs to be evaporated and precipitated.
+           :param second_Li_enrichment: Second Li enrichment value.
+           :return: Tuple of water lime low quality, lime low quality, output mass, and salt brine mass for second enrichment.
+           """
+
+        # First magnesium and calcium removal by adding low quality quicklime
+        mg_prop = (vec_loss[
+                       5] / bri_evap) * m_saltbri  # Mass of Mg in brine which is required to be removed by adding lime
+        lime_low_quality = (mg_prop / Mg * (Ca + O)) * 1.2  # Required mass of low quality quicklime [kg]
+        water_lime_low_quality = (lime_low_quality / (Ca + O)) * (
+                    H * 2 + O)  # Required mass of water to produce quicklime solution [kg]
+        if second_Li_enrichment != 0 :
+            brinemass_req2 = second_Li_enrichment/vec_end[0]
+            brinemass_proc2 = 1.00
+            brinemass_evap2 = brinemass_req2 - brinemass_proc2  # Required mass which needs to be evaporated and precipitated
+            m_saltbrine2 = brinemass_evap2 / brinemass_req2 * m_bri_proc
+            m_output = m_bri_proc + water_lime_low - m_saltbrine2
+        else:
+            m_output = m_bri_proc + water_lime_low
+            m_saltbrine2 = 0
+
+        return water_lime_low, lime_low, m_output, m_saltbrine2
+
+    def freshwater_usage_proxy(self, proxy_value, m_saltbri, m_saltbrine2):
+        water_pipewashing = proxy_value * m_saltbri
+        return water_pipewashing
+
+    def diesel_usage_proxy(self, proxy_value, m_saltbri):
+        hrs_excav = (proxy_value * m_saltbri)/37  # working hours for excavators TODO check where 37 is coming from
+        return hrs_excav
+
+class transport_brine:
+    def execute(self, site_parameters, m_in):
+        process_name = 'df_transport_brine'
+        distance = site_parameters['distance_to_processing'] # distance from evaporation ponds to processing plant
+        tkm = (m_in / 1000) * distance # tonne-kilometer of brine transport
+        m_output = m_in # no changes in terms of mass
+
+        df_data = {
+            'Variables' : [f'm_output_{process_name}', f'm_in_{process_name}', f'transport_{process_name}'],
+            'Values' : [m_output, m_in, tkm]
+            }
+
+        df_process = pd.DataFrame(df_data)
+        df_process['per kg'] = df_process['Values'] / df_process.iloc[0][1]
+
+        m_out = df_process.iloc[0]['Values']
+
+        return {
+            'process_name' : process_name,
+            'm_out' : m_out,
+            'data_frame' : df_process,
+            'mass_CO2' : None,
+            'prod_libicarb' : None,
+            'water_RO' : None,
+            'water_evap' : None,
+            'Ca_mass_brine' : None
+            }
+
+class B_removal_organicsolvent:
+    @staticmethod
+    def calculate_energy_demand(T_out, T_boron, hCHH_bri, m_bri_proc, heat_loss) :
+        return ((T_out - T_boron) * hCHH_bri * m_bri_proc) / 1e6 / heat_loss
+
+    @staticmethod
+    def calculate_delta_concentrations(pH_aft, pH_ini, pOH_ini, pOH_aft) :
+        delta_H_conc = (10 ** -pH_aft) - (10 ** -pH_ini)
+        delta_OH_conc = (10 ** -pOH_ini) - (10 ** -pOH_aft)
+        return delta_H_conc, delta_OH_conc
+
+    def calculate_HCl_demand(self, delta_H_conc, delta_OH_conc, m_bri_proc, Dens_end, Dens_ini, vec_end) :
+        HCl_pH = (delta_H_conc * m_bri_proc / (1000 * Dens_end) * (H + Cl) +
+                  delta_OH_conc * m_bri_proc / (Dens_ini * 1000) * (H + Cl)) / 0.32
+
+        HCl_borate = ((vec_end[7] * 10 * m_bri_proc / B) * 1 * (H * Cl) / 1000) / 0.32
+        HCl_sulfate = ((vec_end[6] * 10 * m_bri_proc / (S + O * 4)) * 0.56 * (H * Cl) / 1000) / 0.32
+        HCl_mass32 = (HCl_pH + HCl_borate + HCl_sulfate) * 0.32
+
+        return HCl_mass32
+
+    def calculcate_organicsolvent_demand(self, m_in, life) :
+        organic = (1 - recycling_rate) * ((m_in / (
+                density_enriched_brine * 1000)) * dens_organicsolvent)  # mass of added organic solvent required for concentrated brine [kg/yr]
+
+        organic_invest = (organic / (
+                1 - recycling_rate)) / life  # organic solvent which is required at the beginning of the processing activity, divided by the life time of the mine site
+        water_SX_strip = ((organic / Dens_organicsolvent) / 3) * 1000
+        return organic + organic_invest, water_SX_strip
+
+    def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in):
+        # Boron precipitates estimation
+        boron_mass = ((vec_end[7]) / 100 * m_in)  # boron mass in brine [kg]
+        nat_boron = boron_mass / B * (1 / 4 * (Na * 2 + B * 4 + O * 7))  # Helene
+        sodium_hydroxide = nat_boron / (Na * 2 + B * 4 + O * 7) * 2 * (
+                Na + O + H)  # Required mass of sodium hydroxide for the specific production volume [kg] TODO: Efficiency?
+        water_sodium_hydroxide = sodium_hydroxide / sodiumhydroxide_solution  # Dissolved sodium hydroxide in aqueous solution [kg]
+        return nat_boron, sodium_hydroxide, water_sodium_hydroxide
 
 
+    def execute(self, site_parameters, m_in):
+        process_name = 'df_B_removal_organicsolvent'
+        T_out = site_parameters['annual_airtemp'] # annual air temperature
+        vec_end = site_parameters['vec_end'] # vector of chemical composition of brine in processing facility
+        density_initial_brine = site_parameters['density_brine']  # density of initial brine
+        density_enriched_brine = site_parameters['density_enriched_brine']  # density of enriched brine
+        life = site_parameters['lifetime']  # lifetime of the plant
+
+        # Energy demand for boron removal
+        E_boronremoval = self.calculate_energy_demand(T_out, T_boron, hCHH_bri, m_in, heat_loss)  # Energy demand including heat loss [MJ]
+
+        # Organic solvent demand
+        # Reduction of pH (pH constants from chemical formulas)
+
+        # Calculate delta concentrations
+        delta_H_conc, delta_OH_conc = self.calculate_delta_concentrations(pH_aft, pH_ini, pOH_ini, pOH_aft)
+
+        # Calculate organic solvent demand
+        HCl_mass32 = self.calculate_HCl_demand(delta_H_conc, delta_OH_conc, m_bri_proc, density_enriched_brine,
+                                               density_initial_brine, vec_end)
+
+        # Boron precipitates estimation
+        organic, wat_SX_strip = self.calculcate_organicsolvent_demand(m_in, life)
+
+        nat_boron, sodium_hydroxide, water_sodium_hydroxide = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in)
+
+        water_sum = wat_sod_hydrox + wat_SX_strip  # Total mass of required deionized water in this process [kg]
+        m_output = m_in - boron_mass  # Mass going out of this process [kg]
+
+
+        df_data = {
+            'Variables' : [f'm_output_{process_name}', f'm_Li_{process_name}', f'E_{process_name}',
+                           f'chemical_HCl_{process_name}', f'chemical_organicsolvent_{process_name}',
+                           f'chemical_NaOH_{process_name}', f'water_{process_name}', f'waste_solid_{process_name}'],
+            'Values' : [m_output, m_in, E_boronremoval, HCl_mass32, organic, sod_hydrox, wat_sum, nat_boron]
+            }
+
+        df_process = pd.DataFrame(df_data)
+        df_process['per kg'] = df_process['Values'] / df_process.iloc[0][1]
+
+        m_out = df_process.iloc[0]['Values']
+
+        return {
+            'process_name' : process_name,
+            'm_out' : m_out,
+            'data_frame' : df_process,
+            'mass_CO2' : None,
+            'prod_libicarb' : None,
+            'water_RO' : None,
+            'water_evap' : None,
+            'Ca_mass_brine' : None
+            }
 
 
 # Si & Fe removal by precipitation

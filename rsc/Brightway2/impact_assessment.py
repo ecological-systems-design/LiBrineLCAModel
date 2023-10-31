@@ -39,7 +39,7 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
     #Change exchanges in site_db by using the function change_exchanges_in_database
     for eff in eff_range:
         for Li in Li_conc_range:
-            change_exchanges_in_database(eff, Li, site_name, abbrev_loc, dict_results)
+            site_db = change_exchanges_in_database(eff, Li, site_name, abbrev_loc, dict_results)
 
             # Calculate impacts for the activity
             impacts = calculate_impacts(activity, methods)
@@ -47,7 +47,8 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
             # Add impacts to the dictionary and add the efficiency and Li concentration as keys
             dict_impacts[eff, Li] = impacts
 
-    print(dict_impacts)
+    return dict_impacts
+
 
 
 

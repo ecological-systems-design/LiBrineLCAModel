@@ -236,3 +236,4 @@
 1      m_in_df_rotary_dryer  3.357422e+07  1.500000
 2         E_df_rotary_dryer  5.529872e+07  2.470588
 3      elec_df_rotary_dryer  6.714844e+06  0.300000
+2023-10-31 13:21:01,475 - bw2calc - INFO - Created LCA object
