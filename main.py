@@ -27,7 +27,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_40'
+    project = f'Site_{site_name}_52'
     bd.projects.set_current(project)
     print(project)
 
@@ -54,7 +54,7 @@ if __name__ == '__main__' :
 
     country_location = "US-WECC"
 
-    from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
+    #from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
 
     eff = 0.5
     Li_conc = 0.04
@@ -74,36 +74,117 @@ if __name__ == '__main__' :
     #site = check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
     #               eff=0.5, Li_conc=0.04, op_location="Salton Sea",
     #               abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
-    print(bd.databases)
+
+    eff = 0.5
+    Li_conc = 0.018
+    abbrev_loc = "Sal"
+    op_location = "Salton Sea"
+
+    # initialize the processing sequence
+    from rsc.lithium_production.operational_data_salton import extract_data, update_config_value
+
+    initial_data = extract_data(op_location, abbrev_loc, Li_conc)
+    from rsc.lithium_production.licarbonate_processes import *
+
+    process_sequence = [
+        SiFe_removal_limestone(),
+        MnZn_removal_lime(),
+        acidification(),
+        Li_adsorption(),
+        CaMg_removal_sodiumhydrox(),
+        ion_exchange_L(),
+        reverse_osmosis(),
+        triple_evaporator(),
+        Liprec_TG(),
+        centrifuge_TG(),
+        washing_TG(),
+        dissolution(),
+        Liprec_BG(),
+        centrifuge_BG(),
+        washing_BG(),
+        centrifuge_wash(),
+        rotary_dryer()
+        ]
+
+    # 1. Define your initial parameters
+    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+
+    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}.txt"
+
+    print(initial_data[abbrev_loc])
+
+    # 2. Initialize the ProcessManager
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+
+    # 3. Run the processes
+    dataframes_dict = manager.run(filename)
+
+
+
+    max_eff = 0.9
+    min_eff = 0.9
+    eff_steps = 0.1
+    Li_conc_steps = 0.01
+    Li_conc_max = 0.03
+    Li_conc_min = 0.03
+
+    results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
+                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
+
+    print(results)
+
+
 
     from rsc.Brightway2.setting_up_db_env import database_environment
 
-    ei_reg, site_db, site_db_new, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
-                                                             eff, Li_conc, op_location, abbrev_loc)
+    ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
+                                                             eff, Li_conc, op_location, abbrev_loc, dataframes_dict)
 
-    from rsc.Brightway2.lci_method_aware import import_aware
-    import_aware(ei_reg, bio)
+    #from rsc.Brightway2.lci_method_aware import import_aware
+    #import_aware(ei_reg, bio)
 
     from rsc.Brightway2.lci_method_pm import import_PM
     import_PM(ei_reg, bio)
 
 
-    from rsc.Brightway2.calculating_impacts import  calculate_impacts_for_selected_methods
-    fu = [act for act in site_db if "Geothermal Li" in act['name']]
-    results = calculate_impacts_for_selected_methods(activities=fu, amounts=[1])
+    #from rsc.Brightway2.calculating_impacts import  calculate_impacts_for_selected_methods
+    #fu = [act for act in site_db if "Geothermal Li" in act['name']]
+    #results = calculate_impacts_for_selected_methods(activities=fu, amounts=[1])
 
-    print(results)
+    #print(results)
 
+    eff = 0.9
+    Li_conc = 0.03
 
-    # activities in site database
-    # Loop through all activities in the database
-    #for activity in site :
-    #    print("Activity:", activity)
-    #    # Loop through all exchanges for the current activity
-    #    for exchange in activity.exchanges() :
-    #        print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit)
+    from rsc.Brightway2.iterating_LCIs import change_exchanges_in_database
+    #site_db = change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, results)
 
 
 
+    #Loop through all activities in the database
+    for activity in site_db :
+        print("Activity:", activity, activity['type'])
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges() :
+            exchange_type = exchange.get('type', 'Type not specified')
+            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+
+    # Filter methods based on your criteria
+    method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
+                 and 'global warming potential' in str(m)][-20]
+
+    #method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
+
+    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+
+    method_list = [method_cc]
+
+    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+
+    # Calculate impacts for the activity
+    activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+    impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
+                                                       site_name, ei_name, eff_range, Li_conc_range,
+                                                       abbrev_loc)
 
 

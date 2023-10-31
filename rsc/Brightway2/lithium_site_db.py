@@ -1,5 +1,6 @@
 import bw2data as bd
-from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
+#from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
+
 
 
 def find_activity_by_name_and_location(name, ei_name, location) :
@@ -23,8 +24,8 @@ def create_exchanges(activity, exchanges) :
                               location=location, categories=categories).save()
 
 
-def check_database(database_name, country_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
-                   biosphere) :
+def create_database(database_name, country_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
+                   biosphere, dataframes_dict) :
     ei_reg = bd.Database(ei_name)
     bio = bd.Database(biosphere)
 
@@ -32,7 +33,7 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
         print(f"{database_name} does not exist.")
         db = bd.Database(database_name)
         db.register()
-        dfs, _, _ = calculate_processingsequence(eff, Li_conc, op_location, abbrev_loc)
+        #dfs, _, _ = calculate_processingsequence(eff, Li_conc, op_location, abbrev_loc)
 
         # Required activities and flows
         elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, country_location)
@@ -72,15 +73,20 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
                 "location" : "RoW"}
             }
 
-        for i, df in enumerate(dfs) :
+        dfs = list(dataframes_dict.values())
+        keys = list(dataframes_dict.keys())
+
+        for i, (key, df) in enumerate(dataframes_dict.items()) :
             prev_df = dfs[i - 1] if i > 0 else None
-            m_outputs = df[df['Variables'].str.contains('m_output_df_')]
+            m_outputs = df[df['Variables'].str.contains('^m_output_df_', na=False)]
 
             for _, m_output_row in m_outputs.iterrows() :
                 activity_name = m_output_row["Variables"].split('m_output_')[1]
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
-                                          location=country_location, type = "production")
+                                          location=country_location, type = "process")
                 new_act.save()
+                new_act.new_exchange(input=new_act.key, amount=1, unit="kilogram", type="production").save()
+
                 print(f"Created {activity_name}, {country_location} activity.")
 
                 exchanges_df = df[df['Variables'].str.contains(activity_name)][1 :]
@@ -91,7 +97,7 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
                         # If you want to do something with the previous DataFrame
                         if prev_df is not None :
                             # Extract the activity name from prev_df, assuming the name can be derived similarly
-                            prev_m_output_row = prev_df[prev_df['Variables'].str.contains('m_output_df_')].iloc[0]
+                            prev_m_output_row = prev_df[prev_df['Variables'].str.contains('m_output')].iloc[0]
                             prev_activity_name = prev_m_output_row["Variables"].split('m_output_')[1]
                             # Get the previously created activity from the database using the extracted name
                             prev_act = next((act for act in db if act['name'] == prev_activity_name), None)
@@ -115,7 +121,10 @@ def check_database(database_name, country_location, eff, Li_conc, op_location, a
                         if not act_search :
                             water_act = db.new_activity(amount=1, code=f"Water_{abbrev_loc}",
                                                         name=f"Water_{abbrev_loc}", unit="kilogram",
-                                                        location=country_location, type="production")
+                                                        location=country_location, type="process")
+                            water_act.save()
+                            water_act.new_exchange(input=water_act.key, amount=1, unit="kilogram",
+                                                 type="production").save()
                             water_act.save()
                             exchanges = [
                                 (elec_search.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),

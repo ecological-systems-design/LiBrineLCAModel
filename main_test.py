@@ -85,6 +85,8 @@ if __name__ == '__main__' :
     # 3. Run the processes
     results = manager.run(filename)
 
+    print(results)
+
     # 4. Examine the results
     for process_name, dataframe in results.items() :
         print(f"Results for {process_name}:")
@@ -99,8 +101,8 @@ if __name__ == '__main__' :
     Li_conc_max = 0.03
     Li_conc_min = 0.001
 
-    manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
-                       min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
+    #manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
+    #                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
 
 
 

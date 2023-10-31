@@ -42,8 +42,8 @@ def import_PM(ei, bio_f) :
 
         new_bio_db = bd.Database(new_bio_name)
 
-        cf_pm1 = pd.read_csv(r"../../data/CF_results_alternative_lithium_ecoinvent_regions_2022-02-14.csv", delimiter=';')
-        cf_pm2_ada = pd.read_csv(r"../../data/CF_PM_Geothermal.csv", delimiter=';')
+        cf_pm1 = pd.read_csv(r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\CF_results_alternative_lithium_ecoinvent_regions_2022-02-14.csv", delimiter=';')
+        cf_pm2_ada = pd.read_csv(r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\CF_PM_Geothermal.csv", delimiter=';')
 
         flows_list = []
         for flow in new_bio_db :

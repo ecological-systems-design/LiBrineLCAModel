@@ -1,4 +1,4 @@
-from archive.creating_inventories import inventories
+
 import pandas as pd
 import bw2calc as bc
 import bw2data as bd

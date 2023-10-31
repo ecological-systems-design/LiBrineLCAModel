@@ -16,12 +16,16 @@ import pickle
 if not os.path.exists("../../images") :
     os.mkdir("../../images")
 
+# Evaporation ponds
+
+
+
 
 # Si & Fe removal by precipitation
 class SiFe_removal_limestone :
     def execute(self, site_parameters, m_in) :
         process_name = 'df_SiFe_removal_limestone'  # Si and Fe removal by precipitation
-        vec_end = site_parameters['vec_end']
+        vec_end = site_parameters['vec_end'] # vector of chemical composition of brine
         E_SiFe = 0
         Fe_mass = (vec_end[-5] / 100) * m_in
         Si_mass = vec_end[-8] / 100 * m_in
@@ -1320,7 +1324,7 @@ class ProcessManager :
 
         print("Simulation completed and results stored in the dictionary.")
 
-        print(results_dict)
+        return results_dict, eff_range, Li_conc_range
 
         viz = Visualization()
         viz.plot_resources_per_kg(results_dict, abbrev_loc)

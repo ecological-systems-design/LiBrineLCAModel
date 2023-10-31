@@ -1,6 +1,5 @@
 import bw2data as bd
 from pathlib import Path
-import pandas as pd
 #from Processes import *
 #from chemical_formulas import *
 #from operational_data_salton import *
@@ -40,7 +39,7 @@ if __name__ == '__main__':
 
             import_biosphere(biosphere)
 
-            from rsc.Brightway2.import_db import ecoinvent, water_database, site_database
+            from archive.import_db import ecoinvent, water_database, site_database
 
             database_list = [ei_name, water_name, site_name]
 
@@ -184,9 +183,8 @@ print(bd.databases)
 #demand_all, df = inventories(Li_conc= 0.04, max_eff = 0.9, min_eff = 0.3, eff_steps = 0.1,
 #                             max_number_boreholes = 0, borehole_depth = 0)
 
-from rsc.Brightway2.lithium_site_db import check_database
+from rsc.Brightway2.lithium_site_db import create_database
 
-check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
-               eff=0.5, Li_conc=0.04, op_location="Salton Sea",
-               abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
+create_database(database_name=site_name, country_location="US", eff=0.5, Li_conc=0.04, op_location="Salton Sea",
+                abbrev_loc="Sal", ei_name=ei_name, biosphere=biosphere)
 
