@@ -227,7 +227,7 @@ class B_removal_organicsolvent:
         sodium_hydroxide = nat_boron / (Na * 2 + B * 4 + O * 7) * 2 * (
                 Na + O + H)  # Required mass of sodium hydroxide for the specific production volume [kg] TODO: Efficiency?
         water_sodium_hydroxide = sodium_hydroxide / sodiumhydroxide_solution  # Dissolved sodium hydroxide in aqueous solution [kg]
-        return nat_boron, sodium_hydroxide, water_sodium_hydroxide
+        return (-nat_boron), sodium_hydroxide, water_sodium_hydroxide
 
 
     def execute(self, site_parameters, m_in):
@@ -282,6 +282,8 @@ class B_removal_organicsolvent:
             'water_evap' : None,
             'Ca_mass_brine' : None
             }
+
+
 
 
 # Si & Fe removal by precipitation
@@ -550,36 +552,36 @@ class CaMg_removal_sodiumhydrox :
             'Ca_mass_brine' : None
             }
 
-#Mg removal by soda ash TODO: repair this function
-class Mg_removal_soda :
+#Mg removal by soda ash
+class Mg_removal_sodaash :
     def execute(self, site_parameters, m_in) :
-        process_name = "Mg_removal_soda"
-        input_mliq = input('Is mother liquor reported?')
+        process_name = "df_Mg_removal_sodaash"
+        vec_end = site_parameters['vec_end']  # vector of chemical composition of brine
 
-        if input_mliq == 'yes' :
-            motherliq = 5 * m_in
-            cLi_motherliq = ((0.012 * 6 - 0.058) / 5)
-            m_mixbri = m_in + motherliq
-            T_mix = (motherliq * 80 + 60 * m_in) / (motherliq + m_in)
-            T_Mg = 60
-
-            if T_Mg > T_mix :
-                E_Mg = ((T_Mg - T_mix) * hCHH_bri * m_mixbri / 10 ** 6) / heat_loss
-                energy.append(E_Mg)
-            else :
-                E_Mg = 0
-                pass
-        else :
-            E_Mg = 0
+        motherliq_reported = site_parameters['motherliq_reported'] # if mother liquor is reported, 1 == yes, 0 == no
 
         sodaash_Mg = (((vec_end[5] / 100) * m_in) / Mg) * (Na * 2 + C + O * 3) * 1.1
-        water_soda_Mg = sodaash_Mg / 0.25
-        deion_water.append(water_soda_Mg)
+        water_soda_Mg = sodaash_Mg / sodaash_solution
 
         MgCO3_waste = -(((vec_end[5] / 100) * m_in / Mg) * (Mg + C + O * 3))
         NaCl_waste = -(2 * MgCO3_waste / (Mg + C + O * 3) * (Na + Cl))
         waste_sum = MgCO3_waste + NaCl_waste
-        m_output = m_in + water_soda_Mg + MgCO3_waste + NaCl_waste
+
+        if motherliq_reported == 1 :
+            motherliq = 5 * m_in
+            m_mixbri = m_in + motherliq
+            T_mix = (motherliq * T_motherliq + T_Mg_soda * m_in) / m_mixbri
+            m_in = m_mixbri
+
+            if T_Mg_soda > T_mix :
+                E_Mg = ((T_Mg - T_mix) * hCHH_bri * m_mixbri / 10 ** 6) / heat_loss
+            else :
+                E_Mg = 0
+        else :
+            E_Mg = 0
+
+
+        m_output = m_in + water_soda_Mg + sodaash_Mg
 
         df_data = {
             "Variables" : [
@@ -616,34 +618,77 @@ class Mg_removal_soda :
             'Ca_mass_brine' : None
             }
 
-#Mg removal by quicklime TODO: repair this function
-class Mg_removal_quick :
+#Mg removal by quicklime
+class Mg_removal_quicklime :
     def execute(self, site_parameters, m_in) :
-        process_name = "Mg_removal_quick"
+        process_name = "df_Mg_removal_quicklime"
+        lime = (((Mg_conc_pulp_quicklime / 100) * m_in) / Mg) * (Ca + O * 2 + H * 2) * quicklime_reaction_factor
+        water_lime = (lime / (Ca + O)) * (H * 2 + O)
 
-        Mg_lime_ini = 0.05  # in wt. % of the pulp
-        lime_high = (((Mg_lime_ini / 100) * m_in) / Mg) * (Ca + O * 2 + H * 2) * 1.2
-        water_lime_high = (lime_high / (Ca + O)) * (H * 2 + O)
-
-        waste_Ca = -((lime_high / (Ca + 2 * H + 2 * O)) * (0.66 * (S + Ca + O * 4 + 2 * (H * 2 + O))))
-        waste_Mg = -((lime_high / (Ca + 2 * H + 2 * O)) * (Mg + H * 2 + O * 2))
+        waste_Ca = -((lime / (Ca + 2 * H + 2 * O)) * (0.66 * (S + Ca + O * 4 + 2 * (H * 2 + O)))) #TODO check this factor
+        waste_Mg = -((lime / (Ca + 2 * H + 2 * O)) * (Mg + H * 2 + O * 2))
         waste_sum = waste_Ca + waste_Mg
-        m_output = water_lime_high + m_in
+        m_output = lime + water_lime + m_in
 
         df_data = {
             "Variables" : [
                 f"m_output_{process_name}",
                 f"m_in_{process_name}",
-                f"lime_high_{process_name}",
-                f"water_lime_high_{process_name}",
+                f"chemical_lime_{process_name}",
+                f"water_lime_{process_name}",
                 f"waste_solid_{process_name}",
                 ],
             "Values" : [
                 m_output,
                 m_in,
-                lime_high,
-                water_lime_high,
+                lime,
+                water_lime,
                 waste_sum,
+                ],
+            }
+
+        df_process = pd.DataFrame(df_data)
+        df_process["per kg"] = df_process["Values"] / df_process.iloc[0][1]
+
+        m_out = df_process.iloc[0]["Values"]
+
+        return {
+            'process_name' : process_name,
+            'm_out' : m_out,
+            'data_frame' : df_process,
+            'mass_CO2' : None,
+            'prod_libicarb' : None,
+            'water_RO' : None,
+            'water_evap' : None,
+            'Ca_mass_brine' : None
+            }
+
+class sulfate_removal_calciumchloride :
+    def execute(self, site_parameters, m_in):
+        process_name = "df_sulfate_removal_calciumchloride"
+        vec_end = site_parameters['vec_end']
+
+        waste_sulfate = ((((0.3 * vec_end[6] / 100) * m_in * 1000) / (S + O * 4)) * (
+                    Ca + S + O * 4)) / 1000  # Mass of precipitated anhydrite due to calcium chloride [kg]
+        calciumchloride = 0.66 * (((((Ca / (Ca + S + O * 4)) * prod_sulfate * 1000) / Ca) * (
+                    Ca + Cl * 2)) / 1000)  # 0.3 because Tran and Luong (2015) stated 70 % sulfates already precipitated
+        water_calciumchloride = calciumchloride / calciumchloride_solution  # assuming 30 wt. % CaCl2 solution
+        m_output = m_in - waste_sulfate + water_CaCl  # Mass going out of this process [kg]
+
+        df_data = {
+            "Variables" : [
+                f"m_output_{process_name}",
+                f"m_in_{process_name}",
+                f"chemical_calciumchloride_{process_name}",
+                f"water_calciumchloride_{process_name}",
+                f"waste_solid_{process_name}",
+                ],
+            "Values" : [
+                m_output,
+                m_in,
+                calciumchloride,
+                water_calciumchloride,
+                waste_sulfate,
                 ],
             }
 
@@ -721,15 +766,15 @@ class ion_exchange_L :
 #Ion exchanger - high water demand TODO: repair this function
 class ion_exchange_H :
     def execute(self, site_parameters, m_in) :
-        process_name = "ion_exchange_H"
+        process_name = "df_ion_exchange_H"
 
         elec_IX = 3 * 0.82 * 10 ** (-3) * m_in  # Electricity demand for ion exchanger [kWh]
         water_IX = 3 * 0.5 * (2 * m_in)  # Required mass of deionized water [kg]
         HCl_IX = 3 * 0.24 * 10 ** (-3) * m_in  # HCl demand for ion exchanger [kg]
         NaOH_IX = 3 * 0.12 * 10 ** (-3) * m_in  # NaOH demand for ion exchanger [kg]
         heat_IX = -(3 * 1.62 * 10 ** (-3) * m_in)  # Thermal energy demand for ion exchanger [MJ]
-        Cl_IX = 3 * 0.23 * 10 ** (-3) * m_in  # Chlorine waste production [kg]
-        Na_IX = 3 * 0.07 * 10 ** (-3) * m_in  # Sodium waste production [kg]
+        Cl_IX = -(3 * 0.23 * 10 ** (-3) * m_in)  # Chlorine waste production [kg]
+        Na_IX = -(3 * 0.07 * 10 ** (-3) * m_in)  # Sodium waste production [kg]
         m_output = m_in
 
         df_data = {
@@ -818,9 +863,9 @@ class triple_evaporator :
     def execute(self, site_parameters, m_in) :
         process_name = 'df_triple_evaporator'
 
-        E_evap = m_in / 1100 * 145  # MJ per m3 input
-        elec_evap = m_in / 1100 * 2  # kWh per m3 input
-        steam = (Li_out_RO / Li_out_evaporator * m_in) / 16  # taking from geothermal power plant
+        E_evap = m_in / dens_pulp * 145  # MJ per m3 input
+        elec_evap = m_in / dens_pulp * 2  # kWh per m3 input
+        steam = (Li_out_RO / Li_out_evaporator * m_in) / evaporator_gor  # taking from geothermal power plant
         water_evap = (1 - Li_out_RO / Li_out_evaporator) * m_in
         m_output = Li_out_RO / Li_out_evaporator * m_in
 
@@ -1079,7 +1124,7 @@ class washing_BG :
             }
 
 
-# Centrifuge after TG
+# Centrifuge after TG TODO generalize this function
 class centrifuge_TG :
     def execute(self, prod, site_parameters, m_in) :
         Dens_ini = site_parameters['density_brine']  # initial density of brine

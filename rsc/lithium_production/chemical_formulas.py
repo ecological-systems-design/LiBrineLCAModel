@@ -59,6 +59,8 @@ T_evap = 70  # Temperature of triple evaporator
 T_desorp = 40  # Temperature in Li-ion adsorption (desorption)
 T_adsorp = 85  # Temperature in Li-ion adsorption (adsorption)
 T_boron = 10 # Temperature in boron removal
+T_Mg_soda = 60 # Temperature in Mg removal by soda ash
+T_motherliq = 80 # Temperature of mother liquor
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 Li_out_RO = 5000 # Li concentration in RO permeate [mg/L]
@@ -80,6 +82,14 @@ pOH_aft = 14 - pH_aft  # End pOH of concentrated brine by adding HCl solution
 
 recycling_rate = 0.985 # Recycling rate of organic solvent
 sodiumhydroxide_solution = 0.3 # Assumed 30 wt. % sodium hydroxide solution
+sodaash_solution = 0.25 # Assumed 25 wt. % soda ash solution
+calciumchloride_solution = 0.3 # Assumed 30 wt. % calcium chloride solution
+
+Mg_conc_pulp_quicklime = 0.05 # Magnesium concentration in pulp before quicklime addition
+
+quicklime_reaction_factor = 1.2 # Incomplete reaction factor for chemical reactions
+
+evaporator_gor = 16
 
 
 

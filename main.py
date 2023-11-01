@@ -115,12 +115,12 @@ if __name__ == '__main__' :
 
 
 
-    max_eff = 0.9
-    min_eff = 0.8
+    max_eff = 1.0
+    min_eff = 0.5
     eff_steps = 0.1
-    Li_conc_steps = 0.01
+    Li_conc_steps = 0.005
     Li_conc_max = 0.03
-    Li_conc_min = 0.01
+    Li_conc_min = 0.005
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                    min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
