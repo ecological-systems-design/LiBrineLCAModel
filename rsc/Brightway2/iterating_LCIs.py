@@ -74,7 +74,7 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
                     exc.save()
 
                 else:
-                    pass
+                    print(f'Exchange not found:', exc_name, exc_type)
 
                 #print(f"Activity {act_name} was updated.")
                 act.save()

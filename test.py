@@ -1,62 +1,36 @@
-import bw2data as bd
-from pathlib import Path
-import pandas as pd
-# from Processes import *
-# from chemical_formulas import *
-# from operational_data_salton import *
-from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
+class CentrifugeBase:
+    def __init__(self, process_name, density_key, prod_factor, waste_liquid_factor=None, recycle_factor=None):
+        self.process_name = process_name
+        self.density_key = density_key
+        self.prod_factor = prod_factor
+        self.waste_liquid_factor = waste_liquid_factor
+        self.recycle_factor = recycle_factor
+
+    def execute(self, prod, previous_process_output):
+        # Default implementation uses the waste_liquid_factor if provided
+        if self.waste_liquid_factor is not None:
+            waste_centri = self.waste_liquid_factor * prod
+        # Add more logic as necessary
+
+        # Return some output, modify as needed for your actual implementation
+        return {
+            'centri_out': prod * self.prod_factor,
+            'waste_centri': waste_centri,
+            # ... other outputs
+        }
 
 
-import os
+class CentrifugeSpecial(CentrifugeBase) :
+    def __init__(self, process_name, density_key, prod_factor, specific_waste_key) :
+        # Initialize the base class without a waste_liquid_factor
+        super().__init__(process_name, density_key, prod_factor)
+        self.specific_waste_key = specific_waste_key
 
-if not os.path.exists("images") :
-    os.mkdir("images")
+    def execute(self, prod, previous_process_output) :
+        # Retrieve specific waste production value from previous_process_output using the provided key
+        specific_waste = previous_process_output[self.specific_waste_key]
 
-# Databases
-ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
-ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Salton_39"
-site_path = f'../../Python/Brightway/Geothermal_brines/Salton_Sea_39.xlsx'
-water_name = f"Water_39"
-water_path = f'../../Python/Brightway/Geothermal_brines/Water_39.xlsx'
-biosphere = f"biosphere3"
-deposit_type = "geothermal"
+        # Use the retrieved specific waste for calculations
+        waste_centri = specific_waste  # assuming waste is directly used from previous output
+        elec_centri = specific_waste / 100  # assuming electric calculation as provided
 
-site_location = site_name[:3]
-
-# Biosphere
-if __name__ == '__main__' :
-
-    project = f'Site_{site_name}_47'
-    bd.projects.set_current(project)
-    print(project)
-
-    #del bd.databases[site_name]
-    #del bd.databases[ei_name]
-
-
-    #if biosphere not in bd.databases :
-    #    import_biosphere(biosphere)
-    #else :
-    #    print(f"{biosphere} database already exists!!! No import is needed")
-
-    #if ei_name not in bd.databases :
-    #    import_ecoinvent(ei_path, ei_name)
-    #else :
-    #    print(f"{ei_name} database already exists!!! No import is needed")
-
-    locations = [("Salton Sea", "Sal"), ("Upper Rhine Valley", "URG")]
-
-    bio = bd.Database('biosphere3')
-    # water = bd.Database(water_name)
-    # site = bd.Database(site_name)
-    ei_reg = bd.Database(ei_name)
-
-    country_location = "US-WECC"
-
-    act = [act for act in ei_reg if act['name'] == 'market for electricity, medium voltage'][0]
-    print(act)
-    print(f'Adapted {act, act["type"]}')
-    for exchange in act.exchanges() :
-        exchange_type = exchange.get('type', 'Type not specified')
-        print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)

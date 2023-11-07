@@ -47,62 +47,16 @@ if __name__ == '__main__' :
     op_location = "Salton Sea"
 
     # initialize the processing sequence
-    from rsc.lithium_production.operational_data_salton import extract_data, update_config_value
+    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+    print(initial_data)
 
-    process_sequence = [
-        SiFe_removal_limestone(),
-        MnZn_removal_lime(),
-        acidification(),
-        Li_adsorption(),
-        CaMg_removal_sodiumhydrox(),
-        ion_exchange_L(),
-        reverse_osmosis(),
-        triple_evaporator(),
-        Liprec_TG(),
-        centrifuge_TG(),
-        washing_TG(),
-        dissolution(),
-        Liprec_BG(),
-        centrifuge_BG(),
-        washing_BG(),
-        centrifuge_wash(),
-        rotary_dryer()
-        ]
-
-    # 1. Define your initial parameters
-    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
-
-    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}.txt"
-
-    print(initial_data[abbrev_loc])
-
-    # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
-
-    # 3. Run the processes
-    results = manager.run(filename)
-
-    print(results)
-
-    # 4. Examine the results
-    for process_name, dataframe in results.items() :
-        print(f"Results for {process_name}:")
-        print(dataframe)
-        print("\n---\n")
-
-    # 1. Define your initial parameters
-    max_eff = 0.9
-    min_eff = 0.5
-    eff_steps = 0.1
-    Li_conc_steps = 0.001
-    Li_conc_max = 0.03
-    Li_conc_min = 0.001
-
-    #manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
-    #                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
+    op_location = "Upper Rhine Graben"
+    abbrev_loc = "URG"
+    Li_conc = 0.019
+    initial_data_1 = extract_data(op_location, abbrev_loc, Li_conc)
+    print(initial_data_1)
 
 
 

@@ -33,17 +33,47 @@ class Visualization :
 
             df = pd.DataFrame(data)
 
-            # Plot for all efficiencies
-            fig_all_efficiencies = px.line(df, x='Li_conc', y=resource, color='Efficiency',
-                                           title=f'{resource} per kg (All Efficiencies)',
-                                           labels={'Li_conc' : 'Li Concentration', resource : f'{resource} per kg'})
+            # Customize the plot appearance
+            fig_all_efficiencies = px.line(
+                df, x='Li_conc', y=resource, color='Efficiency',
+                title=f'{resource} per kg (All Efficiencies)',
+                labels={'Li_conc' : 'Li Concentration', resource : f'{resource} (per kg)'},
+                markers=True,  # Add markers to lines
+                )
+
+            # Improve the figure layout
+            fig_all_efficiencies.update_layout(
+                plot_bgcolor='white',  # Set background to white
+                xaxis=dict(
+                    title='Li Concentration',
+                    gridcolor='lightgrey',  # Add gridlines
+                    ),
+                yaxis=dict(
+                    title=f'{resource} (per kg Li2CO3)',
+                    gridcolor='lightgrey',  # Add gridlines
+                    ),
+                font=dict(
+                    family='Arial, sans-serif',
+                    size=12,
+                    color='black'
+                    ),
+                legend=dict(
+                    title='Efficiency',
+                    orientation='h',  # Horizontal legend
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                    )
+                )
 
             # Save the plot as PNG
-            png_file_path = os.path.join(results_folder, f"{abbrev_loc}_{resource}_per_kg_all_efficiencies.png")
+            png_file_path = os.path.join(results_folder, f"{abbrev_loc}_{resource.lower()}_per_kg_all_efficiencies.png")
             fig_all_efficiencies.write_image(png_file_path, width=800, height=600)
 
             # Save the plot as HTML
-            html_file_path = os.path.join(results_folder, f"{abbrev_loc}_{resource}_per_kg_all_efficiencies.html")
+            html_file_path = os.path.join(results_folder,
+                                          f"{abbrev_loc}_{resource.lower()}_per_kg_all_efficiencies.html")
             fig_all_efficiencies.write_html(html_file_path)
 
             print(f"Saved {resource} per kg (All Efficiencies) plot as PNG and HTML.")
@@ -106,8 +136,9 @@ class Visualization :
                 yaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
                            showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
                            tickfont=dict(family=font_family, size=12, color='black')),
-                legend=dict(title='Adsorption yield', x=0.80, y=0.99, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
-                            borderwidth=1),
+                legend=dict(title='Adsorption yield', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)',
+                            bordercolor='black',
+                            borderwidth=1, orientation="v"),
                 autosize=True,
                 margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
                 showlegend=True,

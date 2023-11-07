@@ -75,7 +75,7 @@ if __name__ == '__main__' :
     op_location = "Salton Sea"
 
     # initialize the processing sequence
-    from rsc.lithium_production.operational_data_salton import extract_data, update_config_value
+    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
     from rsc.lithium_production.licarbonate_processes import *
@@ -90,13 +90,13 @@ if __name__ == '__main__' :
         reverse_osmosis(),
         triple_evaporator(),
         Liprec_TG(),
-        centrifuge_TG(),
+        CentrifugeTG(),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        centrifuge_BG(),
+        CentrifugeBG(),
         washing_BG(),
-        centrifuge_wash(),
+        CentrifugeWash(),
         rotary_dryer()
         ]
 
@@ -112,8 +112,6 @@ if __name__ == '__main__' :
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
-
-
 
     max_eff = 1.0
     min_eff = 0.5

@@ -1,6 +1,6 @@
 from rsc.lithium_production.chemical_formulas import *
 
-from rsc.lithium_production.operational_data_salton import *
+from rsc.lithium_production.import_site_parameters import *
 
 from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
 
@@ -12,6 +12,7 @@ import json
 import datetime
 import numpy as np
 import pickle
+import math
 
 if not os.path.exists("../../images") :
     os.mkdir("../../images")
@@ -24,10 +25,12 @@ class evaporation_ponds :
         vec_ini = site_parameters['vec_ini']  # vector of chemical composition of initial brine
         vec_end = site_parameters['vec_end']  # vector of chemical composition of enriched brine sent to processing plant
         density_initial_brine = site_parameters['density_brine']  # density of initial brine
-        density_enriched_brine = site_parameters['density_enriched_brine']  # density of enriched brine TODO insert that in function
-        eff1=prod/((vec_ini[0]/100*m_pumpbr)/(2*Li/(2*Li+C+O*3))) #Overall Li-efficiency, Li2CO3 production compared with the initial Li mass in the brine
+        density_enriched_brine = site_parameters['density_enriched_brine']  # density of enriched brine
+        evaporation_rate = site_parameters['evaporation_rate'] # evaporation rate of brine in evaporation ponds
         quicklime_reported = site_parameters['quicklime_reported']  # question if quicklime is used or not in the evaporation ponds
         freshwater_reported = site_parameters['freshwater_reported']    # question if freshwater is reported or not in the evaporation ponds
+        freshwater_vol = site_parameters['freshwater_vol']  # volume of freshwater pumped to the surface at evaporation ponds [L/s]
+        brine_vol = site_parameters['brine_vol']  # volume of brine pumped to the surface at evaporation ponds [L/s]
         second_Li_enrichment_reported = site_parameters['second_Li_enrichment_reported']  # question if second Li enrichment is reported or not in the evaporation ponds
         second_Li_enrichment = site_parameters['second_Li_enrichment']  # second Li enrichment, either 0 or reported value
         diesel_reported = site_parameters['diesel_reported']    # question if diesel is reported or not in the evaporation ponds
@@ -38,25 +41,37 @@ class evaporation_ponds :
         operating_time = op_days * 24 * 60 * 60  # Operating time in seconds
 
         # Volume and mass changes during evaporation
-        brinemass_req = vec_end[0] / (
-                    vec_ini[0] * eff1)  # Required mass of brine to gain 1 kg concentrated brine with 6 wt. % Li
+        brinemass_req = vec_end[0] / vec_ini[0]  # Required mass of brine to gain 1 kg concentrated brine with 6 wt. % Li
         brinemass_proc = 1.00
         brinemass_evap = brinemass_req - brinemass_proc  # Required mass which needs to be evaporated and precipitated
 
+
         # Elemental losses during evaporation based on chemical composition
-        vec_loss = [0 for x in range (0,9)]
-        for i in range(0, 9) :
-            vec_loss[i] = brinemass_req * (vec_ini[i] / 100) - (vec_end[i] / 100) * brinemass_proc
+        vec_loss = [
+            (brinemass_req * (vec_ini[i] / 100) - (vec_end[i] / 100) * brinemass_proc)
+            if not math.isnan(vec_ini[i]) and not math.isnan(vec_end[i])
+            else float('nan')
+            for i in range(len(vec_end))
+            ]
+
+
 
         # Calculation of precipitated salts and brine sent to the processsing plant
-        m_salt = (brinemass_evap + vec_loss[
-            8]) / brinemass_req * m_pumpbr  # mass of salt precipitating in evaporation ponds [kg]
-        m_saltbri = brinemass_evap / brinemass_req * m_pumpbr
-        m_bri_proc = m_pumpbr - m_saltbri  # mass of concentrated brine sent to processing plant [kg]
+        m_saltbrine_removed = brinemass_evap / brinemass_req * m_in
+        # Sum only non-nan values in vec_loss
+        total_loss = np.nansum(vec_loss)
+
+        # Exclude the last element if it is nan in the total_loss calculation
+        if not np.isnan(vec_loss[-1]) :
+            total_loss_excluding_last = total_loss - vec_loss[-1]
+        else :
+            total_loss_excluding_last = total_loss
+
+        m_salt = (total_loss_excluding_last / total_loss) * m_saltbrine_removed
 
         # Quicklime demand if reported
         if quicklime_reported == 1 :
-            water_quicklime, chemical_quicklime, m_output, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbri, m_bri_proc,
+            water_quicklime, chemical_quicklime, m_output, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbrine_removed, m_bri_proc,
                                                                                                brinemass_evap, second_Li_enrichment)
 
         else:
@@ -66,32 +81,33 @@ class evaporation_ponds :
 
         # Freshwater demand if reported
         if freshwater_reported == 1 :
-            water_pipewashing = (v_pumpfrw / 1000) * dens_frw * operating_time # mass of fresh water pumped per year [kg/year], in evaporation ponds
+            water_pipewashing = (freshwater_vol / 1000) * dens_frw * operating_time # mass of fresh water pumped per year [kg/year], in evaporation ponds
 
         else:
-            water_pipewashing = self.freshwater_usage(proxy_freshwater_EP, m_saltbri, m_saltbrine2)
+            water_pipewashing = self.freshwater_usage(proxy_freshwater_EP, m_saltbrine_removed, m_saltbrine2)
             pass
 
         # Overall water demand in evaporation ponds
         water_evaporationponds = water_pipewashing + water_quicklime
 
         # Land use to produce 1 kg concentrated brine
-        area_occup = brinemass_evap / 1000 / evap
+        area_occup = brinemass_evap / 1000 / evaporation_rate
         transf = area_occup / life
-        m_Li = m_pumpbr * vec_ini[0] / 100  # mass of lithium in the annual pumped brine [kg]
+        m_Li = m_in * vec_ini[0] / 100  # mass of lithium in the annual pumped brine [kg]
 
         # Well field system
         power_well = gravity_constant * (
-                    density_initial_brine * v_pumpbrs * depth_well_brine + v_pumpfrw * depth_well_freshwater) / eff_pw  # Electricity for pumping activity of wells required for brine and fresh water [kWh]
+                    density_initial_brine * brine_vol * depth_well_brine + freshwater_vol * depth_well_freshwater) / eff_pw  # Electricity for pumping activity of wells required for brine and fresh water [kWh]
         electric_well = power_well * 1.1 * (1 / (3600 * 1000)) * operating_time
 
         # Salt harvesting until processing plant
         if diesel_reported == 1 :
-            hrs_excav = site_parameters['hrs_excav']/37  # working hours for excavators
+            hrs_excav = site_parameters['diesel_consumption']/37  # working hours for excavators
         else:
-            hrs_excav = self.diesel_usage_proxy(proxy_harvest, m_saltbri)
+            hrs_excav = self.diesel_usage_proxy(proxy_harvest, m_saltbrine_removed)
 
-        m_output = m_pumpbr - m_saltbri #m_bri_proc
+
+        m_output = m_in - m_saltbrine_removed
 
         df_data = {
             'Variables' : [f'm_output_{process_name}',
@@ -104,7 +120,7 @@ class evaporation_ponds :
                            f'land_transform_minesite_{process_name}',
                            f'chemical_quicklime_{process_name}',
                            f'waste_solid_salt_{process_name}'],
-            'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf, chemical_quicklime, m_salt]
+            'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf, chemical_quicklime, (-m_salt)]
             }
 
         df_process = pd.DataFrame(df_data)
@@ -120,7 +136,10 @@ class evaporation_ponds :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
     def quicklime_usage(self, vec_loss, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment) :
@@ -155,6 +174,7 @@ class evaporation_ponds :
         return water_lime_low, lime_low, m_output, m_saltbrine2
 
     def freshwater_usage_proxy(self, proxy_value, m_saltbri, m_saltbrine2):
+        m_saltbri = m_saltbri + m_saltbrine2
         water_pipewashing = proxy_value * m_saltbri
         return water_pipewashing
 
@@ -187,7 +207,10 @@ class transport_brine:
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 class B_removal_organicsolvent:
@@ -211,13 +234,13 @@ class B_removal_organicsolvent:
 
         return HCl_mass32
 
-    def calculcate_organicsolvent_demand(self, m_in, life) :
+    def calculcate_organicsolvent_demand(self, density_enriched_brine, m_in, life) :
         organic = (1 - recycling_rate) * ((m_in / (
                 density_enriched_brine * 1000)) * dens_organicsolvent)  # mass of added organic solvent required for concentrated brine [kg/yr]
 
         organic_invest = (organic / (
                 1 - recycling_rate)) / life  # organic solvent which is required at the beginning of the processing activity, divided by the life time of the mine site
-        water_SX_strip = ((organic / Dens_organicsolvent) / 3) * 1000
+        water_SX_strip = ((organic / dens_organicsolvent) / 3) * 1000
         return organic + organic_invest, water_SX_strip
 
     def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in):
@@ -227,7 +250,7 @@ class B_removal_organicsolvent:
         sodium_hydroxide = nat_boron / (Na * 2 + B * 4 + O * 7) * 2 * (
                 Na + O + H)  # Required mass of sodium hydroxide for the specific production volume [kg] TODO: Efficiency?
         water_sodium_hydroxide = sodium_hydroxide / sodiumhydroxide_solution  # Dissolved sodium hydroxide in aqueous solution [kg]
-        return (-nat_boron), sodium_hydroxide, water_sodium_hydroxide
+        return (-nat_boron), sodium_hydroxide, water_sodium_hydroxide, boron_mass
 
 
     def execute(self, site_parameters, m_in):
@@ -248,23 +271,23 @@ class B_removal_organicsolvent:
         delta_H_conc, delta_OH_conc = self.calculate_delta_concentrations(pH_aft, pH_ini, pOH_ini, pOH_aft)
 
         # Calculate organic solvent demand
-        HCl_mass32 = self.calculate_HCl_demand(delta_H_conc, delta_OH_conc, m_bri_proc, density_enriched_brine,
+        HCl_mass32 = self.calculate_HCl_demand(delta_H_conc, delta_OH_conc, m_in, density_enriched_brine,
                                                density_initial_brine, vec_end)
 
         # Boron precipitates estimation
-        organic, wat_SX_strip = self.calculcate_organicsolvent_demand(m_in, life)
+        organic, water_SX_strip = self.calculcate_organicsolvent_demand(density_enriched_brine, m_in, life)
 
-        nat_boron, sodium_hydroxide, water_sodium_hydroxide = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in)
+        nat_boron, sodium_hydroxide, water_sodium_hydroxide, boron_mass = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in)
 
-        water_sum = wat_sod_hydrox + wat_SX_strip  # Total mass of required deionized water in this process [kg]
+        water_sum = water_sodium_hydroxide + water_SX_strip  # Total mass of required deionized water in this process [kg]
         m_output = m_in - boron_mass  # Mass going out of this process [kg]
 
 
         df_data = {
-            'Variables' : [f'm_output_{process_name}', f'm_Li_{process_name}', f'E_{process_name}',
+            'Variables' : [f'm_output_{process_name}', f'm_in_{process_name}', f'E_{process_name}',
                            f'chemical_HCl_{process_name}', f'chemical_organicsolvent_{process_name}',
                            f'chemical_NaOH_{process_name}', f'water_{process_name}', f'waste_solid_{process_name}'],
-            'Values' : [m_output, m_in, E_boronremoval, HCl_mass32, organic, sod_hydrox, wat_sum, nat_boron]
+            'Values' : [m_output, m_in, E_boronremoval, HCl_mass32, organic, sodium_hydroxide, water_sum, nat_boron]
             }
 
         df_process = pd.DataFrame(df_data)
@@ -280,9 +303,11 @@ class B_removal_organicsolvent:
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
-
 
 
 
@@ -318,7 +343,10 @@ class SiFe_removal_limestone :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -363,7 +391,10 @@ class MnZn_removal_lime :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : Ca_mass_brine
+            'Ca_mass_brine' : Ca_mass_brine,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -411,7 +442,10 @@ class acidification :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -467,7 +501,10 @@ class Li_adsorption :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
     def update_adsorption(df_adsorption, water_RO, water_evap, df_reverse_osmosis, df_triple_evaporator, T_desorp,
                              hCHH,
@@ -549,7 +586,10 @@ class CaMg_removal_sodiumhydrox :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 #Mg removal by soda ash
@@ -563,15 +603,15 @@ class Mg_removal_sodaash :
         sodaash_Mg = (((vec_end[5] / 100) * m_in) / Mg) * (Na * 2 + C + O * 3) * 1.1
         water_soda_Mg = sodaash_Mg / sodaash_solution
 
-        MgCO3_waste = -(((vec_end[5] / 100) * m_in / Mg) * (Mg + C + O * 3))
-        NaCl_waste = -(2 * MgCO3_waste / (Mg + C + O * 3) * (Na + Cl))
-        waste_sum = MgCO3_waste + NaCl_waste
+        MgCO3_waste = ((vec_end[5] / 100) * m_in / Mg) * (Mg + C + O * 3)
+        NaCl_waste = (2 * MgCO3_waste / (Mg + C + O * 3) * (Na + Cl))
+        waste_sum = (MgCO3_waste + NaCl_waste)
 
         if motherliq_reported == 1 :
             motherliq = 5 * m_in
             m_mixbri = m_in + motherliq
             T_mix = (motherliq * T_motherliq + T_Mg_soda * m_in) / m_mixbri
-            m_in = m_mixbri
+
 
             if T_Mg_soda > T_mix :
                 E_Mg = ((T_Mg - T_mix) * hCHH_bri * m_mixbri / 10 ** 6) / heat_loss
@@ -579,9 +619,10 @@ class Mg_removal_sodaash :
                 E_Mg = 0
         else :
             E_Mg = 0
+            m_mixbri = m_in
 
 
-        m_output = m_in + water_soda_Mg + sodaash_Mg
+        m_output = m_mixbri + water_soda_Mg + sodaash_Mg
 
         df_data = {
             "Variables" : [
@@ -590,7 +631,7 @@ class Mg_removal_sodaash :
                 f"E_{process_name}",
                 f"chemical_sodaash_{process_name}",
                 f"water_sodaash_{process_name}",
-                f"waste_solid_{process_name}",
+                #f"waste_solid_{process_name}",
                 ],
             "Values" : [
                 m_output,
@@ -598,7 +639,7 @@ class Mg_removal_sodaash :
                 E_Mg,
                 sodaash_Mg,
                 water_soda_Mg,
-                waste_sum,
+                #waste_sum,
                 ],
             }
 
@@ -615,7 +656,10 @@ class Mg_removal_sodaash :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': waste_sum,
+            'waste_centrifuge_quicklime': None
             }
 
 #Mg removal by quicklime
@@ -625,8 +669,8 @@ class Mg_removal_quicklime :
         lime = (((Mg_conc_pulp_quicklime / 100) * m_in) / Mg) * (Ca + O * 2 + H * 2) * quicklime_reaction_factor
         water_lime = (lime / (Ca + O)) * (H * 2 + O)
 
-        waste_Ca = -((lime / (Ca + 2 * H + 2 * O)) * (0.66 * (S + Ca + O * 4 + 2 * (H * 2 + O)))) #TODO check this factor
-        waste_Mg = -((lime / (Ca + 2 * H + 2 * O)) * (Mg + H * 2 + O * 2))
+        waste_Ca = (lime / (Ca + 2 * H + 2 * O)) * (0.66 * (S + Ca + O * 4 + 2 * (H * 2 + O))) #TODO check this factor
+        waste_Mg = (lime / (Ca + 2 * H + 2 * O)) * (Mg + H * 2 + O * 2)
         waste_sum = waste_Ca + waste_Mg
         m_output = lime + water_lime + m_in
 
@@ -636,14 +680,14 @@ class Mg_removal_quicklime :
                 f"m_in_{process_name}",
                 f"chemical_lime_{process_name}",
                 f"water_lime_{process_name}",
-                f"waste_solid_{process_name}",
+                #f"waste_solid_{process_name}",
                 ],
             "Values" : [
                 m_output,
                 m_in,
                 lime,
                 water_lime,
-                waste_sum,
+                #waste_sum,
                 ],
             }
 
@@ -660,7 +704,10 @@ class Mg_removal_quicklime :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': waste_sum
             }
 
 class sulfate_removal_calciumchloride :
@@ -705,7 +752,10 @@ class sulfate_removal_calciumchloride :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -760,7 +810,10 @@ class ion_exchange_L :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 #Ion exchanger - high water demand TODO: repair this function
@@ -815,7 +868,10 @@ class ion_exchange_H :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -855,7 +911,10 @@ class reverse_osmosis :
             'prod_libicarb' : None,
             'water_RO' : water_RO,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -901,7 +960,10 @@ class triple_evaporator :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : water_evap,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -924,7 +986,7 @@ class Liprec_TG :
                 f"m_in_{process_name}",
                 f"E_{process_name}",
                 f"chemical_sodaash_{process_name}",
-                f"waste_solid_{process_name}",
+                #f"waste_solid_{process_name}",
                 f"water_{process_name}",
                 ],
             "Values" : [
@@ -932,7 +994,7 @@ class Liprec_TG :
                 m_in,
                 E_Liprec,
                 sodaash_Liprec,
-                prod_NaCl2,
+                #prod_NaCl2,
                 water_sodaash,
                 ],
             }
@@ -950,7 +1012,10 @@ class Liprec_TG :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -998,7 +1063,10 @@ class dissolution :
             'prod_libicarb' : prod_libicarb,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -1015,7 +1083,7 @@ class Liprec_BG :
                                boil_point - T_out) + (
                                (H * 2 + O) / (2 * (Li + H + C + O * 3))
                        ) * prod_libicarb * latheat_H  # heat loss due to H2O release [J]
-        waste_heat_sum = -(rel_heat_CO2 + rel_heat_H2O)
+        waste_heat_sum = -(rel_heat_CO2 + rel_heat_H2O)/ 10 ** 6  # waste heat [MJ]
         E_seclicarb = (((
                                 (boil_point - T_out) * hCHH * m_in) + rel_heat_CO2 + rel_heat_H2O) /
                        10 ** 6) / heat_loss  # Thermal energy demand [MJ]
@@ -1052,7 +1120,10 @@ class Liprec_BG :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -1086,7 +1157,10 @@ class washing_TG :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -1120,137 +1194,178 @@ class washing_BG :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
-# Centrifuge after TG TODO generalize this function
-class centrifuge_TG :
-    def execute(self, prod, site_parameters, m_in) :
-        Dens_ini = site_parameters['density_brine']  # initial density of brine
-        elec_centri = 1.3 * m_in / (Dens_ini * 1000)  # Electricity consumption of centrifuge [kWh]
-        waste_centri = -(0.8 * (m_in - 1.5 * prod)) / 1000
-        recycled_waste = 0.2 * (m_in - 1.5 * prod)
-        m_output = 1.5 * prod
 
-        process_name = 'df_centrifuge_TG'
+class CentrifugeBase :
+    def __init__(self, process_name, density_key, prod_factor=None, waste_liquid_factor=None, waste_solid_factor=None,
+                 recycle_factor=None) :
+        self.process_name = process_name
+        self.density_key = density_key
+        self.prod_factor = prod_factor
+        self.waste_liquid_factor = waste_liquid_factor
+        self.waste_solid_factor = waste_solid_factor
+        self.recycle_factor = recycle_factor
+
+    def execute(self, prod, site_parameters, m_in) :
+        # Get the initial density from the site parameters
+        density_pulp = site_parameters[self.density_key]
+
+        # Calculate electricity consumption of the centrifuge
+        elec_centri = 1.3 * m_in / (density_pulp * 1000)
+
+        if self.prod_factor is None :
+            m_output = m_in - waste
+
+        # Calculate the output mass from the centrifuge
+        m_output = self.prod_factor * prod
+
+        # Initialize waste and recycled waste
+        waste_liquid, waste_solid, recycled_waste = 0, 0, 0
+
+        # Calculate liquid and solid waste if applicable
+        if self.waste_liquid_factor is not None :
+            waste_liquid = (m_in - m_output) * self.waste_liquid_factor
+
+        if self.waste_solid_factor is not None :
+            waste_solid = (m_in - m_output) * self.waste_solid_factor
+
+        # Calculate recycled waste if applicable
+        if self.recycle_factor is not None :
+            recycled_waste = (m_in - m_output) * self.recycle_factor
+
+        # Compile data for dataframe
+        variables = ['m_output', 'm_in', 'elec']
+        values = [m_output, m_in, elec_centri]
+
+        if waste_liquid :
+            variables.append('waste_liquid')
+            values.append(waste_liquid)
+        if waste_solid :
+            variables.append('waste_solid')
+            values.append(waste_solid)
+        if recycled_waste :
+            variables.append('recycled_waste')
+            values.append(recycled_waste)
 
         df_data = {
-            "Variables" : [
-                f"m_output_{process_name}",
-                f"m_in_{process_name}",
-                f"elec_{process_name}",
-                f"waste_liquid_{process_name}",
-                f"recycled_waste_{process_name}",
-                ],
-            "Values" : [
-                m_output,
-                m_in,
-                elec_centri,
-                waste_centri,
-                recycled_waste
-                ],
+            "Variables" : [f"{var}_{self.process_name}" for var in variables],
+            "Values" : values
             }
 
+        # Create a dataframe
         df_process = pd.DataFrame(df_data)
+        df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
+
+        # Return results in a dictionary
+        return {
+            'process_name' : self.process_name,
+            'm_out' : m_output,
+            'data_frame' : df_process,
+            'mass_CO2' : None,
+            'prod_libicarb': None,
+            'water_RO': None,
+            'water_evap': None,
+            'Ca_mass_brine': None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
+            }
+
+class CentrifugeTG(CentrifugeBase) :
+    def __init__(self) :
+        super().__init__(
+            process_name='df_centrifuge_TG',
+            density_key='density_brine',
+            prod_factor=1.5,
+            waste_liquid_factor=-0.8 / 1000,
+            recycle_factor=0.2
+            )
+
+
+class CentrifugeBG(CentrifugeBase) :
+    def __init__(self) :
+        super().__init__(
+            process_name='df_centrifuge_BG',
+            density_key='density_brine',
+            prod_factor=1.5,
+            waste_liquid_factor=-1 / 1000
+            )
+
+class CentrifugeWash(CentrifugeBase) :
+    def __init__(self) :
+        super().__init__(
+            process_name='df_centrifuge_wash',
+            density_key='density_brine',
+            prod_factor=1.5,
+            waste_liquid_factor=-1 / 1000
+            )
+
+
+class CentrifugePurification :
+    def __init__(self, waste_name) :
+        # Ensure the waste_name is valid (non-empty and a string)
+        if not isinstance(waste_name, str) or not waste_name.strip() :
+            raise ValueError("waste_name must be a non-empty string")
+        self.process_name = f'df_centrifuge_purification_{waste_name.strip().lower()}'
+
+    def execute(self, waste, m_in) :
+        elec_centri = waste / 100
+        m_output = m_in - waste
+
+        # Compile data for dataframe
+        variables = ['m_output', 'm_in', 'elec', 'waste_solid']
+        values = [m_output, m_in, elec_centri, (- waste)]
+
+        df_data = pd.DataFrame({
+            "Variables" : [f"{var}_{self.process_name}" for var in variables],
+            "Values" : values
+            })
+        # Create a dataframe
+        df_process = pd.DataFrame(df_data)
+
         df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
 
         m_out = df_process.iloc[0]["Values"]
 
+        # Return results in a dictionary
         return {
-            'process_name' : process_name,
+            'process_name' : self.process_name,
             'm_out' : m_out,
             'data_frame' : df_process,
             'mass_CO2' : None,
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron' : None,
+            'waste_centrifuge_sodaash' : None,
+            'waste_centrifuge_quicklime' : None
             }
 
+class CentrifugeSoda(CentrifugePurification) :
+    def __init__(self) :
+        super().__init__(
+            waste_name="sodaash"
+            )
 
-# Centrifuge after BG
-class centrifuge_BG :
-    def execute(self, prod, site_parameters, m_in) :
-        Dens_ini = site_parameters['density_brine']  # initial density of brine
-        elec_centri = 1.3 * m_in / (Dens_ini * 1000)  # Electricity consumption of centrifuge [kWh]
-        waste_centri = -((m_in - 1.5 * prod) / 1000)
-        m_output = 1.5 * prod
+class CentrifugeQuicklime(CentrifugePurification) :
+    def __init__(self) :
+        super().__init__(
+            waste_name="quicklime"
+            )
 
-        process_name = 'df_centrifuge_BG'
-
-        df_data = {
-            "Variables" : [
-                f"m_output_{process_name}",
-                f"m_in_{process_name}",
-                f"elec_{process_name}",
-                f"waste_liquid_{process_name}",
-                ],
-            "Values" : [
-                m_output,
-                m_in,
-                elec_centri,
-                waste_centri,
-                ],
-            }
-
-        df_process = pd.DataFrame(df_data)
-        df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
-
-        m_out = df_process.iloc[0]["Values"]
-
-        return {
-            'process_name' : process_name,
-            'm_out' : m_out,
-            'data_frame' : df_process,
-            'mass_CO2' : None,
-            'prod_libicarb' : None,
-            'water_RO' : None,
-            'water_evap' : None,
-            'Ca_mass_brine' : None
-            }
-
-
-# Centrifuge after washing
-class centrifuge_wash :
-    def execute(self, prod, site_parameters, m_in) :
-        Dens_ini = site_parameters['density_brine']  # initial density of brine
-        elec_centri = 1.3 * m_in / (Dens_ini * 1000)  # Electricity consumption of centrifuge [kWh]
-        waste_centri = -(m_in - 1.5 * prod) / 1000
-        m_output = 1.5 * prod
-
-        process_name = 'df_centrifuge_wash'
-
-        df_data = {
-            "Variables" : [
-                f"m_output_{process_name}",
-                f"m_in_{process_name}",
-                f"elec_{process_name}",
-                f"waste_liquid_{process_name}",
-                ],
-            "Values" : [
-                m_output,
-                m_in,
-                elec_centri,
-                waste_centri,
-                ],
-            }
-
-        df_process = pd.DataFrame(df_data)
-        df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
-
-        m_out = df_process.iloc[0]["Values"]
-
-        return {
-            'process_name' : process_name,
-            'm_out' : m_out,
-            'data_frame' : df_process,
-            'mass_CO2' : None,
-            'prod_libicarb' : None,
-            'water_RO' : None,
-            'water_evap' : None,
-            'Ca_mass_brine' : None
-            }
+#Centrifuge with pure information
+class Centrifuge_general(CentrifugePurification) :
+    def __init__(self) :
+        super().__init__(
+            waste_name="general"
+            )
 
 
 # Belt filter
@@ -1292,7 +1407,10 @@ class belt_filter :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -1333,7 +1451,10 @@ class rotary_dryer :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
@@ -1374,37 +1495,38 @@ class water_purification :
             'prod_libicarb' : None,
             'water_RO' : None,
             'water_evap' : None,
-            'Ca_mass_brine' : None
+            'Ca_mass_brine' : None,
+            'waste_centrifuge_Boron': None,
+            'waste_centrifuge_sodaash': None,
+            'waste_centrifuge_quicklime': None
             }
 
 
 # Set up of the site - brine volumes and Li2CO3 production
 
 def setup_site(eff, site_parameters) :
-    vec_end = site_parameters['vec_end']  # vector of concentrations at the beginning of the process sequence
-    Li_conc = vec_end[0]  # concentration of lithium in the brine
+    vec_ini = site_parameters['vec_ini']  # vector of concentrations at the beginning of the process sequence
+    Li_conc = vec_ini[0]  # concentration of lithium in the brine
 
     Dens_ini = site_parameters['density_brine']  # initial density of brine
-    v_pumpbrs = site_parameters['Brine_vol']  # volume of brine pumped per second
+    v_pumpbrs = site_parameters['brine_vol']  # volume of brine pumped per second
     op_days = site_parameters['operating_days']  # number of operating days per year
     if eff == site_parameters['Li_efficiency'] :
         eff = site_parameters['Li_efficiency']
     else:
         eff = eff   # efficiency of lithium extraction
-    print(Li_conc)
-    print(eff)
 
     # Mass of brine going into the process sequence
-    v_pumpbr = ((v_pumpbrs / 1000) * op_days * 60 * 60 * 24) / eff  # volume of brine [m3/yr]
+    v_pumpbr = ((v_pumpbrs / 1000) * op_days * 60 * 60 * 24) #/ eff  # volume of brine [m3/yr] TODO eff is the problem
     m_pumpbr = v_pumpbr * Dens_ini * 1000  # mass of pumped brine per year [kg/yr]
-    prod_year = ((v_pumpbrs / 1000) * op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) / (
-            (2 * Li) / (2 * Li + C + O * 3))
+    prod_year = (((v_pumpbrs / 1000) * op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) / (
+            (2 * Li) / (2 * Li + C + O * 3)))*eff
 
     return prod_year, m_pumpbr
 
 
 def setup_logging(filename) :
-    print(filename)
+
     # Define your fixed directory
     directory = "C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\data\\logging_files"
     # Ensure directory exists, if not, create it
@@ -1439,7 +1561,9 @@ class ProcessManager :
         self.process_sequence = process_sequence
         self.process_dependencies = {
             'CaMg_removal_sodiumhydrox': ['MnZn_removal_lime'],
-            'Liprec_BG': ['dissolution']
+            'Liprec_BG': ['dissolution'],
+            'CentrifugeSoda': ['Mg_removal_sodaash'],
+            'CentrifugeQuicklime': ['Mg_removal_quicklime']
         }
         self.keys_not_to_overwrite = ["Ca_mass_brine", "water_RO", "water_evap"]
         self.logger = logging.getLogger('ProcessManager')
@@ -1477,23 +1601,40 @@ class ProcessManager :
             return (self.prod, self.site_parameters, self.m_in)
         elif process_type == washing_BG :
             return (self.prod, self.site_parameters, self.m_in)
-        elif process_type == centrifuge_TG :
-            return (self.prod, self.site_parameters, self.m_in)
-        elif process_type == centrifuge_BG :
-            return (self.prod, self.site_parameters, self.m_in)
-        elif process_type == centrifuge_wash :
-            return (self.prod, self.site_parameters, self.m_in)
         elif process_type == belt_filter :
             return (self.prod, self.site_parameters, self.m_in)
         elif process_type == rotary_dryer :
             return (self.prod, self.site_parameters, self.m_in)
+        elif process_type == CentrifugeTG :
+            return (self.prod, self.site_parameters, self.m_in)
+        elif process_type == CentrifugeBG :
+            return (self.prod, self.site_parameters, self.m_in)
+        elif process_type == CentrifugeWash :
+            return (self.prod, self.site_parameters, self.m_in)
+        elif process_type == evaporation_ponds :
+            return (self.site_parameters, self.m_in)
+        elif process_type == B_removal_organicsolvent :
+            return (self.site_parameters, self.m_in)
+        elif process_type == transport_brine :
+            return (self.site_parameters, self.m_in)
+        elif process_type == sulfate_removal_calciumchloride :
+            return (self.site_parameters, self.m_in)
+        elif process_type == Mg_removal_sodaash :
+            return (self.site_parameters, self.m_in)
+        elif process_type == Mg_removal_quicklime :
+            return (self.site_parameters, self.m_in)
+        elif process_type == CentrifugeSoda:
+            return (self.dynamic_attributes["waste_centrifuge_sodaash"], self.m_in)
+        elif process_type == CentrifugeQuicklime:
+            return (self.dynamic_attributes["waste_centrifuge_quicklime"], self.m_in)
+        elif process_type == Centrifuge_general:
+            return(0.05*self.m_in, self.m_in)
         else :
             raise ValueError(f"Unsupported process: {process_type}")
 
 
     def run(self, filename):
         setup_logging(filename)
-        print(filename)
 
         results = {}
         executed_processes = set()
@@ -1607,11 +1748,8 @@ class ProcessManager :
             results_dict[eff] = {}
             for Li in Li_conc_range :
                 filename = f"{abbrev_loc}_eff{eff}_Li{Li}.txt"
-                print(filename)
 
                 initial_data = extract_data(op_location, abbrev_loc, Li)
-                print(Li)
-                print(eff)
 
                 prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
 
@@ -1632,12 +1770,10 @@ class ProcessManager :
 
         print("Simulation completed and results stored in the dictionary.")
 
-        return results_dict, eff_range, Li_conc_range
-
         viz = Visualization()
         viz.plot_resources_per_kg(results_dict, abbrev_loc)
 
-
+        return results_dict, eff_range, Li_conc_range
 
 
 

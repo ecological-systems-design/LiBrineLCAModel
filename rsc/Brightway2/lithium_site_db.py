@@ -43,6 +43,21 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                                          ei_name, "RoW")
         steam_search = find_activity_by_name_and_location("market for steam, in chemical industry", ei_name, "RoW")
 
+        dieselmachine_search = find_activity_by_name_and_location("machine operation, diesel, >= 74.57 kW, high load factor",
+                                                                  ei_name, "RoW") #TODO add flows to database
+
+        salt_tailing = find_activity_by_name_and_location("treatment of salt tailing from potash mine, residual material landfill",
+                                                          ei_name, "RoW")
+
+        transport_search = find_activity_by_name_and_location("transport, freight, lorry >32 metric ton, EURO3", ei_name, "RoW")
+
+        organicsolvent_search = find_activity_by_name_and_location("market for solvent, organic", ei_name, "GLO")
+
+        organicsolvent_waste_search = find_activity_by_name_and_location("treatment of spent solvent mixture, "
+                                                                         "hazardous waste incineration", ei_name, "RoW") #TODO add waste flow to process
+
+
+
         #bio flows
         bio_search = find_bio_flow_by_name_and_category("Water, unspecified natural origin", bio,
                                                         ("natural resource", "in ground"))
@@ -50,6 +65,9 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
         Na_search = find_bio_flow_by_name_and_category("Sodium", bio, ("water",))
         Cl_search = find_bio_flow_by_name_and_category("Chlorine", bio, ("water",))
         heat_waste_search = find_bio_flow_by_name_and_category("Heat, waste", bio, ("air",))
+        occupation_search = find_bio_flow_by_name_and_category("Occupation, mineral extraction site", bio, ("natural resource","land"))
+        transformation_unknown = find_bio_flow_by_name_and_category("Transformation, from unknown", bio, ("natural resource","land"))
+        transformation_mineralsite = find_bio_flow_by_name_and_category("Transformation, to mineral extraction site", bio, ("natural resource","land"))
 
         chemical_map = {
             "HCl" : {
