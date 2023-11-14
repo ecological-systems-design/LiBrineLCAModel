@@ -69,7 +69,7 @@ def saving_LCA_results(results, filename, abbrev_loc):
     csv_file_path = os.path.join(results_folder, f"{filename}.csv")
     results_df.to_csv(csv_file_path, index=False) # Add index=False if you don't want to save the index
 
-    print(f"Saved {filename} as CSV")
+    print(f"Saved {filename} as CSV file")
 
 def print_recursive_calculation(activity, lcia_method, lca_obj=None, file_obj=True, total_score=None, amount=1, level=0,
                                 max_level=30, cutoff=0.01) :
