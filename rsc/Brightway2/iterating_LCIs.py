@@ -4,6 +4,7 @@ import bw2data as bd
 from rsc.Brightway2.setting_up_db_env import database_environment
 
 def create_inventory_map(abbrev_loc) :
+
     inventory_map = {
         "market for hydrochloric acid, without water, in 30% solution state": "chemical_HCl",
         "sodium hydroxide to generic market for neutralising agent": "chemical_NaOH",
@@ -20,7 +21,17 @@ def create_inventory_map(abbrev_loc) :
         "Sodium": "waste_Na",
         "Chlorine": "waste_Cl",
         "Heat, waste": "waste_heat",
-        f"Water_{abbrev_loc}": "water"
+        f"Water_{abbrev_loc}": "water",
+        "treatment of spent solvent mixture, hazardous waste incineration": "waste_organicsolvent",
+        "machine operation, diesel, >= 74.57 kW, high load factor": "diesel_machine",
+        "treatment of salt tailing from potash mine, residual material landfill": "waste_salt",
+        "transport, freight, lorry >32 metric ton, EURO3": "transport",
+        "Occupation, mineral extraction site": "land_occupation",
+        "Transformation, from unknown": "land_transform_unknown",
+        "Transformation, to mineral extraction site": "land_transform_minesite",
+        "market for calcium chloride": "chemical_calciumchloride",
+        "market for solvent, organic": "chemical_organicsolvent"
+
     }
     return inventory_map
 
@@ -53,6 +64,7 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
 
                     # Variable_name should get the according value from the dictionary
                     variable_name = inventory_map[exc_name]
+
                     new_value = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]['per kg'].iloc[0]
 
                     # Updating the exchange amount
@@ -78,12 +90,12 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
 
                 #print(f"Activity {act_name} was updated.")
                 act.save()
-                for activity in site_db :
-                    print("Activity:", activity, activity['type'])
-                    # Loop through all exchanges for the current activity
-                    for exchange in activity.exchanges() :
-                        exchange_type = exchange.get('type', 'Type not specified')
-                        print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+    for activity in site_db :
+        print("Activity:", activity, activity['type'])
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges() :
+            exchange_type = exchange.get('type', 'Type not specified')
+            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
 
     print("Database has been updated successfully.")
     return site_db

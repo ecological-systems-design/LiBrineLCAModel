@@ -2,7 +2,7 @@
 import pandas as pd
 import bw2calc as bc
 import bw2data as bd
-
+import os
 from rsc.Brightway2.iterating_LCIs import change_exchanges_in_database
 
 
@@ -49,6 +49,27 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
 
     return dict_impacts
 
+def ensure_folder_exists(folder_path) :
+    if not os.path.exists(folder_path) :
+        os.makedirs(folder_path)
+
+def saving_LCA_results(results, filename, abbrev_loc):
+    # Convert the dictionary to a pandas DataFrame
+    if isinstance(results, dict): # Check if results is a dictionary
+        results_df = pd.DataFrame(results)
+    else:
+        results_df = results # If it's already a DataFrame, no need to convert
+
+    # Ensure the results folder exists
+    results_path = "/results/rawdata"
+    results_folder = os.path.join(results_path, f"LCA_results_{abbrev_loc}")
+    ensure_folder_exists(results_folder)
+
+    # Save the DataFrame as a CSV
+    csv_file_path = os.path.join(results_folder, f"{filename}.csv")
+    results_df.to_csv(csv_file_path, index=False) # Add index=False if you don't want to save the index
+
+    print(f"Saved {filename} as CSV")
 
 def print_recursive_calculation(activity, lcia_method, lca_obj=None, file_obj=True, total_score=None, amount=1, level=0,
                                 max_level=30, cutoff=0.01) :
@@ -89,7 +110,3 @@ def print_recursive_calculation(activity, lcia_method, lca_obj=None, file_obj=Tr
                 max_level=max_level,
                 cutoff=cutoff
                 )
-
-
-
-

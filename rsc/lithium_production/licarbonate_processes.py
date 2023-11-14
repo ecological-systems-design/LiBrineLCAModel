@@ -14,8 +14,8 @@ import numpy as np
 import pickle
 import math
 
-if not os.path.exists("../../images") :
-    os.mkdir("../../images")
+if not os.path.exists("../../results") :
+    os.mkdir("../../results")
 
 # Evaporation ponds
 class evaporation_ponds :
@@ -71,7 +71,7 @@ class evaporation_ponds :
 
         # Quicklime demand if reported
         if quicklime_reported == 1 :
-            water_quicklime, chemical_quicklime, m_output, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbrine_removed, m_bri_proc,
+            water_quicklime, chemical_quicklime, m_output, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbrine_removed, m_in,
                                                                                                brinemass_evap, second_Li_enrichment)
 
         else:
@@ -118,8 +118,8 @@ class evaporation_ponds :
                            f'land_occupation_{process_name}',
                            f'land_transform_unknown_{process_name}',
                            f'land_transform_minesite_{process_name}',
-                           f'chemical_quicklime_{process_name}',
-                           f'waste_solid_salt_{process_name}'],
+                           f'chemical_lime_{process_name}',
+                           f'waste_salt_{process_name}'],
             'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf, chemical_quicklime, (-m_salt)]
             }
 
@@ -166,12 +166,12 @@ class evaporation_ponds :
             brinemass_proc2 = 1.00
             brinemass_evap2 = brinemass_req2 - brinemass_proc2  # Required mass which needs to be evaporated and precipitated
             m_saltbrine2 = brinemass_evap2 / brinemass_req2 * m_bri_proc
-            m_output = m_bri_proc + water_lime_low - m_saltbrine2
+            m_output = m_bri_proc + water_lime_low_quality - m_saltbrine2
         else:
-            m_output = m_bri_proc + water_lime_low
+            m_output = m_bri_proc + water_lime_low_quality
             m_saltbrine2 = 0
 
-        return water_lime_low, lime_low, m_output, m_saltbrine2
+        return water_lime_low_quality, lime_low_quality, m_output, m_saltbrine2
 
     def freshwater_usage_proxy(self, proxy_value, m_saltbri, m_saltbrine2):
         m_saltbri = m_saltbri + m_saltbrine2
@@ -241,7 +241,10 @@ class B_removal_organicsolvent:
         organic_invest = (organic / (
                 1 - recycling_rate)) / life  # organic solvent which is required at the beginning of the processing activity, divided by the life time of the mine site
         water_SX_strip = ((organic / dens_organicsolvent) / 3) * 1000
-        return organic + organic_invest, water_SX_strip
+        organic_sum = organic + organic_invest
+        waste_organic = organic_sum
+
+        return organic_sum, waste_organic, water_SX_strip
 
     def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in):
         # Boron precipitates estimation
@@ -254,7 +257,7 @@ class B_removal_organicsolvent:
 
 
     def execute(self, site_parameters, m_in):
-        process_name = 'df_B_removal_organicsolvent'
+        process_name = 'df_B_removal_orgsolvent'
         T_out = site_parameters['annual_airtemp'] # annual air temperature
         vec_end = site_parameters['vec_end'] # vector of chemical composition of brine in processing facility
         density_initial_brine = site_parameters['density_brine']  # density of initial brine
@@ -275,7 +278,7 @@ class B_removal_organicsolvent:
                                                density_initial_brine, vec_end)
 
         # Boron precipitates estimation
-        organic, water_SX_strip = self.calculcate_organicsolvent_demand(density_enriched_brine, m_in, life)
+        organic, waste_organic, water_SX_strip = self.calculcate_organicsolvent_demand(density_enriched_brine, m_in, life)
 
         nat_boron, sodium_hydroxide, water_sodium_hydroxide, boron_mass = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in)
 
@@ -286,8 +289,10 @@ class B_removal_organicsolvent:
         df_data = {
             'Variables' : [f'm_output_{process_name}', f'm_in_{process_name}', f'E_{process_name}',
                            f'chemical_HCl_{process_name}', f'chemical_organicsolvent_{process_name}',
-                           f'chemical_NaOH_{process_name}', f'water_{process_name}', f'waste_solid_{process_name}'],
-            'Values' : [m_output, m_in, E_boronremoval, HCl_mass32, organic, sodium_hydroxide, water_sum, nat_boron]
+                           f'chemical_NaOH_{process_name}', f'water_{process_name}',
+                           f'waste_organicsolvent_{process_name}', f'waste_solid_{process_name}'],
+            'Values' : [m_output, m_in, E_boronremoval, HCl_mass32, organic, sodium_hydroxide, water_sum,
+                        waste_organic, nat_boron]
             }
 
         df_process = pd.DataFrame(df_data)

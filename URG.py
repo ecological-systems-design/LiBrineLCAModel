@@ -9,8 +9,8 @@ from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere, import_ecoinv
 
 import os
 
-if not os.path.exists("images") :
-    os.mkdir("images")
+if not os.path.exists("results") :
+    os.mkdir("results")
 
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')

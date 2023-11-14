@@ -1,5 +1,5 @@
 import bw2data as bd
-
+from copy import deepcopy
 
 def creating_new_act(activities_to_copy, new_location, db) :
     for act_name, act_location, new_activity in activities_to_copy :
@@ -147,24 +147,38 @@ def changing_water_electricity(act_f, db) :
 
 
 def wastewater(act_f, site_location, db) :
-    for activity, location in act_f:
-        el_subst = [act for act in db if "treatment of wastewater, average, wastewater treatment reg"
-                    in act['name'] and site_location in act['location']][0]
+    for activity, location in act_f :
+        # Check if the activity has already been treated
         act_new = [act for act in db if act['name'] == activity and act['location'] == location][0]
+        if act_new.get('wastewater_treated') :
+            continue  # Skip this activity if it was already treated
+
+        el_subst = [act for act in db if "treatment of wastewater, average, wastewater treatment"
+                    in act['name'] and site_location in act['location']][0]
         exc = [exc for exc in act_new.exchanges()][3]
         exc.delete()
         act_new.new_exchange(input=el_subst.key, amount=exc.amount, unit='unit', type='technosphere').save()
+
+        # Set the wastewater_treated flag
+        act_new['wastewater_treated'] = True
+        act_new.save()
     return db
 
-def chinese_coal(act_f,db) :
-    for activity, location in act_f:
+
+def chinese_coal(act_f, db) :
+    for activity, location in act_f :
         act = [act for act in db if act['name'] == activity and act['location'] == location][0]
+        if act.get('coal_adapted') :
+            continue  # Skip this activity if it was already adapted
+
         [exc for exc in act.exchanges()][5].delete()
         el_subst = [act for act in db if act['name'] == 'market group for electricity, high voltage'
                     and act['location'] == 'CN'][0]
         act.new_exchange(input=el_subst.key, amount=0.0242, unit='kilowatt hour', type='technosphere').save()
         act.save()
 
+        # Set the coal_adapted flag
+        act['coal_adapted'] = True
         print(f'Adapted {act, act["type"]}')
     return db
 
@@ -210,8 +224,6 @@ def create_fu(activity_list, site_name, db_name, site_location) :
 
     return site_db
 
-
-#act = [act for act in act_db if act['name'] == activity and act['location'] == location][0]
 def adaptions_deposit_type(deposit_type, country_location, site_location, ei_name, site_name):
 
     db = bd.Database(ei_name)
@@ -221,16 +233,18 @@ def adaptions_deposit_type(deposit_type, country_location, site_location, ei_nam
     activity_list = [('heat production, natural gas, at industrial furnace >100kW', "RoW",
                            "heat production, natural gas, at industrial furnace >100kW"),
                      ("market for wastewater, average", "RoW",
-                           "market for wastewater, average" + " reg"),
+                           "market for wastewater, average"),
                      ("treatment of wastewater, average, wastewater treatment", "RoW",
-                           "treatment of wastewater, average, wastewater treatment" + " reg")]
+                           "treatment of wastewater, average, wastewater treatment"),
+                     ("machine operation, diesel, >= 74.57 kW, high load factor", "GLO",
+                           "machine operation, diesel, >= 74.57 kW, high load factor")]
 
     db, _ = creating_new_act(activity_list, site_location, db)
 
     act = [('hard coal mine operation and hard coal preparation', "CN")]
     db = chinese_coal(act, db)
 
-    act = [('market for wastewater, average reg', site_location)]
+    act = [('market for wastewater, average', site_location)]
     db = wastewater(act, site_location, db)
 
     if deposit_type == "geothermal" :
@@ -264,4 +278,62 @@ def adaptions_deposit_type(deposit_type, country_location, site_location, ei_nam
         pass
 
     return db, site_db
+
+
+regionalized_activities = [('heat production, natural gas, at industrial furnace >100kW', "RoW"),
+                     ("market for wastewater, average", "RoW"),
+                     ("machine operation, diesel, >= 74.57 kW, high load factor", "GLO")]
+
+def regionalize_activities(ei_name, site_name, site_location, regionalized_activities):
+
+    regionalized_activity_names = [name for name, location in regionalized_activities]
+
+    ei_reg = bd.Database(ei_name)
+    site_db = bd.Database(site_name)
+
+    act_list = [act for act in site_db]
+    print(act_list)
+    for act in act_list :
+        print(act)
+        for exc in act.technosphere() :
+            exc_name = exc.input['name']
+            print(exc_name)
+
+            # Check if exc_name is in the list of regionalized activity names
+            if exc_name in regionalized_activity_names :
+                # Find the location associated with exc_name in regionalized_activities
+                regional_location = next(loc for name, loc in regionalized_activities if name == exc_name)
+
+                # If the activity's location in regionalized_activities is 'RoW' or 'GLO',
+                # it means it's not specific and can be substituted with site_location
+                if regional_location in ('RoW', 'GLO') :
+                    # Fetch the regional equivalent activity
+                    act_subst = next(
+                        (act for act in ei_reg if act['name'] == exc_name and act['location'] == site_location), None)
+                    # If an equivalent activity is found and its location is different, replace the exchange
+                    if act_subst['location'] != regional_location :
+                        exc['name'] = act_subst['name']
+                        exc['input'] = act_subst.key
+                        exc.save()
+                        act.save()
+                        print(f"Regionalized technosphere exchange in {act['name']} at {site_location}")
+                    else :
+                        print(
+                            f"Regionalized technosphere exchange already present for {act['name']} at {site_location}")
+            else :
+                print(f"No regionalization performed for {exc_name}")
+
+    # Loop through all activities in the database
+    for activity in site_db :
+        print("Activity:", activity, activity['type'])
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges() :
+            exchange_type = exchange.get('type', 'Type not specified')
+            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+
+    return ei_reg, site_db
+
+
+
+
 

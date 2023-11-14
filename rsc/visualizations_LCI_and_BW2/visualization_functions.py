@@ -19,9 +19,14 @@ class Visualization :
     @staticmethod
     def plot_resources_per_kg(results_dict, abbrev_loc) :
         # Ensure the results folder exists
-        results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/images/figures"
+        results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/figures"
         results_folder = os.path.join(results_path, f"results_{abbrev_loc}")
         Visualization.ensure_folder_exists(results_folder)
+        # Define a nice color sequence
+        color_sequence = px.colors.qualitative.Antique
+
+        # Define a professional font
+        font_family = "Arial"
 
         resources = ['Energy', 'Electricity', 'Water']
         for resource in resources :
@@ -29,42 +34,38 @@ class Visualization :
             for efficiency, Li_conc_results in results_dict.items() :
                 for Li_conc, results in Li_conc_results.items() :
                     resource_value = results['resources_per_kg'][resources.index(resource)]
-                    data.append({'Li_conc' : Li_conc, 'Efficiency' : efficiency, resource : resource_value})
+                    data.append({'Li_conc' : Li_conc, 'Efficiency' : round(efficiency, 1), resource : resource_value})
 
             df = pd.DataFrame(data)
 
             # Customize the plot appearance
             fig_all_efficiencies = px.line(
                 df, x='Li_conc', y=resource, color='Efficiency',
-                title=f'{resource} per kg (All Efficiencies)',
+                title=f'{resource} per kg Li2CO3',
                 labels={'Li_conc' : 'Li Concentration', resource : f'{resource} (per kg)'},
-                markers=True,  # Add markers to lines
+                markers=True, color_discrete_sequence=color_sequence
                 )
 
-            # Improve the figure layout
+            # Update the layout for a more professional look
             fig_all_efficiencies.update_layout(
-                plot_bgcolor='white',  # Set background to white
-                xaxis=dict(
-                    title='Li Concentration',
-                    gridcolor='lightgrey',  # Add gridlines
-                    ),
-                yaxis=dict(
-                    title=f'{resource} (per kg Li2CO3)',
-                    gridcolor='lightgrey',  # Add gridlines
-                    ),
-                font=dict(
-                    family='Arial, sans-serif',
-                    size=12,
-                    color='black'
-                    ),
-                legend=dict(
-                    title='Efficiency',
-                    orientation='h',  # Horizontal legend
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
-                    )
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                font=dict(family=font_family, size=12, color='black'),
+                title_font=dict(family=font_family, size=16, color='black'),
+                xaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
+                           showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
+                           tickfont=dict(family=font_family, size=12, color='black')),
+                yaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
+                           showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
+                           tickfont=dict(family=font_family, size=12, color='black')),
+                legend=dict(title='Efficiency', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)',
+                            bordercolor='black',
+                            borderwidth=1, orientation="v"),
+                autosize=True,
+                margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
+                showlegend=True,
+                xaxis_range=[0, df['Li_conc'].max()],
+                yaxis_range=[0, df[resource].max()]
                 )
 
             # Save the plot as PNG
@@ -76,12 +77,12 @@ class Visualization :
                                           f"{abbrev_loc}_{resource.lower()}_per_kg_all_efficiencies.html")
             fig_all_efficiencies.write_html(html_file_path)
 
-            print(f"Saved {resource} per kg (All Efficiencies) plot as PNG and HTML.")
+            print(f"Saved {resource} per kg plot as PNG and HTML.")
 
 
     def plot_impact_categories(results_dict, abbrev_loc) :
         # Ensure the results folder exists
-        results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/images/figures"
+        results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/figures"
         results_folder = os.path.join(results_path, f"results_{abbrev_loc}")
         Visualization.ensure_folder_exists(results_folder)
 
@@ -136,7 +137,7 @@ class Visualization :
                 yaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
                            showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
                            tickfont=dict(family=font_family, size=12, color='black')),
-                legend=dict(title='Adsorption yield', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)',
+                legend=dict(title='Efficiency', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)',
                             bordercolor='black',
                             borderwidth=1, orientation="v"),
                 autosize=True,
@@ -156,7 +157,7 @@ class Visualization :
                                           f"{abbrev_loc}_{formatted_impact_category}_{filename_suffix}.html")
             fig_all_efficiencies.write_html(html_file_path)
 
-            print(f"Saved {formatted_impact_category} (All Efficiencies) plot as PNG and HTML.")
+            print(f"Saved {formatted_impact_category} plot as PNG and HTML.")
 
 
 

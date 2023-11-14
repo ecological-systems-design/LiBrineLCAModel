@@ -3,6 +3,65 @@ import bw2data as bd
 
 
 
+# Define your mapping for activities outside the function
+def create_activity_map(country_location):
+    activity_map = {
+        'elec_high_voltage': ("market for electricity, high voltage", country_location),
+        'wastewater_average': ("market for wastewater, average", "RoW"),
+        'waste_hazardous_underground': ("market for hazardous waste, for underground deposit", "RoW"),
+        'heat_industrial_gas': ("heat production, natural gas, at industrial furnace >100kW", "RoW"),
+        'steam_chemical_industry': ("market for steam, in chemical industry", "RoW"),
+        'diesel_machine_high_load': ("machine operation, diesel, >= 74.57 kW, high load factor", "GLO"),
+        'salt_tailing_landfill': ("treatment of salt tailing from potash mine, residual material landfill", "RoW"),
+        'transport_freight_lorry_euro3': ("transport, freight, lorry >32 metric ton, EURO3", "RoW"),
+        'spent_solvent_treatment': ("treatment of spent solvent mixture, hazardous waste incineration", "RoW"),
+    }
+
+    return activity_map
+
+# Define your map for bio flows outside the function
+
+def create_bio_flow_map():
+    bio_flow_map = {
+        'water_unspecified': ("Water, unspecified natural origin", ("natural resource", "in ground")),
+        'lithium': ("Lithium", ("natural resource", "in ground")),
+        'sodium': ("Sodium", ("water",)),
+        'chlorine': ("Chlorine", ("water",)),
+        'heat_waste': ("Heat, waste", ("air",)),
+        'occupation_extraction_site': ("Occupation, mineral extraction site", ("natural resource", "land")),
+        'transformation_unknown': ("Transformation, from unknown", ("natural resource", "land")),
+        'transformation_to_extraction_site': ("Transformation, to mineral extraction site", ("natural resource", "land")),
+    }
+    return bio_flow_map
+
+chemical_map = {
+    "HCl" : {
+        "activity_name" : "market for hydrochloric acid, without water, in 30% solution state",
+        "location" : "RoW"},
+    "NaOH" : {
+        "activity_name" : "sodium hydroxide to generic market for neutralising agent",
+        "location" : "GLO"},
+    "sodaash" : {
+        "activity_name" : "market for soda ash, light",
+        "location" : "GLO"},
+    "limestone" : {
+        "activity_name" : "market for limestone, crushed, washed",
+        "location" : "RoW"},
+    "lime" : {
+        "activity_name" : "market for quicklime, milled, packed",
+        "location" : "RoW"},
+    "adsorbent" : {
+        "activity_name" : "market for cationic resin",
+        "location" : "RoW"},
+    "organicsolvent" : {
+        "activity_name" : "market for solvent, organic",
+        "location" : "GLO"},
+    "calciumchloride": {
+        "activity_name": "market for calcium chloride",
+        "location": "RoW"}
+
+    }
+
 def find_activity_by_name_and_location(name, ei_name, location) :
     if ei_name not in bd.databases :
         raise ValueError(f"Database {ei_name} does not exist.")
@@ -16,15 +75,28 @@ def find_bio_flow_by_name_and_category(name, database, categories) :
                      and bio_flow['categories'] == categories), None)
     return bio_flow
 
+# Use the mapping within your function to retrieve and process the data
+def search_activities_and_flows(ei_name, bio, activity_map, bio_flow_map):
+    for key, (name, location) in activity_map.items():
+        # Assuming find_activity_by_name_and_location is previously defined and takes name, ei_name, location
+        activity_search = find_activity_by_name_and_location(name, ei_name, location)
+        return activity_search
+
+    for key, (name, categories) in bio_flow_map.items():
+        # Assuming find_bio_flow_by_name_and_category is previously defined and takes name, bio, categories
+        bio_search = find_bio_flow_by_name_and_category(name, bio, categories)
+        return bio_search
+
 
 def create_exchanges(activity, exchanges) :
     for key, amount, unit, type_, location, categories in exchanges :
         activity.new_exchange(input=key, amount=amount, unit=unit, type=type_,
                               location=location, categories=categories).save()
+        print(f"Created exchange for {activity} activity.")
 
 
 def create_database(database_name, country_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
-                   biosphere, dataframes_dict) :
+                   biosphere, dataframes_dict, chemical_map) :
     ei_reg = bd.Database(ei_name)
     bio = bd.Database(biosphere)
 
@@ -32,63 +104,16 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
         print(f"{database_name} does not exist.")
         db = bd.Database(database_name)
         db.register()
-        #dfs, _, _ = calculate_processingsequence(eff, Li_conc, op_location, abbrev_loc)
 
         # Required activities and flows
-        elec_search = find_activity_by_name_and_location("market for electricity, high voltage", ei_name, country_location)
-        wastewater_search = find_activity_by_name_and_location("market for wastewater, average", ei_name, "RoW")
-        waste_solid_search = find_activity_by_name_and_location("market for hazardous waste, for underground deposit",
-                                                                ei_name, "RoW")
-        heat_search = find_activity_by_name_and_location("heat production, natural gas, at industrial furnace >100kW",
-                                                         ei_name, "RoW")
-        steam_search = find_activity_by_name_and_location("market for steam, in chemical industry", ei_name, "RoW")
+        activity_map = create_activity_map(country_location)
+        bio_flow_map = create_bio_flow_map()
 
-        dieselmachine_search = find_activity_by_name_and_location("machine operation, diesel, >= 74.57 kW, high load factor",
-                                                                  ei_name, "RoW") #TODO add flows to database
+        activity_objects = {key : find_activity_by_name_and_location(name, ei_name, location)
+                            for key, (name, location) in activity_map.items()}
 
-        salt_tailing = find_activity_by_name_and_location("treatment of salt tailing from potash mine, residual material landfill",
-                                                          ei_name, "RoW")
-
-        transport_search = find_activity_by_name_and_location("transport, freight, lorry >32 metric ton, EURO3", ei_name, "RoW")
-
-        organicsolvent_search = find_activity_by_name_and_location("market for solvent, organic", ei_name, "GLO")
-
-        organicsolvent_waste_search = find_activity_by_name_and_location("treatment of spent solvent mixture, "
-                                                                         "hazardous waste incineration", ei_name, "RoW") #TODO add waste flow to process
-
-
-
-        #bio flows
-        bio_search = find_bio_flow_by_name_and_category("Water, unspecified natural origin", bio,
-                                                        ("natural resource", "in ground"))
-        Li_search = find_bio_flow_by_name_and_category("Lithium", bio, ("natural resource", "in ground"))
-        Na_search = find_bio_flow_by_name_and_category("Sodium", bio, ("water",))
-        Cl_search = find_bio_flow_by_name_and_category("Chlorine", bio, ("water",))
-        heat_waste_search = find_bio_flow_by_name_and_category("Heat, waste", bio, ("air",))
-        occupation_search = find_bio_flow_by_name_and_category("Occupation, mineral extraction site", bio, ("natural resource","land"))
-        transformation_unknown = find_bio_flow_by_name_and_category("Transformation, from unknown", bio, ("natural resource","land"))
-        transformation_mineralsite = find_bio_flow_by_name_and_category("Transformation, to mineral extraction site", bio, ("natural resource","land"))
-
-        chemical_map = {
-            "HCl" : {
-                "activity_name" : "market for hydrochloric acid, without water, in 30% solution state",
-                "location" : "RoW"},
-            "NaOH" : {
-                "activity_name" : "sodium hydroxide to generic market for neutralising agent",
-                "location" : "GLO"},
-            "sodaash" : {
-                "activity_name" : "market for soda ash, light",
-                "location" : "GLO"},
-            "limestone" : {
-                "activity_name" : "market for limestone, crushed, washed",
-                "location" : "RoW"},
-            "lime" : {
-                "activity_name" : "market for quicklime, milled, packed",
-                "location" : "RoW"},
-            "adsorbent" : {
-                "activity_name" : "market for cationic resin",
-                "location" : "RoW"}
-            }
+        bio_flow_objects = {key : find_bio_flow_by_name_and_category(name, bio, categories)
+                            for key, (name, categories) in bio_flow_map.items()}
 
         dfs = list(dataframes_dict.values())
         keys = list(dataframes_dict.keys())
@@ -111,7 +136,6 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                 for _, exchange_row in exchanges_df.iterrows() :
                     var = exchange_row['Variables']
                     if var == f"m_in_{activity_name}" :
-                        # If you want to do something with the previous DataFrame
                         if prev_df is not None :
                             # Extract the activity name from prev_df, assuming the name can be derived similarly
                             prev_m_output_row = prev_df[prev_df['Variables'].str.contains('m_output')].iloc[0]
@@ -126,27 +150,35 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             pass
 
                     elif "m_Li" in var :
+                        li_flow = bio_flow_objects['lithium']
                         create_exchanges(new_act,
-                                         [(Li_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, None)])
-                        print(f"Created {Li_search} exchange for {activity_name} activity.")
+                                         [(li_flow.key, exchange_row['per kg'], "kilogram", "biosphere", None, None)])
+                        print(f"Created {li_flow} exchange for {activity_name} activity.")
+
                     elif var == f"elec_{activity_name}" :
+                        elec_flow = activity_objects['elec_high_voltage']
                         create_exchanges(new_act, [
-                            (elec_search.key, exchange_row['per kg'], "kilowatt hour", "technosphere", None, None)])
-                        print(f"Created {elec_search} exchange for {activity_name} activity.")
+                            (elec_flow.key, exchange_row['per kg'], "kilowatt hour", "technosphere", country_location, None)])
+                        print(f"Created {elec_flow} exchange for {activity_name} activity.")
+
                     elif var.startswith(f"water_") :
                         act_search = next((act for act in db if act['name'] == f'Water_{abbrev_loc}'), None)
+
                         if not act_search :
                             water_act = db.new_activity(amount=1, code=f"Water_{abbrev_loc}",
                                                         name=f"Water_{abbrev_loc}", unit="kilogram",
-                                                        location=country_location, type="process")
+                                                        location=op_location, type="process")
                             water_act.save()
                             water_act.new_exchange(input=water_act.key, amount=1, unit="kilogram",
                                                  type="production").save()
                             water_act.save()
+                            wastewater_flow = activity_objects['wastewater_average']
+                            water_flow = bio_flow_objects['water_unspecified']
+                            elec_flow = activity_objects['elec_high_voltage']
                             exchanges = [
-                                (elec_search.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
-                                (wastewater_search.key, -0.00025, "cubic meter", "technosphere", "RoW", None),
-                                (bio_search.key, 0.00025, "cubic meter", "biosphere", None,
+                                (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
+                                (wastewater_flow.key, -0.00025, "cubic meter", "technosphere", "RoW", None),
+                                (water_flow.key, 0.00025, "cubic meter", "biosphere", None,
                                  ("natural resource", "in ground"))
                                 ]
                             create_exchanges(water_act, exchanges)
@@ -154,11 +186,12 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                         else :
                             create_exchanges(new_act, [
                                 (act_search.key, exchange_row['per kg'], "kilogram", "technosphere", None, None)])
-                            print(f"Created {act_search} exchange for {activity_name} activity.")
+
                     elif var.startswith(f"E_") :
+                        heat_flow = activity_objects['heat_industrial_gas']
                         create_exchanges(new_act, [
-                            (heat_search.key, exchange_row['per kg'], "megajoule", "technosphere", None, None)])
-                        print(f"Created {heat_search} exchange for {activity_name} activity.")
+                            (heat_flow.key, exchange_row['per kg'], "megajoule", "technosphere", None, None)])
+
                     elif "chemical_" in var :
                         for chem, details in chemical_map.items() :
                             if chem in var :
@@ -169,28 +202,69 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                      details['location'], None)])
                                 print(f"Created {act_search} exchange for {activity_name} activity.")
                     elif var.startswith(f'steam') :
+                        steam_flow = activity_objects['steam_chemical_industry']
                         create_exchanges(new_act, [
-                            (steam_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
-                        print(f"Created {steam_search} exchange for {activity_name} activity.")
-                    elif var.startswith(f"waste_solid") :
+                            (steam_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+
+                    elif var.startswith(f"waste_salt") :
+                        salt_flow = activity_objects['salt_tailing_landfill']
                         create_exchanges(new_act, [
-                            (waste_solid_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
-                        print(f"Created {waste_solid_search} exchange for {activity_name} activity.")
+                            (salt_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+
+                    elif var.startswith(f'waste_solid') :
+                            waste_solid_flow = activity_objects['waste_hazardous_underground']
+                            create_exchanges(new_act, [
+                                (waste_solid_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+
                     elif var.startswith(f'waste_liquid') :
+                        wastewater_flow = activity_objects['wastewater_average']
                         create_exchanges(new_act, [
-                            (wastewater_search.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
-                        print(f"Created {wastewater_search} exchange for {activity_name} activity.")
+                            (wastewater_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+
                     elif var.startswith(f'waste_heat') :
+                        waste_heat_flow = bio_flow_objects['heat_waste']
                         create_exchanges(new_act, [
-                                         (heat_waste_search.key, exchange_row['per kg'], "megajoule", "biosphere", None, ('air',))])
+                                         (waste_heat_flow.key, exchange_row['per kg'], "megajoule", "biosphere", None, ('air',))])
+
                     elif var.startswith(f'waste_Na'):
+                        waste_Na_flow = bio_flow_objects['sodium']
                         create_exchanges(new_act, [
-                            (Na_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
+                            (waste_Na_flow.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
+
                     elif var.startswith(f'waste_Cl'):
+                        waste_Cl_flow = bio_flow_objects['chlorine']
                         create_exchanges(new_act, [
-                            (Cl_search.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
+                            (waste_Cl_flow.key, exchange_row['per kg'], "kilogram", "biosphere", None, ('water',))])
 
+                    elif var.startswith(f'transport'):
+                        transport_flow = activity_objects['transport_freight_lorry_euro3']
+                        create_exchanges(new_act, [
+                            (transport_flow.key, exchange_row['per kg'], "ton kilometer", "technosphere", "RoW", None)])
 
+                    elif var.startswith(f'land_occupation'):
+                        occupation_flow = bio_flow_objects['occupation_extraction_site']
+                        create_exchanges(new_act, [
+                            (occupation_flow.key, exchange_row['per kg'], "square meter-year", "biosphere", None, ('natural resource', 'land'))])
+
+                    elif var.startswith(f'land_transform_unknown'):
+                        transform_unknown_flow = bio_flow_objects['transformation_unknown']
+                        create_exchanges(new_act, [
+                            (transform_unknown_flow.key, exchange_row['per kg'], "square meter", "biosphere", None, ('natural resource', 'land'))])
+
+                    elif var.startswith(f'land_transform_minesite'):
+                        transform_minesite_flow = bio_flow_objects['transformation_to_extraction_site']
+                        create_exchanges(new_act, [
+                            (transform_minesite_flow.key, exchange_row['per kg'], "square meter", "biosphere", None, ('natural resource', 'land'))])
+
+                    elif var.startswith(f'diesel_machine'):
+                        diesel_flow = activity_objects['diesel_machine_high_load']
+                        create_exchanges(new_act, [
+                            (diesel_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "GLO", None)])
+
+                    elif var.startswith(f'waste_organicsolvent'):
+                        waste_organic_flow = activity_objects['spent_solvent_treatment']
+                        create_exchanges(new_act, [
+                            (waste_organic_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
 
     else :
         db = bd.Database(database_name)

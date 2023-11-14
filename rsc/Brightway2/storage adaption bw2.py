@@ -4,8 +4,8 @@ from pathlib import Path
 #from chemical_formulas import *
 #from operational_data_salton import *
 import os
-if not os.path.exists("images"):
-    os.mkdir("images")
+if not os.path.exists("results"):
+    os.mkdir("results")
 
 
 
