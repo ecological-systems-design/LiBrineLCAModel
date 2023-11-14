@@ -61,7 +61,7 @@ def saving_LCA_results(results, filename, abbrev_loc):
         results_df = results # If it's already a DataFrame, no need to convert
 
     # Ensure the results folder exists
-    results_path = "/results/rawdata"
+    results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/rawdata"
     results_folder = os.path.join(results_path, f"LCA_results_{abbrev_loc}")
     ensure_folder_exists(results_folder)
 
