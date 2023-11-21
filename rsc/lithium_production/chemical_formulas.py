@@ -63,6 +63,7 @@ T_Mg_soda = 60 # Temperature in Mg removal by soda ash
 T_motherliq = 80 # Temperature of mother liquor
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
+adsorb_capacity_salar = 4/(1/1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin
 Li_out_RO = 5000 # Li concentration in RO permeate [mg/L]
 Li_in_RO = 2500 # Li concentration in RO feed [mg/L]
 Li_out_evaporator = 30000 # Li concentration in evaporator brine [mg/L]
@@ -84,6 +85,7 @@ recycling_rate = 0.985 # Recycling rate of organic solvent
 sodiumhydroxide_solution = 0.3 # Assumed 30 wt. % sodium hydroxide solution
 sodaash_solution = 0.25 # Assumed 25 wt. % soda ash solution
 calciumchloride_solution = 0.3 # Assumed 30 wt. % calcium chloride solution
+sulfuricacid_solution = 0.18 # Assumed 18 wt. % sulfuric acid solution (Pastos Grandes project)
 
 Mg_conc_pulp_quicklime = 0.05 # Magnesium concentration in pulp before quicklime addition
 

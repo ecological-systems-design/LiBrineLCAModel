@@ -24,6 +24,7 @@ def create_activity_map(country_location):
 def create_bio_flow_map():
     bio_flow_map = {
         'water_unspecified': ("Water, unspecified natural origin", ("natural resource", "in ground")),
+        'water_evaporated': ("Water", ("air",)),
         'lithium': ("Lithium", ("natural resource", "in ground")),
         'sodium': ("Sodium", ("water",)),
         'chlorine': ("Chlorine", ("water",)),
@@ -58,6 +59,9 @@ chemical_map = {
         "location" : "GLO"},
     "calciumchloride": {
         "activity_name": "market for calcium chloride",
+        "location": "RoW"},
+    "sulfuricacid": {
+        "activity_name": "market for sulfuric acid",
         "location": "RoW"}
 
     }
@@ -96,7 +100,7 @@ def create_exchanges(activity, exchanges) :
 
 
 def create_database(database_name, country_location, eff, Li_conc, op_location, abbrev_loc, ei_name,
-                   biosphere, dataframes_dict, chemical_map) :
+                   biosphere, dataframes_dict, chemical_map, deposit_type) :
     ei_reg = bd.Database(ei_name)
     bio = bd.Database(biosphere)
 
@@ -125,11 +129,14 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
             for _, m_output_row in m_outputs.iterrows() :
                 activity_name = m_output_row["Variables"].split('m_output_')[1]
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
-                                          location=country_location, type = "process")
+                                          location=op_location, type = "process")
+
+                new_act['classifications'] = [('ISIC rev.4 ecoinvent', '0729')]
+                new_act['flow'] = activity_name
                 new_act.save()
                 new_act.new_exchange(input=new_act.key, amount=1, unit="kilogram", type="production").save()
 
-                print(f"Created {activity_name}, {country_location} activity.")
+                print(f"Created {activity_name}, {op_location} activity.")
 
                 exchanges_df = df[df['Variables'].str.contains(activity_name)][1 :]
 
@@ -161,31 +168,51 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             (elec_flow.key, exchange_row['per kg'], "kilowatt hour", "technosphere", country_location, None)])
                         print(f"Created {elec_flow} exchange for {activity_name} activity.")
 
-                    elif var.startswith(f"water_") :
+                    elif var == f"water_{activity_name}" :
                         act_search = next((act for act in db if act['name'] == f'Water_{abbrev_loc}'), None)
+                        print(act_search)
 
                         if not act_search :
                             water_act = db.new_activity(amount=1, code=f"Water_{abbrev_loc}",
                                                         name=f"Water_{abbrev_loc}", unit="kilogram",
                                                         location=op_location, type="process")
+                            water_act['classifications'] = [('ISIC rev.4 ecoinvent', '0729')]
+                            water_act['flow'] = f"Water_{abbrev_loc}"
                             water_act.save()
                             water_act.new_exchange(input=water_act.key, amount=1, unit="kilogram",
-                                                 type="production").save()
+                                                   location = op_location, type="production").save()
                             water_act.save()
-                            wastewater_flow = activity_objects['wastewater_average']
-                            water_flow = bio_flow_objects['water_unspecified']
-                            elec_flow = activity_objects['elec_high_voltage']
-                            exchanges = [
-                                (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
-                                (wastewater_flow.key, -0.00025, "cubic meter", "technosphere", "RoW", None),
-                                (water_flow.key, 0.00025, "cubic meter", "biosphere", None,
-                                 ("natural resource", "in ground"))
-                                ]
-                            create_exchanges(water_act, exchanges)
+                            if deposit_type == "geothermal":
+                                wastewater_flow = activity_objects['wastewater_average']
+                                water_flow = bio_flow_objects['water_unspecified']
+                                elec_flow = activity_objects['elec_high_voltage']
+                                exchanges = [
+                                    (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
+                                    (wastewater_flow.key, 0.00025, "cubic meter", "technosphere", "RoW", None),
+                                    (water_flow.key, 0.00025, "cubic meter", "biosphere", None,
+                                     ("natural resource", "in ground"))
+                                    ]
+                                create_exchanges(water_act, exchanges)
+                            elif deposit_type == "salar":
+                                elec_flow = activity_objects['elec_high_voltage']
+                                water_flow = bio_flow_objects['water_unspecified']
+                                water_evaporated_flow = bio_flow_objects['water_evaporated']
+                                exchanges = [
+                                    (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
+                                    (water_flow.key, 0.00125, "cubic meter", "biosphere", None,
+                                     ("natural resource", "in ground")),
+                                    (water_evaporated_flow.key, 0.125, "cubic meter", "biosphere", None,
+                                     ("air",))
+                                    ] #changed from 0.00025 to 0.00125 TODO
+                                create_exchanges(water_act, exchanges)
+
+
                             print(f"Created Water_{abbrev_loc} activity.")
                         else :
-                            create_exchanges(new_act, [
-                                (act_search.key, exchange_row['per kg'], "kilogram", "technosphere", None, None)])
+                            pass
+                        act_search = next((act for act in db if act['name'] == f'Water_{abbrev_loc}'), None)
+                        create_exchanges(new_act, [
+                            (act_search.key, exchange_row['per kg'], "kilogram", "technosphere", None, None)])
 
                     elif var.startswith(f"E_") :
                         heat_flow = activity_objects['heat_industrial_gas']
@@ -217,9 +244,41 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                 (waste_solid_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
 
                     elif var.startswith(f'waste_liquid') :
-                        wastewater_flow = activity_objects['wastewater_average']
-                        create_exchanges(new_act, [
-                            (wastewater_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+                        if deposit_type == "geothermal":
+                            wastewater_flow = activity_objects['wastewater_average']
+                            create_exchanges(new_act, [
+                            (wastewater_flow.key, exchange_row['per kg']/1000, "cubic meter", "technosphere", "RoW", None)])
+                        elif deposit_type == "salar":
+                            act_search = next((act for act in db if act['name'] == f'waste_liquid_{abbrev_loc}'), None)
+
+                            if not act_search :
+                                act = db.new_activity(amount=1, code=f"waste_liquid_{abbrev_loc}",
+                                                            name=f"waste_liquid_{abbrev_loc}", unit="cubic meter",
+                                                            location=op_location, type="process")
+                                act['classifications'] = [('ISIC rev.4 ecoinvent', '0729')]
+                                act['flow'] = f"waste_liquid_{abbrev_loc}"
+                                act.save()
+                                act.new_exchange(input=act.key, amount=1, unit="cubic meter",
+                                                       type="production").save()
+                                act.save()
+                                # adding relevant exchanges to new activity
+                                water_evaporated_flow = bio_flow_objects['water_evaporated']
+                                wastewater_flow = activity_objects['wastewater_average']
+                                ratio_wastewater_evaporated = 0.1
+                                create_exchanges(act, [
+                                    (wastewater_flow.key, ratio_wastewater_evaporated * exchange_row['per kg']/1000,
+                                     "cubic meter", "technosphere", "RoW", None),
+                                    (water_evaporated_flow.key, (1-ratio_wastewater_evaporated) * exchange_row['per kg']/1000,
+                                     "cubic meter", "biosphere", None, ('air',))
+                                    ])
+                                print(f"Created waste_liquid_{abbrev_loc} activity.")
+
+                            else :
+                                pass
+                            act_search = next((act for act in db if act['name'] == f'waste_liquid_{abbrev_loc}'), None)
+                            create_exchanges(new_act, [
+                                (act_search.key, exchange_row['per kg']/1000, "cubic meter", "technosphere", None, None)])
+
 
                     elif var.startswith(f'waste_heat') :
                         waste_heat_flow = bio_flow_objects['heat_waste']

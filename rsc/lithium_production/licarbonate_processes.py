@@ -2,7 +2,7 @@ from rsc.lithium_production.chemical_formulas import *
 
 from rsc.lithium_production.import_site_parameters import *
 
-from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+from rsc.Postprocessing_results.visualization_functions import Visualization
 
 import pandas as pd
 import os
@@ -31,6 +31,7 @@ class evaporation_ponds :
         freshwater_reported = site_parameters['freshwater_reported']    # question if freshwater is reported or not in the evaporation ponds
         freshwater_vol = site_parameters['freshwater_vol']  # volume of freshwater pumped to the surface at evaporation ponds [L/s]
         brine_vol = site_parameters['brine_vol']  # volume of brine pumped to the surface at evaporation ponds [L/s]
+        overall_efficiency = site_parameters['Li_efficiency']  # overall efficiency
         second_Li_enrichment_reported = site_parameters['second_Li_enrichment_reported']  # question if second Li enrichment is reported or not in the evaporation ponds
         second_Li_enrichment = site_parameters['second_Li_enrichment']  # second Li enrichment, either 0 or reported value
         diesel_reported = site_parameters['diesel_reported']    # question if diesel is reported or not in the evaporation ponds
@@ -82,9 +83,11 @@ class evaporation_ponds :
         # Freshwater demand if reported
         if freshwater_reported == 1 :
             water_pipewashing = (freshwater_vol / 1000) * dens_frw * operating_time # mass of fresh water pumped per year [kg/year], in evaporation ponds
+            sulfuric_acid = sulfuricacid_solution * water_pipewashing
 
         else:
             water_pipewashing = self.freshwater_usage(proxy_freshwater_EP, m_saltbrine_removed, m_saltbrine2)
+            sulfuric_acid = sulfuricacid_solution * water_pipewashing
             pass
 
         # Overall water demand in evaporation ponds
@@ -107,7 +110,13 @@ class evaporation_ponds :
             hrs_excav = self.diesel_usage_proxy(proxy_harvest, m_saltbrine_removed)
 
 
+        waste_water = water_pipewashing
+
+
         m_output = m_in - m_saltbrine_removed
+        print(f'm_in: {m_in}')
+        print(f'm_saltbrine: {m_saltbrine_removed}')
+        print(f'evaporation_ponds: {m_output}')
 
         df_data = {
             'Variables' : [f'm_output_{process_name}',
@@ -119,8 +128,11 @@ class evaporation_ponds :
                            f'land_transform_unknown_{process_name}',
                            f'land_transform_minesite_{process_name}',
                            f'chemical_lime_{process_name}',
-                           f'waste_salt_{process_name}'],
-            'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf, chemical_quicklime, (-m_salt)]
+                           f'chemical_sulfuricacid_{process_name}',
+                           f'waste_salt_{process_name}',
+                           f'waste_liquid_{process_name}'],
+            'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf,
+                        chemical_quicklime, sulfuric_acid, (-m_salt), -waste_water]
             }
 
         df_process = pd.DataFrame(df_data)
@@ -533,6 +545,7 @@ class Li_adsorption :
         df_adsorption.loc[5, 'per kg'] = E_adsorp_adapted / df_adsorption.iloc[0, 1]
 
         return df_adsorption, df_reverse_osmosis, df_triple_evaporator
+
 
 
 class CaMg_removal_sodiumhydrox :
@@ -1288,8 +1301,8 @@ class CentrifugeTG(CentrifugeBase) :
             process_name='df_centrifuge_TG',
             density_key='density_brine',
             prod_factor=1.5,
-            waste_liquid_factor=-0.8 / 1000,
-            recycle_factor=0.2
+            waste_liquid_factor=-0.8, #/1000
+            recycle_factor=0.2 # TODO Adjust recycling flows in the code?
             )
 
 
@@ -1299,7 +1312,7 @@ class CentrifugeBG(CentrifugeBase) :
             process_name='df_centrifuge_BG',
             density_key='density_brine',
             prod_factor=1.5,
-            waste_liquid_factor=-1 / 1000
+            waste_liquid_factor=-1  #/1000
             )
 
 class CentrifugeWash(CentrifugeBase) :
@@ -1308,7 +1321,7 @@ class CentrifugeWash(CentrifugeBase) :
             process_name='df_centrifuge_wash',
             density_key='density_brine',
             prod_factor=1.5,
-            waste_liquid_factor=-1 / 1000
+            waste_liquid_factor=-1  #/ 1000
             )
 
 
@@ -1519,10 +1532,11 @@ def setup_site(eff, site_parameters) :
     if eff == site_parameters['Li_efficiency'] :
         eff = site_parameters['Li_efficiency']
     else:
-        eff = eff   # efficiency of lithium extraction
+        eff = eff # efficiency of lithium extraction
+        site_parameters['Li_efficiency'] = eff
 
     # Mass of brine going into the process sequence
-    v_pumpbr = ((v_pumpbrs / 1000) * op_days * 60 * 60 * 24) #/ eff  # volume of brine [m3/yr] TODO eff is the problem
+    v_pumpbr = ((v_pumpbrs / 1000) * op_days * 60 * 60 * 24)#/ eff  # volume of brine [m3/yr]
     m_pumpbr = v_pumpbr * Dens_ini * 1000  # mass of pumped brine per year [kg/yr]
     prod_year = (((v_pumpbrs / 1000) * op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) / (
             (2 * Li) / (2 * Li + C + O * 3)))*eff
@@ -1557,7 +1571,7 @@ def setup_logging(filename) :
 # ProcessManager class
 class ProcessManager :
     def __init__(self, site_parameters, m_in, prod_initial, process_sequence, filename):
-        setup_logging(filename)
+        setup_logging(filename+".txt")
         self.site_parameters = site_parameters
         self.data_frames = {}
         self.m_in = m_in
@@ -1656,7 +1670,7 @@ class ProcessManager :
                         raise Exception(f"Dependency {dependency} for {process_name} has not been executed yet!")
 
             try:
-                logging.info(f"Executing {process_name}")
+                #logging.info(f"Executing {process_name}")
                 #print(f"Before process {process_name}, m_in = {self.m_in}")
 
                 result = process_instance.execute(*updated_args)  # Unpack the updated_args
@@ -1757,6 +1771,9 @@ class ProcessManager :
                 initial_data = extract_data(op_location, abbrev_loc, Li)
 
                 prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+                print(f"Efficiency: {eff}")
+                print(f"Production: {prod}")
+                print(f"Mass of brine: {m_pumpbr}")
 
                 manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
 

@@ -1,0 +1,1368 @@
+2023-11-20 12:35:17,809 - ProcessManager - INFO - Arguments for evaporation_ponds: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 18412615267.2)
+2023-11-20 12:35:17,828 - ProcessManager - INFO - Dataframe for evaporation_ponds:                                        Variables        Values        per kg
+0                  m_output_df_evaporation_ponds  4.602387e+08  1.000000e+00
+1                      m_Li_df_evaporation_ponds  2.761892e+07  6.001000e-02
+2                      elec_df_evaporation_ponds  2.935679e+06  6.378601e-03
+3            diesel_machine_df_evaporation_ponds  4.210211e+04  9.147886e-05
+4                     water_df_evaporation_ponds  1.075378e+09  2.336565e+00
+5           land_occupation_df_evaporation_ponds  2.708796e-02  5.885634e-11
+6    land_transform_unknown_df_evaporation_ponds  6.771991e-04  1.471408e-12
+7   land_transform_minesite_df_evaporation_ponds  6.771991e-04  1.471408e-12
+8             chemical_lime_df_evaporation_ponds  0.000000e+00  0.000000e+00
+9     chemical_sulfuricacid_df_evaporation_ponds  1.935680e+08  4.205817e-01
+10               waste_salt_df_evaporation_ponds -5.072643e+09 -1.102177e+01
+11             waste_liquid_df_evaporation_ponds  1.075378e+09  2.336565e+00
+2023-11-20 12:35:17,829 - ProcessManager - INFO - Arguments for transport_brine: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 460238675.23412704)
+2023-11-20 12:35:17,843 - ProcessManager - INFO - Dataframe for transport_brine:                       Variables        Values  per kg
+0   m_output_df_transport_brine  4.602387e+08    1.00
+1       m_in_df_transport_brine  4.602387e+08    1.00
+2  transport_df_transport_brine  1.104573e+08    0.24
+2023-11-20 12:35:17,843 - ProcessManager - INFO - Arguments for B_removal_organicsolvent: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 460238675.23412704)
+2023-11-20 12:35:17,859 - ProcessManager - INFO - Dataframe for B_removal_organicsolvent:                                          Variables        Values    per kg
+0                 m_output_df_B_removal_orgsolvent  4.565568e+08  1.000000
+1                     m_in_df_B_removal_orgsolvent  4.602387e+08  1.008065
+2                        E_df_B_removal_orgsolvent  1.185553e+07  0.025967
+3             chemical_HCl_df_B_removal_orgsolvent  1.261425e+07  0.027629
+4  chemical_organicsolvent_df_B_removal_orgsolvent  1.129708e+07  0.024744
+5            chemical_NaOH_df_B_removal_orgsolvent  6.811532e+06  0.014919
+6                    water_df_B_removal_orgsolvent  2.443143e+07  0.053512
+7     waste_organicsolvent_df_B_removal_orgsolvent  1.129708e+07  0.024744
+8              waste_solid_df_B_removal_orgsolvent -1.713340e+07 -0.037527
+2023-11-20 12:35:17,859 - ProcessManager - INFO - Arguments for Centrifuge_general: (22827838.291612703, 456556765.83225405)
+2023-11-20 12:35:17,873 - ProcessManager - INFO - Dataframe for Centrifuge_general:                                         Variables        Values    per kg
+0     m_output_df_centrifuge_purification_general  4.337289e+08  1.000000
+1         m_in_df_centrifuge_purification_general  4.565568e+08  1.052632
+2         elec_df_centrifuge_purification_general  2.282784e+05  0.000526
+3  waste_solid_df_centrifuge_purification_general -2.282784e+07 -0.052632
+2023-11-20 12:35:17,873 - ProcessManager - INFO - Arguments for Mg_removal_sodaash: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 433728927.54064137)
+2023-11-20 12:35:17,886 - ProcessManager - INFO - Dataframe for Mg_removal_sodaash:                                 Variables        Values    per kg
+0          m_output_df_Mg_removal_sodaash  5.898399e+08  1.000000
+1              m_in_df_Mg_removal_sodaash  4.337289e+08  0.735333
+2                 E_df_Mg_removal_sodaash  0.000000e+00  0.000000
+3  chemical_sodaash_df_Mg_removal_sodaash  3.122220e+07  0.052933
+4     water_sodaash_df_Mg_removal_sodaash  1.248888e+08  0.211733
+2023-11-20 12:35:17,886 - ProcessManager - INFO - Arguments for CentrifugeSoda: (53881264.721409395, 589839928.4905021)
+2023-11-20 12:35:17,898 - ProcessManager - INFO - Dataframe for CentrifugeSoda:                                         Variables        Values    per kg
+0     m_output_df_centrifuge_purification_sodaash  5.359587e+08  1.000000
+1         m_in_df_centrifuge_purification_sodaash  5.898399e+08  1.100533
+2         elec_df_centrifuge_purification_sodaash  5.388126e+05  0.001005
+3  waste_solid_df_centrifuge_purification_sodaash -5.388126e+07 -0.100533
+2023-11-20 12:35:17,898 - ProcessManager - INFO - Arguments for Mg_removal_quicklime: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 535958663.76909274)
+2023-11-20 12:35:17,910 - ProcessManager - INFO - Dataframe for Mg_removal_quicklime:                                Variables        Values    per kg
+0       m_output_df_Mg_removal_quicklime  5.372536e+08  1.000000
+1           m_in_df_Mg_removal_quicklime  5.359587e+08  0.997590
+2  chemical_lime_df_Mg_removal_quicklime  9.801231e+05  0.001824
+3     water_lime_df_Mg_removal_quicklime  3.148579e+05  0.000586
+2023-11-20 12:35:17,910 - ProcessManager - INFO - Arguments for CentrifugeQuicklime: (2274706.809752022, 537253644.8050764)
+2023-11-20 12:35:17,924 - ProcessManager - INFO - Dataframe for CentrifugeQuicklime:                                           Variables        Values    per kg
+0     m_output_df_centrifuge_purification_quicklime  5.349789e+08  1.000000
+1         m_in_df_centrifuge_purification_quicklime  5.372536e+08  1.004252
+2         elec_df_centrifuge_purification_quicklime  2.274707e+04  0.000043
+3  waste_solid_df_centrifuge_purification_quicklime -2.274707e+06 -0.004252
+2023-11-20 12:35:17,924 - ProcessManager - INFO - Arguments for Liprec_TG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 534978937.9953243)
+2023-11-20 12:35:17,939 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  1.348445e+09  1.000000
+1              m_in_df_Liprec_TG  5.349789e+08  0.396738
+2                 E_df_Liprec_TG  1.341601e+08  0.099492
+3  chemical_sodaash_df_Liprec_TG  1.355778e+08  0.100544
+4             water_df_Liprec_TG  6.778888e+08  0.502719
+2023-11-20 12:35:17,939 - ProcessManager - INFO - Arguments for CentrifugeTG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1348445475.7790809)
+2023-11-20 12:35:17,954 - ProcessManager - INFO - Dataframe for CentrifugeTG:                          Variables        Values     per kg
+0        m_output_df_centrifuge_TG  9.924187e+07   1.000000
+1            m_in_df_centrifuge_TG  1.348445e+09  13.587465
+2            elec_df_centrifuge_TG  1.433344e+06   0.014443
+3    waste_liquid_df_centrifuge_TG -9.993629e+08 -10.069972
+4  recycled_waste_df_centrifuge_TG  2.498407e+08   2.517493
+2023-11-20 12:35:17,954 - ProcessManager - INFO - Arguments for washing_TG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:17,967 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  2.315644e+08  1.000000
+1      m_in_df_washing_TG  9.924187e+07  0.428571
+2     water_df_washing_TG  1.323225e+08  0.571429
+3         E_df_washing_TG  5.394290e+07  0.232950
+2023-11-20 12:35:17,967 - ProcessManager - INFO - Arguments for dissolution: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 231564372.19658068)
+2023-11-20 12:35:17,981 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  1.503896e+09  1.000000
+1      m_in_df_dissolution  2.315644e+08  0.153976
+2     water_df_dissolution  1.272332e+09  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-11-20 12:35:17,981 - ProcessManager - INFO - Arguments for Liprec_BG: (47288172.6288405, 121699162.2609574, 66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1503896087.5624087)
+2023-11-20 12:35:17,994 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values    per kg
+0    m_output_df_Liprec_BG  1.506638e+09  1.000000
+1        m_in_df_Liprec_BG  1.503896e+09  0.998180
+2  waste_heat_df_Liprec_BG -4.239086e+07 -0.028136
+3           E_df_Liprec_BG  6.629534e+08  0.440022
+2023-11-20 12:35:17,994 - ProcessManager - INFO - Arguments for CentrifugeBG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1506638061.5946906)
+2023-11-20 12:35:18,006 - ProcessManager - INFO - Dataframe for CentrifugeBG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  9.924187e+07   1.000000
+1          m_in_df_centrifuge_BG  1.506638e+09  15.181475
+2          elec_df_centrifuge_BG  1.601496e+06   0.016137
+3  waste_liquid_df_centrifuge_BG -1.407396e+09 -14.181475
+2023-11-20 12:35:18,006 - ProcessManager - INFO - Arguments for washing_BG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:18,020 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  2.315644e+08  1.000000
+1      m_in_df_washing_BG  9.924187e+07  0.428571
+2     water_df_washing_BG  1.323225e+08  0.571429
+3         E_df_washing_BG  5.394290e+07  0.232950
+2023-11-20 12:35:18,020 - ProcessManager - INFO - Arguments for CentrifugeWash: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 231564372.19658068)
+2023-11-20 12:35:18,033 - ProcessManager - INFO - Dataframe for CentrifugeWash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  9.924187e+07  1.000000
+1          m_in_df_centrifuge_wash  2.315644e+08  2.333333
+2          elec_df_centrifuge_wash  2.461436e+05  0.002480
+3  waste_liquid_df_centrifuge_wash -1.323225e+08 -1.333333
+2023-11-20 12:35:18,034 - ProcessManager - INFO - Arguments for rotary_dryer: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:18,048 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  6.616125e+07  1.000000
+1      m_in_df_rotary_dryer  9.924187e+07  1.500000
+2         E_df_rotary_dryer  1.634572e+08  2.470588
+3      elec_df_rotary_dryer  1.984837e+07  0.300000
+2023-11-20 12:35:18,131 - ProcessManager - INFO - Arguments for evaporation_ponds: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 18412615267.2)
+2023-11-20 12:35:18,147 - ProcessManager - INFO - Dataframe for evaporation_ponds:                                        Variables        Values        per kg
+0                  m_output_df_evaporation_ponds  4.602387e+08  1.000000e+00
+1                      m_Li_df_evaporation_ponds  2.761892e+07  6.001000e-02
+2                      elec_df_evaporation_ponds  2.935679e+06  6.378601e-03
+3            diesel_machine_df_evaporation_ponds  4.210211e+04  9.147886e-05
+4                     water_df_evaporation_ponds  1.075378e+09  2.336565e+00
+5           land_occupation_df_evaporation_ponds  2.708796e-02  5.885634e-11
+6    land_transform_unknown_df_evaporation_ponds  6.771991e-04  1.471408e-12
+7   land_transform_minesite_df_evaporation_ponds  6.771991e-04  1.471408e-12
+8             chemical_lime_df_evaporation_ponds  0.000000e+00  0.000000e+00
+9     chemical_sulfuricacid_df_evaporation_ponds  1.935680e+08  4.205817e-01
+10               waste_salt_df_evaporation_ponds -5.072643e+09 -1.102177e+01
+11             waste_liquid_df_evaporation_ponds  1.075378e+09  2.336565e+00
+2023-11-20 12:35:18,147 - ProcessManager - INFO - Arguments for transport_brine: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 460238675.23412704)
+2023-11-20 12:35:18,155 - ProcessManager - INFO - Dataframe for transport_brine:                       Variables        Values  per kg
+0   m_output_df_transport_brine  4.602387e+08    1.00
+1       m_in_df_transport_brine  4.602387e+08    1.00
+2  transport_df_transport_brine  1.104573e+08    0.24
+2023-11-20 12:35:18,155 - ProcessManager - INFO - Arguments for B_removal_organicsolvent: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 460238675.23412704)
+2023-11-20 12:35:18,170 - ProcessManager - INFO - Dataframe for B_removal_organicsolvent:                                          Variables        Values    per kg
+0                 m_output_df_B_removal_orgsolvent  4.565568e+08  1.000000
+1                     m_in_df_B_removal_orgsolvent  4.602387e+08  1.008065
+2                        E_df_B_removal_orgsolvent  1.185553e+07  0.025967
+3             chemical_HCl_df_B_removal_orgsolvent  1.261425e+07  0.027629
+4  chemical_organicsolvent_df_B_removal_orgsolvent  1.129708e+07  0.024744
+5            chemical_NaOH_df_B_removal_orgsolvent  6.811532e+06  0.014919
+6                    water_df_B_removal_orgsolvent  2.443143e+07  0.053512
+7     waste_organicsolvent_df_B_removal_orgsolvent  1.129708e+07  0.024744
+8              waste_solid_df_B_removal_orgsolvent -1.713340e+07 -0.037527
+2023-11-20 12:35:18,170 - ProcessManager - INFO - Arguments for Centrifuge_general: (22827838.291612703, 456556765.83225405)
+2023-11-20 12:35:18,184 - ProcessManager - INFO - Dataframe for Centrifuge_general:                                         Variables        Values    per kg
+0     m_output_df_centrifuge_purification_general  4.337289e+08  1.000000
+1         m_in_df_centrifuge_purification_general  4.565568e+08  1.052632
+2         elec_df_centrifuge_purification_general  2.282784e+05  0.000526
+3  waste_solid_df_centrifuge_purification_general -2.282784e+07 -0.052632
+2023-11-20 12:35:18,184 - ProcessManager - INFO - Arguments for Mg_removal_sodaash: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 433728927.54064137)
+2023-11-20 12:35:18,202 - ProcessManager - INFO - Dataframe for Mg_removal_sodaash:                                 Variables        Values    per kg
+0          m_output_df_Mg_removal_sodaash  5.898399e+08  1.000000
+1              m_in_df_Mg_removal_sodaash  4.337289e+08  0.735333
+2                 E_df_Mg_removal_sodaash  0.000000e+00  0.000000
+3  chemical_sodaash_df_Mg_removal_sodaash  3.122220e+07  0.052933
+4     water_sodaash_df_Mg_removal_sodaash  1.248888e+08  0.211733
+2023-11-20 12:35:18,202 - ProcessManager - INFO - Arguments for CentrifugeSoda: (53881264.721409395, 589839928.4905021)
+2023-11-20 12:35:18,216 - ProcessManager - INFO - Dataframe for CentrifugeSoda:                                         Variables        Values    per kg
+0     m_output_df_centrifuge_purification_sodaash  5.359587e+08  1.000000
+1         m_in_df_centrifuge_purification_sodaash  5.898399e+08  1.100533
+2         elec_df_centrifuge_purification_sodaash  5.388126e+05  0.001005
+3  waste_solid_df_centrifuge_purification_sodaash -5.388126e+07 -0.100533
+2023-11-20 12:35:18,216 - ProcessManager - INFO - Arguments for Mg_removal_quicklime: ({'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 535958663.76909274)
+2023-11-20 12:35:18,233 - ProcessManager - INFO - Dataframe for Mg_removal_quicklime:                                Variables        Values    per kg
+0       m_output_df_Mg_removal_quicklime  5.372536e+08  1.000000
+1           m_in_df_Mg_removal_quicklime  5.359587e+08  0.997590
+2  chemical_lime_df_Mg_removal_quicklime  9.801231e+05  0.001824
+3     water_lime_df_Mg_removal_quicklime  3.148579e+05  0.000586
+2023-11-20 12:35:18,233 - ProcessManager - INFO - Arguments for CentrifugeQuicklime: (2274706.809752022, 537253644.8050764)
+2023-11-20 12:35:18,251 - ProcessManager - INFO - Dataframe for CentrifugeQuicklime:                                           Variables        Values    per kg
+0     m_output_df_centrifuge_purification_quicklime  5.349789e+08  1.000000
+1         m_in_df_centrifuge_purification_quicklime  5.372536e+08  1.004252
+2         elec_df_centrifuge_purification_quicklime  2.274707e+04  0.000043
+3  waste_solid_df_centrifuge_purification_quicklime -2.274707e+06 -0.004252
+2023-11-20 12:35:18,251 - ProcessManager - INFO - Arguments for Liprec_TG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 534978937.9953243)
+2023-11-20 12:35:18,263 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values    per kg
+0          m_output_df_Liprec_TG  1.348445e+09  1.000000
+1              m_in_df_Liprec_TG  5.349789e+08  0.396738
+2                 E_df_Liprec_TG  1.341601e+08  0.099492
+3  chemical_sodaash_df_Liprec_TG  1.355778e+08  0.100544
+4             water_df_Liprec_TG  6.778888e+08  0.502719
+2023-11-20 12:35:18,263 - ProcessManager - INFO - Arguments for CentrifugeTG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1348445475.7790809)
+2023-11-20 12:35:18,269 - ProcessManager - INFO - Dataframe for CentrifugeTG:                          Variables        Values     per kg
+0        m_output_df_centrifuge_TG  9.924187e+07   1.000000
+1            m_in_df_centrifuge_TG  1.348445e+09  13.587465
+2            elec_df_centrifuge_TG  1.433344e+06   0.014443
+3    waste_liquid_df_centrifuge_TG -9.993629e+08 -10.069972
+4  recycled_waste_df_centrifuge_TG  2.498407e+08   2.517493
+2023-11-20 12:35:18,269 - ProcessManager - INFO - Arguments for washing_TG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:18,279 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  2.315644e+08  1.000000
+1      m_in_df_washing_TG  9.924187e+07  0.428571
+2     water_df_washing_TG  1.323225e+08  0.571429
+3         E_df_washing_TG  5.394290e+07  0.232950
+2023-11-20 12:35:18,279 - ProcessManager - INFO - Arguments for dissolution: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 231564372.19658068)
+2023-11-20 12:35:18,298 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  1.503896e+09  1.000000
+1      m_in_df_dissolution  2.315644e+08  0.153976
+2     water_df_dissolution  1.272332e+09  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2023-11-20 12:35:18,298 - ProcessManager - INFO - Arguments for Liprec_BG: (47288172.6288405, 121699162.2609574, 66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1503896087.5624087)
+2023-11-20 12:35:18,312 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values    per kg
+0    m_output_df_Liprec_BG  1.506638e+09  1.000000
+1        m_in_df_Liprec_BG  1.503896e+09  0.998180
+2  waste_heat_df_Liprec_BG -4.239086e+07 -0.028136
+3           E_df_Liprec_BG  6.629534e+08  0.440022
+2023-11-20 12:35:18,312 - ProcessManager - INFO - Arguments for CentrifugeBG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 1506638061.5946906)
+2023-11-20 12:35:18,326 - ProcessManager - INFO - Dataframe for CentrifugeBG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  9.924187e+07   1.000000
+1          m_in_df_centrifuge_BG  1.506638e+09  15.181475
+2          elec_df_centrifuge_BG  1.601496e+06   0.016137
+3  waste_liquid_df_centrifuge_BG -1.407396e+09 -14.181475
+2023-11-20 12:35:18,326 - ProcessManager - INFO - Arguments for washing_BG: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:18,345 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  2.315644e+08  1.000000
+1      m_in_df_washing_BG  9.924187e+07  0.428571
+2     water_df_washing_BG  1.323225e+08  0.571429
+3         E_df_washing_BG  5.394290e+07  0.232950
+2023-11-20 12:35:18,346 - ProcessManager - INFO - Arguments for CentrifugeWash: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 231564372.19658068)
+2023-11-20 12:35:18,360 - ProcessManager - INFO - Dataframe for CentrifugeWash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  9.924187e+07  1.000000
+1          m_in_df_centrifuge_wash  2.315644e+08  2.333333
+2          elec_df_centrifuge_wash  2.461436e+05  0.002480
+3  waste_liquid_df_centrifuge_wash -1.323225e+08 -1.333333
+2023-11-20 12:35:18,360 - ProcessManager - INFO - Arguments for rotary_dryer: (66161249.19902305, {'deposit_type': 'salar', 'country_location': 'CL', 'elevation': 2300, 'annual_airtemp': 16.8, 'evaporation_rate': 1.44, 'boilingpoint_process': 99.5, 'density_brine': 1.223, 'vec_ini': [0.15, 16.04, 7.6, 1.85, 0.031, 0.96, 1.65, 0.064, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 71.655], 'density_enriched_brine': 1.333, 'vec_end': [6.001, 33.047, 0.071, 0, 0.061, 1.501, 0.24, 0.8, 0.030265486725663718, 0.0007964601769911505, 0.10628318584070798, 0.11920353982300885, 0.04097345132743363, 0.0384070796460177, 0.018141592920353982, 58.27900000000001], 'production': 70000000, 'operating_days': 365, 'lifetime': 40, 'brine_vol': 477.4, 'freshwater_reported': 1, 'freshwater_vol': 31, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 50, 'well_depth_freshwater': 10, 'distance_to_processing': 240, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 0, 'diesel_reported': 1, 'diesel_consumption': 1557778, 'motherliq_reported': 0}, 99241873.79853457)
+2023-11-20 12:35:18,374 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  6.616125e+07  1.000000
+1      m_in_df_rotary_dryer  9.924187e+07  1.500000
+2         E_df_rotary_dryer  1.634572e+08  2.470588
+3      elec_df_rotary_dryer  1.984837e+07  0.300000
+2023-11-20 12:36:37,722 - bw2calc - INFO - Created LCA object
+2023-11-20 12:36:39,128 - bw2calc - INFO - Created LCA object
+2023-11-20 12:36:40,355 - bw2calc - INFO - Created LCA object
+2023-11-20 12:36:40,954 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:40,954 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:40,985 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:40,985 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,017 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,017 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,048 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,048 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,081 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,081 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,113 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,113 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,151 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,151 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,180 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,180 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,226 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,226 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,255 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,255 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,298 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,302 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,318 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,318 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,365 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,366 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,404 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,412 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,445 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,445 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,477 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,491 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,507 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,507 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,540 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,540 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,555 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,555 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,571 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,571 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,606 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,606 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,622 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,622 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,655 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,655 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,681 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,681 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,703 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,704 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,719 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,719 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,746 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,746 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,760 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,760 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,777 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,777 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,799 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,799 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,809 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,823 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,838 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,838 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,854 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,854 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,870 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,870 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,901 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,901 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,917 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,917 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,933 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,948 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,964 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,964 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,980 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,980 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:41,999 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:41,999 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,027 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,027 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,043 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,043 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,060 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,074 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,091 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,091 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,106 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,106 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,132 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,132 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,137 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,153 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,168 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,168 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,200 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,200 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,217 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,217 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,264 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,264 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,280 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,280 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,310 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,310 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,342 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,342 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,359 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,359 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,389 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,391 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,405 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,405 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,422 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,422 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,452 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,452 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,469 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,469 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,499 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,499 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,517 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,517 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,547 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,547 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,564 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,564 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,594 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,594 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,610 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,610 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,626 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,626 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,657 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,657 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,673 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,673 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,704 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,704 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,720 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,720 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,741 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,741 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,768 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,768 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,789 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,789 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,799 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,799 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,832 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,832 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,846 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,846 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,862 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,862 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,893 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,893 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,910 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,910 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,942 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,942 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,957 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,957 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:42,989 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:42,989 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,005 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,005 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,020 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,020 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,037 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,037 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,067 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,067 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,084 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,084 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,105 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,105 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,130 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,130 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,150 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,150 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,166 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,166 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,194 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,194 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,211 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,211 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,225 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,225 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,256 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,256 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,272 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,272 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,288 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,288 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,304 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,304 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,319 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,319 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,351 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,351 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,366 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,366 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,398 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,398 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,416 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,416 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,429 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,445 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,460 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,460 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,482 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,486 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,500 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,500 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,525 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,525 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,541 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,541 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,555 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,555 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,588 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,588 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,618 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,620 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,636 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,647 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,667 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,667 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,684 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,684 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,700 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,700 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,715 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,715 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,745 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,745 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,761 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,761 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,777 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,777 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,808 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,808 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,824 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,824 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,852 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,852 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,871 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,871 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,886 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,886 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,902 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,902 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,934 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,949 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,965 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,965 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:43,996 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:43,996 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,012 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,012 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,045 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,045 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,061 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,061 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,081 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,081 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,107 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,107 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,131 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,131 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,159 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,159 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,186 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,186 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,206 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,206 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,233 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,235 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,251 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,251 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,267 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,267 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,297 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,297 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,315 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,315 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,329 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,329 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,376 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,376 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,391 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,400 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,409 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,409 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,439 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,439 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,454 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,454 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,472 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,472 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,488 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,488 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,517 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,517 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,533 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,533 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,565 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,569 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,585 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,585 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,601 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,601 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,628 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,628 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,644 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,644 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,659 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,659 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,675 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,675 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,701 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,701 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,722 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,724 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,739 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,739 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,754 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,754 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,785 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,786 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,803 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,803 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,817 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,817 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,843 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,843 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,850 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,864 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,880 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,880 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,901 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,901 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,913 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,913 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,943 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,943 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,959 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,959 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:44,976 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:44,976 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,001 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,006 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,022 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,022 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,037 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,037 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,053 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,053 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,068 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,068 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,101 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,101 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,115 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,115 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,147 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,147 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,162 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,162 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,179 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,179 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,210 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,211 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,225 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,225 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,241 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,242 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,262 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,262 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,273 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,273 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,288 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,302 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,320 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,320 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,336 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,336 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,351 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,351 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,367 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,383 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,400 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,402 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,414 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,414 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,431 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,431 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,446 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,446 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,461 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,477 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,494 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,494 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,508 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,508 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,524 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,524 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,541 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,556 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,571 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,571 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,587 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,587 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,603 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,603 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,619 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,619 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,650 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,650 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,665 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,665 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,682 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,682 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,702 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,702 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,729 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,729 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,746 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,746 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,776 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,776 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,793 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,793 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,807 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,807 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,824 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,839 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,855 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,855 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,871 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,871 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,887 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,887 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,903 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,903 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,919 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,919 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,944 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,949 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,965 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,965 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:45,980 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:45,980 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,013 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,013 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,028 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,028 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,045 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,045 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,076 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,076 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,090 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,097 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,108 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,108 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,139 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,139 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,161 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,163 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,170 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,170 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,203 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,211 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,229 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,229 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,251 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,251 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,281 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,281 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,303 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,303 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,330 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,330 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,347 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,347 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,364 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,364 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,375 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,391 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,408 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,408 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,435 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,435 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,455 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,459 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,480 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,480 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,503 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,504 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,524 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,524 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,541 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,541 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,566 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,566 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,590 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,590 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,614 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,614 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,637 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,637 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,662 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,662 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,686 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,686 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,709 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,709 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,730 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,730 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,741 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,741 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,776 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,778 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,791 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,791 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,819 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,819 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,836 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,836 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,863 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,866 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,888 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,888 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,911 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,914 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,936 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,936 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,946 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,946 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,978 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,978 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:46,995 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:46,995 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,011 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,011 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,032 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,032 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,057 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,057 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,079 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,079 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,097 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,097 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,119 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,119 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,152 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,152 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,167 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,167 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,196 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,196 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,217 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,217 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,241 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,241 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,247 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,263 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,280 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,280 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,304 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,304 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,330 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,330 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,359 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,359 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,408 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,408 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,439 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,439 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,472 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,472 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,504 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,504 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,532 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,532 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,549 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,549 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,581 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,581 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,611 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,611 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,649 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,649 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,675 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,675 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,724 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,724 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,754 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,755 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,783 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,784 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,821 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,822 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,862 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,863 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,900 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,902 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,925 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,926 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,951 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,952 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:47,973 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:47,975 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,000 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,001 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,025 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,026 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,073 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,074 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,103 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,104 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,132 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,133 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,162 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,163 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,194 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,195 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,226 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,227 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,254 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,256 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,285 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,287 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,319 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,320 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,349 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,350 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,374 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,375 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,398 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,399 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,422 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,422 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,446 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,448 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,473 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,474 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,498 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,500 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,536 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,538 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,563 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,564 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,592 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,594 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,618 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,620 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,643 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,644 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,659 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,660 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,685 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,686 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,708 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,708 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,731 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,732 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,755 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,757 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,784 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,785 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,812 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,813 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,830 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,830 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,845 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,846 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,869 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,870 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,899 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,900 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,924 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,925 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,951 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,953 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:48,980 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:48,982 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,009 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,010 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,036 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,039 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,055 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,055 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,077 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,078 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,105 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,106 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,133 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,134 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,156 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,157 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,176 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,177 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,200 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,202 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,225 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,226 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,247 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,248 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,275 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,276 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,303 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,304 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,327 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,328 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,354 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,355 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,375 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,376 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,397 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,398 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,422 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,423 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,444 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,446 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,475 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,476 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,505 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,509 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,533 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,534 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,562 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,563 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,581 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,582 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,615 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,616 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,664 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,666 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,695 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,696 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,722 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,725 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,758 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,760 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,792 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,794 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,822 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,825 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,863 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,864 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,905 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,906 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,945 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,947 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:49,984 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:49,985 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,013 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,014 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,041 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,043 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,067 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,068 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,095 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,096 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,119 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,121 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,151 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,152 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,181 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,183 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,211 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,212 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,237 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,239 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,270 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,272 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,296 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,297 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,322 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,324 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,348 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,350 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,380 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,381 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,412 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,413 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,444 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,445 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,470 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,471 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,503 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,505 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,535 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,537 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,566 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,567 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,599 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,601 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,632 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,633 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,661 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,662 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,691 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,694 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,717 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,718 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,743 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,744 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,768 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,769 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,796 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,797 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,826 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,827 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,850 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,851 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,875 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:50,877 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:50,886 - bw2calc - INFO - Created LCA object
+2023-11-20 12:36:51,695 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,696 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,739 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,741 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,779 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,780 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,820 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,821 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,870 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,871 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,917 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,918 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:51,966 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:51,967 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,020 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,021 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,065 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,066 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,114 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,115 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,174 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,177 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,233 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,234 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,279 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,280 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,327 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,328 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,372 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,372 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,420 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,421 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,473 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,475 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,509 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,510 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,532 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,533 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,560 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,561 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,604 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,605 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,632 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,633 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,677 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,679 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,713 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,714 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,747 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,748 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,781 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,783 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,813 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,815 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,843 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,844 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,872 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,874 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,903 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,904 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,935 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,936 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,965 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,966 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:52,993 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:52,994 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,020 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,029 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,058 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,060 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,083 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,084 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,115 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,116 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,142 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,143 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,168 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,169 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,195 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,196 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,225 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,226 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,255 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,257 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,284 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,285 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,312 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,313 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,341 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,342 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,365 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,366 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,392 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,394 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,423 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,424 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,438 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,440 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,461 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,462 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,484 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,486 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,511 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,512 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,534 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,535 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,564 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,565 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,587 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,590 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,618 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,619 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,647 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,648 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,677 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,678 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,704 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,707 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,737 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,739 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,769 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,769 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,799 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,800 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,828 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,830 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,859 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,859 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,892 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,892 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,912 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,912 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,945 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,945 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,976 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:53,976 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:53,999 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,003 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,027 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,031 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,059 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,059 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,081 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,081 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,109 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,109 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,141 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,141 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,169 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,173 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,199 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,203 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,219 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,219 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,243 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,247 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,283 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,288 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,324 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,328 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,354 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,356 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,378 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,378 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,406 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,407 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,435 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,437 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,458 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,458 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,483 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,483 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,511 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,511 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,543 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,544 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,568 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,568 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,597 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,597 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,627 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,627 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,657 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,659 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,690 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,690 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,716 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,716 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,741 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,745 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,775 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,778 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,808 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,808 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,835 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,835 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,861 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,861 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,892 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,892 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,920 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,923 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,945 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,949 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:54,978 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:54,978 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,012 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,012 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,042 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,044 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,073 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,073 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,107 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,108 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,135 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,135 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,159 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,159 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,187 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,187 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,216 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,216 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,244 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,244 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,277 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,277 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,326 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,327 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,366 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,370 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,394 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,394 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,419 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,421 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,448 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,448 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,472 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,472 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,506 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,508 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,536 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,536 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,565 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,565 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,597 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,601 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,626 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,626 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,653 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,655 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,676 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,679 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,695 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,699 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,723 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,725 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,752 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,755 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,777 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,777 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,798 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,798 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,821 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,821 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,842 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,846 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,871 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,871 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,895 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,899 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,924 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,924 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,948 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,948 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:55,973 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:55,977 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,002 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,003 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,032 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,035 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,061 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,061 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,090 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,090 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,115 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,115 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,140 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,144 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,174 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,174 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,194 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,194 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,222 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,224 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,248 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,248 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,276 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,276 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,301 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,301 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,328 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,328 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,357 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,359 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,382 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,383 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,412 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,412 - bw2calc - INFO - Redoing LCIA
+2023-11-20 12:36:56,441 - bw2calc - INFO - Redoing LCI
+2023-11-20 12:36:56,444 - bw2calc - INFO - Redoing LCIA

@@ -292,12 +292,11 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
     site_db = bd.Database(site_name)
 
     act_list = [act for act in site_db]
-    print(act_list)
+
     for act in act_list :
-        print(act)
+
         for exc in act.technosphere() :
             exc_name = exc.input['name']
-            print(exc_name)
 
             # Check if exc_name is in the list of regionalized activity names
             if exc_name in regionalized_activity_names :

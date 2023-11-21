@@ -30,7 +30,8 @@ def create_inventory_map(abbrev_loc) :
         "Transformation, from unknown": "land_transform_unknown",
         "Transformation, to mineral extraction site": "land_transform_minesite",
         "market for calcium chloride": "chemical_calciumchloride",
-        "market for solvent, organic": "chemical_organicsolvent"
+        "market for solvent, organic": "chemical_organicsolvent",
+        "market for sulfuric acid": "chemical_sulfuricacid"
 
     }
     return inventory_map

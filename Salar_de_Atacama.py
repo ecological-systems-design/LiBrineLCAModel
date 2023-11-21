@@ -10,26 +10,24 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Atacama"
+site_name = f"Salar de Atacama"
 biosphere = f"biosphere3"
 deposit_type = "salar"
 
-site_location = site_name[:3]
+site_location = "Ata"
 
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_6'
+    project = f'Site_{site_name}_16'
     bd.projects.set_current(project)
     print(project)
 
-    print(bd.methods)
+    #delete AWARE method
+    #bd.Method("AWARE").deregister()
 
-    #print(bd.Method(('AWARE regionalized', 'Annual', 'All')).load())
-
-
-    del bd.databases[site_name]
-    del bd.databases[ei_name]
+    #del bd.databases[site_name]
+    #del bd.databases[ei_name]
 
 
     country_location = "CL"
@@ -73,7 +71,7 @@ if __name__ == '__main__' :
     # 1. Define your initial parameters
     prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
 
-    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}.txt"
+    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
@@ -83,12 +81,12 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.9
-    min_eff = 0.3
+    max_eff = 0.45
+    min_eff = 0.45
     eff_steps = 0.1
     Li_conc_steps = 0.01
     Li_conc_max = 0.15
-    Li_conc_min = 0.10
+    Li_conc_min = 0.15
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                    min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
@@ -102,7 +100,7 @@ if __name__ == '__main__' :
                                                              eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
     from rsc.Brightway2.lci_method_aware import import_aware
-    import_aware(ei_reg, bio)
+    import_aware(ei_reg, bio, site_name, site_db)
 
     #from rsc.Brightway2.lci_method_pm import import_PM
     #import_PM(ei_reg, bio)
@@ -128,18 +126,21 @@ if __name__ == '__main__' :
                                                        abbrev_loc)
 
     #saving results
-    from rsc.Brightway2.impact_assessment import saving_LCA_results
-    saving_LCA_results(results, filename, abbrev_loc)
+    from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
+    saving_LCA_results(impacts, filename, abbrev_loc)
 
 
-    from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+    from rsc.Postprocessing_results.visualization_functions import Visualization
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
 
-    # Loop through all activities in the database
-    for activity in site_db :
-        print("Activity:", activity, activity['type'])
-        # Loop through all exchanges for the current activity
-        for exchange in activity.exchanges() :
-            exchange_type = exchange.get('type', 'Type not specified')
-            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+    rounded_Li = round(Li_conc, 3)
+
+    file_names = [f"{site_name}" + "_climatechange_" + f"{rounded_Li}",
+                f"{site_name}" + "_waterscarcity_" + f"{rounded_Li}"]
+
+    method_list = [method_cc, method_water]
+
+    for method, file_name in zip(method_list, file_names) :
+        print_recursive_calculation(activity, method, abbrev_loc, file_name, max_level=30, cutoff=0.001)
+

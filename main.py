@@ -87,11 +87,11 @@ if __name__ == '__main__' :
     dataframes_dict = manager.run(filename)
 
     max_eff = 1.0
-    min_eff = 0.5
+    min_eff = 0.7
     eff_steps = 0.1
-    Li_conc_steps = 0.001
+    Li_conc_steps = 0.01
     Li_conc_max = 0.03
-    Li_conc_min = 0.001
+    Li_conc_min = 0.02
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                    min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
@@ -137,7 +137,7 @@ if __name__ == '__main__' :
 
     saving_LCA_results(results, filename, abbrev_loc)
 
-    from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+    from rsc.Postprocessing_results.visualization_functions import Visualization
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
 

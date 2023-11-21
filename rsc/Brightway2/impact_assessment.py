@@ -54,11 +54,25 @@ def ensure_folder_exists(folder_path) :
         os.makedirs(folder_path)
 
 def saving_LCA_results(results, filename, abbrev_loc):
-    # Convert the dictionary to a pandas DataFrame
-    if isinstance(results, dict): # Check if results is a dictionary
-        results_df = pd.DataFrame(results)
-    else:
-        results_df = results # If it's already a DataFrame, no need to convert
+
+    if isinstance(results, dict) :
+        # Transforming the dictionary into the desired DataFrame format
+        transformed_data = []
+        for keys, values in results.items() :
+            row = {'Li-conc' : keys[0], 'eff' : keys[1]}
+            for inner_keys, value in values.items() :
+                if inner_keys[0].startswith('IPCC') :
+                    row['IPCC'] = value
+                elif inner_keys[0].startswith('AWARE') :
+                    row['AWARE'] = value
+                elif inner_keys[0].startswith('PM') :
+                    row['PM'] = value
+            transformed_data.append(row)
+        results_df = pd.DataFrame(transformed_data)
+    else :
+        results_df = results
+
+    print(results_df)
 
     # Ensure the results folder exists
     results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/rawdata"
@@ -71,42 +85,59 @@ def saving_LCA_results(results, filename, abbrev_loc):
 
     print(f"Saved {filename} as CSV file")
 
-def print_recursive_calculation(activity, lcia_method, lca_obj=None, file_obj=True, total_score=None, amount=1, level=0,
-                                max_level=30, cutoff=0.01) :
-    if lca_obj is None :
-        lca_obj = bc.LCA({activity : amount}, lcia_method)
+def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca_obj=None, results_df=None, total_score=None, amount=1, level=0, max_level=30, cutoff=0.01):
+    base_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/recursive_calculation"
+    results_folder = os.path.join(base_path, f"results_{abbrev_loc}")
+    ensure_folder_exists(results_folder)
+
+    # Initialize DataFrame at the top level
+    if level == 0:
+        results_df = pd.DataFrame(columns=['Level', 'Fraction', 'Score', 'Description'])
+
+    # LCA calculation logic
+    if lca_obj is None:
+        lca_obj = bc.LCA({activity: amount}, lcia_method)
         lca_obj.lci()
         lca_obj.lcia()
         total_score = lca_obj.score
-    elif total_score is None :
-        raise ValueError
-    else :
-        lca_obj.redo_lcia({activity : amount})
-        if abs(lca_obj.score) <= abs(total_score * cutoff) :
-            return
+    elif total_score is None:
+        raise ValueError("Total score is None.")
+    else:
+        lca_obj.redo_lcia({activity: amount})
+        if abs(lca_obj.score) <= abs(total_score * cutoff):
+            return results_df
 
-    indent = "    " * level
-    output = "'{}''{:4.3f}''{:6.10f}': {:.70}\n".format(level, lca_obj.score / total_score, lca_obj.score,
-                                                        str(activity))
+    # Append data to DataFrame
+    fraction = lca_obj.score / total_score if total_score else 0
+    results_df = results_df.append(
+        {'Level': level, 'Fraction': fraction, 'Score': lca_obj.score, 'Description': str(activity)},
+        ignore_index=True)
 
-    if lca_obj.score == 0 :
-        print('yea')
+    #print(f"Level {level}: Appended data. DataFrame now has {len(results_df)} rows.")  # Debugging print
 
-    if file_obj :
-        file_obj.write(output)
-    else :
-        print(output)
-
-    if level < max_level :
-        for exc in activity.technosphere() :
-            print_recursive_calculation(
+    # Recursive call for each technosphere exchange
+    if level < max_level:
+        for exc in activity.technosphere():
+            results_df = print_recursive_calculation(
                 activity=exc.input,
                 lcia_method=lcia_method,
+                abbrev_loc=abbrev_loc,
+                filename=filename,
                 lca_obj=lca_obj,
-                file_obj=file_obj,
+                results_df=results_df,
                 total_score=total_score,
                 amount=amount * exc['amount'],
                 level=level + 1,
                 max_level=max_level,
                 cutoff=cutoff
-                )
+            )
+
+    # Save results to CSV at the top level
+    if level == 0:
+        file_path = os.path.join(results_folder, filename)
+        results_df.to_csv(file_path, index=False)
+        print(f"Results saved in {file_path}")
+
+    # Return the DataFrame
+    return results_df
+

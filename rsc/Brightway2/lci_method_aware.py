@@ -12,7 +12,7 @@ import tabulate
 
 
 
-def import_aware(ei, bio_f):
+def import_aware(ei, bio_f,site_name, site_db):
     if "AWARE regionalized" not in str(bd.methods) :
         plant_classi = ('EcoSpold01Categories', 'agricultural production/plant production')
         bio_acts = [act for act in bio_f if "water" in act['name'].lower() and
@@ -21,6 +21,8 @@ def import_aware(ei, bio_f):
         for act in ei :
             if act.get('location') not in ei_loc_list :
                 ei_loc_list.append(act.get('location'))
+
+        ei_loc_list.append(site_name)
 
         new_bio_name = "biosphere water regionalized"
 
@@ -102,6 +104,13 @@ def import_aware(ei, bio_f):
                 if exc.input in bio_acts :
                     act_contain_water_list.append(act)
 
+        for act in site_db :
+            for exc in act.exchanges() :
+                if exc.input in bio_acts :
+                    act_contain_water_list.append(act)
+
+        print(f"Number of activities containing water: {len(act_contain_water_list), act_contain_water_list}")
+
         agri_act_list = []
         for x in act_contain_water_list :
             for i in x.get('classifications') :
@@ -129,6 +138,8 @@ def import_aware(ei, bio_f):
                     if not flag_replaced :
                         # Copy data of the existing biosphere activity
                         data = deepcopy(exc.as_dict())
+                        print(data)
+                        print(exc.input['name'], act['name'])
                         data.pop('flow')
                         # Find regionalized biosphere activity from the new biosphere database
                         if agri_yes_no >= 1 :

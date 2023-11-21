@@ -1,0 +1,23 @@
+'0''1.000''1.7296297974': 'df_rotary_dryer' (kilogram, Salar de Atacama, None)
+'1''0.994''1.7187726601': 'df_centrifuge_wash' (kilogram, Salar de Atacama, None)
+'2''0.994''1.7186558800': 'df_washing_BG' (kilogram, Salar de Atacama, None)
+'3''0.993''1.7177290696': 'df_centrifuge_BG' (kilogram, Salar de Atacama, None)
+'4''0.993''1.7169687676': 'df_Liprec_BG' (kilogram, Salar de Atacama, None)
+'5''0.989''1.7111401978': 'df_dissolution' (kilogram, Salar de Atacama, None)
+'6''0.987''1.7067889111': 'df_washing_TG' (kilogram, Salar de Atacama, None)
+'7''0.986''1.7058621009': 'df_centrifuge_TG' (kilogram, Salar de Atacama, None)
+'8''0.986''1.7051816437': 'df_Liprec_TG' (kilogram, Salar de Atacama, None)
+'9''0.642''1.1102462542': 'df_centrifuge_purification_quicklime' (kilogram, Salar de Atacama, No
+'10''0.641''1.1092584049': 'df_Mg_removal_quicklime' (kilogram, Salar de Atacama, None)
+'11''0.641''1.1091017532': 'df_centrifuge_purification_sodaash' (kilogram, Salar de Atacama, None
+'12''0.628''1.0857024409': 'df_Mg_removal_sodaash' (kilogram, Salar de Atacama, None)
+'13''0.549''0.9490732117': 'df_centrifuge_purification_general' (kilogram, Salar de Atacama, None
+'14''0.543''0.9391596206': 'df_B_removal_orgsolvent' (kilogram, Salar de Atacama, None)
+'15''0.457''0.7910305078': 'df_transport_brine' (kilogram, Salar de Atacama, None)
+'16''0.454''0.7861157396': 'df_evaporation_ponds' (kilogram, Salar de Atacama, None)
+'17''0.439''0.7593759506': 'market for sulfuric acid' (kilogram, RoW, None)
+'18''0.371''0.6424579905': 'sulfuric acid production' (kilogram, RoW, None)
+'13''0.079''0.1362021344': 'market for soda ash, light' (kilogram, GLO, None)
+'14''0.072''0.1237647505': 'soda production, solvay process' (kilogram, RoW, None)
+'9''0.342''0.5914374925': 'market for soda ash, light' (kilogram, GLO, None)
+'10''0.311''0.5374300045': 'soda production, solvay process' (kilogram, RoW, None)

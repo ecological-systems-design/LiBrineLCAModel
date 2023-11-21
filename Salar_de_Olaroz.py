@@ -122,7 +122,7 @@ if __name__ == '__main__' :
                                                        site_name, ei_name, eff_range, Li_conc_range,
                                                        abbrev_loc)
 
-    from rsc.visualizations_LCI_and_BW2.visualization_functions import Visualization
+    from rsc.Postprocessing_results.visualization_functions import Visualization
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
 
