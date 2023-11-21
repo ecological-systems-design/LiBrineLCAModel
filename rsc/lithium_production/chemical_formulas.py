@@ -64,6 +64,7 @@ T_motherliq = 80 # Temperature of mother liquor
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 adsorb_capacity_salar = 4/(1/1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin
+Li_out_adsorb = 198 # Li concentration in Li-ion adsorption [mg/L]
 Li_out_RO = 5000 # Li concentration in RO permeate [mg/L]
 Li_in_RO = 2500 # Li concentration in RO feed [mg/L]
 Li_out_evaporator = 30000 # Li concentration in evaporator brine [mg/L]

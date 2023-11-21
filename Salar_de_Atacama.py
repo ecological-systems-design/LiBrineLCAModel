@@ -19,7 +19,7 @@ site_location = "Ata"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_16'
+    project = f'Site_{site_name}_19'
     bd.projects.set_current(project)
     print(project)
 
@@ -142,5 +142,5 @@ if __name__ == '__main__' :
     method_list = [method_cc, method_water]
 
     for method, file_name in zip(method_list, file_names) :
-        print_recursive_calculation(activity, method, abbrev_loc, file_name, max_level=30, cutoff=0.001)
+        print_recursive_calculation(activity, method, abbrev_loc, file_name, max_level=10, cutoff=0.01)
 

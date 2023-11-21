@@ -13,18 +13,19 @@ import tabulate
 
 
 def import_aware(ei, bio_f,site_name, site_db):
+    new_bio_name = "biosphere water regionalized"
+
+    bio_acts = [act for act in bio_f if "water" in act['name'].lower() and
+                ('air' in act['categories'] or 'in air' in act['categories'])]
+
     if "AWARE regionalized" not in str(bd.methods) :
         plant_classi = ('EcoSpold01Categories', 'agricultural production/plant production')
-        bio_acts = [act for act in bio_f if "water" in act['name'].lower() and
-                    ('air' in act['categories'] or 'in air' in act['categories'])]
         ei_loc_list = []
         for act in ei :
             if act.get('location') not in ei_loc_list :
                 ei_loc_list.append(act.get('location'))
 
         ei_loc_list.append(site_name)
-
-        new_bio_name = "biosphere water regionalized"
 
         # combine locations with original water biosphere flows
         biosphere_data = {}
@@ -109,7 +110,7 @@ def import_aware(ei, bio_f,site_name, site_db):
                 if exc.input in bio_acts :
                     act_contain_water_list.append(act)
 
-        print(f"Number of activities containing water: {len(act_contain_water_list), act_contain_water_list}")
+        print(f"Number of activities containing water: {len(act_contain_water_list)}")
 
         agri_act_list = []
         for x in act_contain_water_list :
@@ -140,7 +141,10 @@ def import_aware(ei, bio_f,site_name, site_db):
                         data = deepcopy(exc.as_dict())
                         print(data)
                         print(exc.input['name'], act['name'])
-                        data.pop('flow')
+                        try:
+                            data.pop('flow')
+                        except:
+                            pass
                         # Find regionalized biosphere activity from the new biosphere database
                         if agri_yes_no >= 1 :
                             exc_name = exc.input['name'] + ', irrigation'
@@ -170,8 +174,101 @@ def import_aware(ei, bio_f,site_name, site_db):
 
         print(f'AWARE is imported.')
         pass
-    else:
-        print(f"AWARE already exists as a method.")
-        pass
 
+    else:
+        print('yeahsy')
+
+        connected_to_biosphere3 = False
+        connected_to_biosphere_regionalized = False
+
+        for act in site_db :
+            for exc in act.exchanges() :
+                database_name = exc.input[0]
+                print(database_name)
+                if database_name == 'biosphere 3' :
+                    print('yeah -data')
+                    connected_to_biosphere3 = True
+                elif database_name == 'biosphere water regionalized' :
+                    print('yeah -regionalized')
+                    connected_to_biosphere_regionalized = True
+
+        # Now you can check the flags and act accordingly
+        if connected_to_biosphere3 :
+            new_bio_db = bd.Database(new_bio_name)
+
+            act_contain_water_list = []
+
+            for act in site_db :
+                for exc in act.exchanges() :
+                    if exc.input in bio_acts :
+                        act_contain_water_list.append(act)
+
+            print(f"Number of activities containing water: {len(act_contain_water_list)}")
+
+            agri_act_list = []
+            for x in act_contain_water_list :
+                for i in x.get('classifications') :
+                    if i[0] == 'ISIC rev.4 ecoinvent' :
+                        if (
+                                ('011' in i[1] or '012' in i[1])
+                                and '201' not in i[1]
+                                and '301' not in i[1]
+                        ) :
+                            if i[1] not in agri_act_list :
+                                agri_act_list.append(i[1])
+
+            for act in act_contain_water_list :
+                # check if act is agricultural event
+                agri_yes_no = 0
+                for classi in act.get('classifications') :
+                    if classi[1] in agri_act_list :
+                        agri_yes_no += 1
+                    elif classi[1] == 'agricultural production/plant production' :
+                        agri_yes_no += 1
+                for exc in act.exchanges() :
+                    if exc.input in bio_acts :
+                        flag_replaced = exc.get("replaced with regionalized", False)
+
+                        if not flag_replaced :
+                            # Copy data of the existing biosphere activity
+                            data = deepcopy(exc.as_dict())
+                            print(data)
+                            print(exc.input['name'], act['name'])
+                            try :
+                                data.pop('flow')
+                            except :
+                                pass
+                            # Find regionalized biosphere activity from the new biosphere database
+                            if agri_yes_no >= 1 :
+                                exc_name = exc.input['name'] + ', irrigation'
+                                bio_act_regionalized = [
+                                    bio_act for bio_act in new_bio_db if bio_act['name'] == exc_name
+                                                                         and bio_act['categories'] == exc.input[
+                                                                             'categories']
+                                                                         and bio_act['location'] == act['location']
+                                    ]
+                                data['name'] += ', irrigation'
+                            else :
+                                bio_act_regionalized = [
+                                    bio_act for bio_act in new_bio_db if bio_act['name'] == exc.input['name']
+                                                                         and bio_act['categories'] == exc.input[
+                                                                             'categories']
+                                                                         and bio_act['location'] == act['location']
+                                    ]
+                            assert len(bio_act_regionalized) == 1
+                            bio_act_regionalized = bio_act_regionalized[0]
+                            # Create new exchange that has all the data from the previous one, except for the input activity
+                            # that is now from the new biosphere database
+                            data['input'] = (bio_act_regionalized['database'], bio_act_regionalized['code'])
+                            act.new_exchange(**data).save()
+                            # Set the previous exchange amount to 0, we don't need None location anymore
+                            exc['amount'] = 0  # exc.delete()?
+                            # Mark that the exchange has been replaced
+                            exc['replaced with regionalized'] = True
+                            exc.save()
+            print(f'{site_db} is now linked to {new_bio_name}')
+            pass
+        elif connected_to_biosphere_regionalized :
+            print(f"AWARE regionalized already exists as a method and {site_db} is already linked to {new_bio_name}.")
+            pass
 

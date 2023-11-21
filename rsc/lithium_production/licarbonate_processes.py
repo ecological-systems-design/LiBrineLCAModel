@@ -472,18 +472,29 @@ class Li_adsorption :
         process_name = 'df_Li_adsorption'
         life = site_parameters['lifetime']  # lifetime of the plant
         T_out = site_parameters['annual_airtemp']  # annual air temperature
+        deposit_type = site_parameters['deposit_type']  # type of deposit
         adsorbent_loss = prod * ((2 * Li) / (2 * Li + C + 3 * O)) * 1.25
-        adsorbent_invest = prod * ((2 * Li) / (2 * Li + C + 3 * O)) / adsorp_capacity
+        if deposit_type == 'salar' :
+            adsorbent_invest = prod * ((2 * Li) / (2 * Li + C + 3 * O)) / adsorb_capacity_salar
+        else :
+            adsorbent_invest = prod * ((2 * Li) / (2 * Li + C + 3 * O)) / adsorp_capacity
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
         water_adsorbent = 100 * adsorbent_invest
+
+        if deposit_type == 'salar' :
+            water_adsorbent = (1000*dens_pulp)/(Li_out_adsorb/1000) * prod * ((2 * Li) / (2 * Li + C + 3 * O)) #TODO check if numbers are correct
+            E_adsorp = (
+                            ((T_adsorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
+                        ) / heat_loss
+        else :
+            water_adsorbent = 100 * adsorbent_invest #TODO check if this is correct
+            E_adsorp = (
+                               ((T_adsorp - T_out) * hCHH * water_adsorbent) / 10 ** 6
+                       ) / heat_loss
+
         elec_adsorp = 0.73873739 * 10 ** (-3) * (
                 m_in + water_adsorbent
         )  # Electricity demand for ion exchanger [kWh]
-
-        E_adsorp = (
-                           ((T_adsorp - T_out) * hCHH * water_adsorbent) / 10 ** 6
-                   ) / heat_loss
-
         m_output = water_adsorbent
 
         df_data = {

@@ -201,9 +201,9 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                     (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
                                     (water_flow.key, 0.00125, "cubic meter", "biosphere", None,
                                      ("natural resource", "in ground")),
-                                    (water_evaporated_flow.key, 0.125, "cubic meter", "biosphere", None,
+                                    (water_evaporated_flow.key, 0.00125, "cubic meter", "biosphere", None,
                                      ("air",))
-                                    ] #changed from 0.00025 to 0.00125 TODO
+                                    ]
                                 create_exchanges(water_act, exchanges)
 
 
