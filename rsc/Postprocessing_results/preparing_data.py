@@ -154,5 +154,3 @@ def preparing_data_recursivecalculation(file_path, category_mapping) :
     return df
 
 
-if __name__ == '__main__' :
-    df = preparing_data_recursivecalculation(file_path, category_mapping)

@@ -1,7 +1,6 @@
 import bw2data as bd
 from pathlib import Path
 
-
 import os
 
 if not os.path.exists("results") :
@@ -10,7 +9,7 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Olaroz"
+site_name = f"Salar de Olaroz"
 biosphere = f"biosphere3"
 deposit_type = "salar"
 
@@ -19,20 +18,17 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_3'
+    project = f'Site_{site_name}_8'
     bd.projects.set_current(project)
     print(project)
 
-
-    #del bd.databases[site_name]
-    #del bd.databases[ei_name]
-
+    # del bd.databases[site_name]
+    # del bd.databases[ei_name]
 
     country_location = "AR"
 
     # print all brightway2 databases
     print(bd.databases)
-
 
     eff = 0.45
     Li_conc = 0.15
@@ -47,17 +43,15 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
-        transport_brine(),
-        B_removal_organicsolvent(),
         Centrifuge_general(),
-        Mg_removal_sodaash(),
-        CentrifugeSoda(),
-        Mg_removal_quicklime(),
-        CentrifugeQuicklime(),
         Liprec_TG(),
-        CentrifugeTG(),
         washing_TG(),
+        CentrifugeTG(),
         dissolution(),
+        Centrifuge_general(),
+        ion_exchange_H(custom_name = None),
+        ion_exchange_H(custom_name = "df_ion_exchange_H_second"),
+        ion_exchange_L(),
         Liprec_BG(),
         CentrifugeBG(),
         washing_BG(),
@@ -68,7 +62,7 @@ if __name__ == '__main__' :
     # 1. Define your initial parameters
     prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
 
-    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}.txt"
+    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
@@ -78,39 +72,40 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.9
-    min_eff = 0.3
-    eff_steps = 0.1
-    Li_conc_steps = 0.005
+    max_eff = 0.45
+    min_eff = 0.4
+    eff_steps = 0.05
+    Li_conc_steps = 0.5
     Li_conc_max = 0.15
-    Li_conc_min = 0.005
+    Li_conc_min = 0.05
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
-                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
+                                                               min_eff, eff_steps, Li_conc_steps, Li_conc_max,
+                                                               Li_conc_min)
 
     print(results)
-
 
     from rsc.Brightway2.setting_up_db_env import *
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
-                                                             eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
+                                                eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
     from rsc.Brightway2.lci_method_aware import import_aware
-    import_aware(ei_reg, bio)
 
-    #from rsc.Brightway2.lci_method_pm import import_PM
-    #import_PM(ei_reg, bio)
+    import_aware(ei_reg, bio, site_name, site_db)
 
+    # from rsc.Brightway2.lci_method_pm import import_PM
 
-    #print(results)
-
+    # import_PM(ei_reg, bio, site_name, site_db)
 
     # Filter methods based on your criteria
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
                  and 'global warming potential' in str(m)][-20]
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
+
+    # method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    # print(method_PM)
 
     method_list = [method_cc, method_water]
 
@@ -119,17 +114,16 @@ if __name__ == '__main__' :
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, eff_range, Li_conc_range,
-                                                       abbrev_loc)
+                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range,
+                                                       literature_eff=None, literature_Li_conc=None)
+    # print(impacts)
+
+    # saving results
+    from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
+
+    saving_LCA_results(impacts, abbrev_loc)
 
     from rsc.Postprocessing_results.visualization_functions import Visualization
+
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
-
-    # Loop through all activities in the database
-    for activity in site_db :
-        print("Activity:", activity, activity['type'])
-        # Loop through all exchanges for the current activity
-        for exchange in activity.exchanges() :
-            exchange_type = exchange.get('type', 'Type not specified')
-            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)

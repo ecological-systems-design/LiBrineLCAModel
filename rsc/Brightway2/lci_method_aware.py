@@ -175,22 +175,22 @@ def import_aware(ei, bio_f,site_name, site_db):
         print(f'AWARE is imported.')
         pass
 
-    else:
-        print('yeahsy')
+    else :
 
         connected_to_biosphere3 = False
         connected_to_biosphere_regionalized = False
 
-        for act in site_db :
-            for exc in act.exchanges() :
-                database_name = exc.input[0]
-                print(database_name)
-                if database_name == 'biosphere 3' :
-                    print('yeah -data')
-                    connected_to_biosphere3 = True
-                elif database_name == 'biosphere water regionalized' :
-                    print('yeah -regionalized')
-                    connected_to_biosphere_regionalized = True
+        act = [act for act in site_db if f"Water_" in act['name']][0]
+
+        for exc in act.exchanges() :
+            database_name = exc.input[0]
+
+            if database_name == 'biosphere3' :
+
+                connected_to_biosphere3 = True
+            elif database_name == new_bio_name :
+
+                connected_to_biosphere_regionalized = True
 
         # Now you can check the flags and act accordingly
         if connected_to_biosphere3 :

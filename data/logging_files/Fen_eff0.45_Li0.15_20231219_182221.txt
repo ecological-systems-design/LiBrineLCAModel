@@ -1,0 +1,22 @@
+2023-12-19 18:22:21,451 - ProcessManager - INFO - Arguments for evaporation_ponds: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 4000, 'annual_airtemp': 5.2, 'evaporation_rate': 1.106, 'boilingpoint_process': 86.4, 'density_brine': 1.206, 'vec_ini': [0.15, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, 0, 0, 0, 0, 0, 0, 0, 74.06757877280266], 'density_enriched_brine': 1.206, 'vec_end': [0.06616915422885572, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, 0, 0, 0, 0, 0, 0, 0, 74.06757877280266], 'production': 24000000, 'operating_days': nan, 'lifetime': 40, 'brine_vol': 491.7, 'freshwater_reported': 1, 'freshwater_vol': 98.7, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 55, 'well_depth_freshwater': 55, 'distance_to_processing': nan, 'second_Li_enrichment_reported': nan, 'second_Li_enrichment': nan, 'quicklime_reported': nan, 'diesel_reported': nan, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan, nan)
+2023-12-19 18:22:21,483 - ProcessManager - INFO - Dataframe for evaporation_ponds:                                        Variables    Values  per kg
+0                  m_output_df_evaporation_ponds       NaN     NaN
+1                      m_Li_df_evaporation_ponds       NaN     NaN
+2                      elec_df_evaporation_ponds       NaN     NaN
+3            diesel_machine_df_evaporation_ponds       NaN     NaN
+4                     water_df_evaporation_ponds       NaN     NaN
+5           land_occupation_df_evaporation_ponds -0.000505     NaN
+6    land_transform_unknown_df_evaporation_ponds -0.000013     NaN
+7   land_transform_minesite_df_evaporation_ponds -0.000013     NaN
+8             chemical_lime_df_evaporation_ponds  0.000000     NaN
+9     chemical_sulfuricacid_df_evaporation_ponds       NaN     NaN
+10               waste_salt_df_evaporation_ponds  0.000000     NaN
+11             waste_liquid_df_evaporation_ponds       NaN     NaN
+2023-12-19 18:22:21,484 - ProcessManager - INFO - Arguments for Li_adsorption: (nan, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 4000, 'annual_airtemp': 5.2, 'evaporation_rate': 1.106, 'boilingpoint_process': 86.4, 'density_brine': 1.206, 'vec_ini': [0.15, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, 0, 0, 0, 0, 0, 0, 0, 74.06757877280266], 'density_enriched_brine': 1.206, 'vec_end': [0.06616915422885572, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, 0, 0, 0, 0, 0, 0, 0, 74.06757877280266], 'production': 24000000, 'operating_days': nan, 'lifetime': 40, 'brine_vol': 491.7, 'freshwater_reported': 1, 'freshwater_vol': 98.7, 'Li_efficiency': 0.45, 'number_wells': nan, 'well_depth_brine': 55, 'well_depth_freshwater': 55, 'distance_to_processing': nan, 'second_Li_enrichment_reported': nan, 'second_Li_enrichment': nan, 'quicklime_reported': nan, 'diesel_reported': nan, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan)
+2023-12-19 18:22:21,506 - ProcessManager - INFO - Dataframe for Li_adsorption:                              Variables  Values  per kg
+0            m_output_df_Li_adsorption     NaN     NaN
+1                m_in_df_Li_adsorption     NaN     NaN
+2  chemical_adsorbent_df_Li_adsorption     NaN     NaN
+3     water_adsorbent_df_Li_adsorption     NaN     NaN
+4         elec_adsorp_df_Li_adsorption     NaN     NaN
+5            E_adsorp_df_Li_adsorption     NaN     NaN

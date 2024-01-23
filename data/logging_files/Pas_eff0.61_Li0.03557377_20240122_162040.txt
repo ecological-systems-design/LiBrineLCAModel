@@ -1,0 +1,123 @@
+2024-01-22 16:20:40,879 - ProcessManager - INFO - Arguments for evaporation_ponds: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 20775916800.0, 23999620.280059077)
+2024-01-22 16:25:56,203 - ProcessManager - INFO - Dataframe for evaporation_ponds:                                        Variables        Values        per kg
+0                  m_output_df_evaporation_ponds  2.771981e+08  1.000000e+00
+1                      m_Li_df_evaporation_ponds  8.763927e+04  3.161611e-04
+2                      elec_df_evaporation_ponds  3.559321e+07  1.284035e-01
+3            diesel_machine_df_evaporation_ponds  4.752734e+04  1.714562e-04
+4                     water_df_evaporation_ponds  1.123561e+09  4.053279e+00
+5           land_occupation_df_evaporation_ponds  6.944317e-02  2.505182e-10
+6    land_transform_unknown_df_evaporation_ponds  1.736079e-03  6.262955e-12
+7   land_transform_minesite_df_evaporation_ponds  1.736079e-03  6.262955e-12
+8             chemical_lime_df_evaporation_ponds  9.599848e+07  3.463173e-01
+9     chemical_sulfuricacid_df_evaporation_ponds  1.966900e+08  7.095649e-01
+10               waste_salt_df_evaporation_ponds -2.231734e+09 -8.051042e+00
+11             waste_liquid_df_evaporation_ponds -1.092722e+09 -3.942027e+00
+2024-01-22 16:25:56,203 - ProcessManager - INFO - Arguments for B_removal_organicsolvent: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 277198092.29319865)
+2024-01-22 16:25:57,416 - ProcessManager - INFO - Dataframe for B_removal_organicsolvent:                                          Variables        Values  per kg
+0                 m_output_df_B_removal_orgsolvent           NaN     NaN
+1                     m_in_df_B_removal_orgsolvent  2.771981e+08     NaN
+2               waste_heat_df_B_removal_orgsolvent -3.302477e+06     NaN
+3             chemical_HCl_df_B_removal_orgsolvent           NaN     NaN
+4  chemical_organicsolvent_df_B_removal_orgsolvent  6.819490e+06     NaN
+5            chemical_NaOH_df_B_removal_orgsolvent           NaN     NaN
+6                    water_df_B_removal_orgsolvent           NaN     NaN
+7     waste_organicsolvent_df_B_removal_orgsolvent  6.819490e+06     NaN
+8              waste_solid_df_B_removal_orgsolvent           NaN     NaN
+2024-01-22 16:25:57,417 - ProcessManager - INFO - Arguments for Centrifuge_general: (nan, nan)
+2024-01-22 16:25:57,436 - ProcessManager - INFO - Dataframe for Centrifuge_general:                                         Variables  Values  per kg
+0     m_output_df_centrifuge_purification_general     NaN     NaN
+1         m_in_df_centrifuge_purification_general     NaN     NaN
+2         elec_df_centrifuge_purification_general     NaN     NaN
+3  waste_solid_df_centrifuge_purification_general     NaN     NaN
+2024-01-22 16:25:57,436 - ProcessManager - INFO - Arguments for Mg_removal_sodaash: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan)
+2024-01-22 16:25:57,454 - ProcessManager - INFO - Dataframe for Mg_removal_sodaash:                                 Variables  Values  per kg
+0          m_output_df_Mg_removal_sodaash     NaN     NaN
+1              m_in_df_Mg_removal_sodaash     NaN     NaN
+2                 E_df_Mg_removal_sodaash     NaN     NaN
+3  chemical_sodaash_df_Mg_removal_sodaash     NaN     NaN
+4     water_sodaash_df_Mg_removal_sodaash     NaN     NaN
+2024-01-22 16:25:57,454 - ProcessManager - INFO - Arguments for CentrifugeSoda: (nan, nan)
+2024-01-22 16:25:57,470 - ProcessManager - INFO - Dataframe for CentrifugeSoda:                                         Variables  Values  per kg
+0     m_output_df_centrifuge_purification_sodaash     NaN     NaN
+1         m_in_df_centrifuge_purification_sodaash     NaN     NaN
+2         elec_df_centrifuge_purification_sodaash     NaN     NaN
+3  waste_solid_df_centrifuge_purification_sodaash     NaN     NaN
+2024-01-22 16:25:57,470 - ProcessManager - INFO - Arguments for Mg_removal_quicklime: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan)
+2024-01-22 16:25:57,485 - ProcessManager - INFO - Dataframe for Mg_removal_quicklime:                                Variables  Values  per kg
+0       m_output_df_Mg_removal_quicklime     NaN     NaN
+1           m_in_df_Mg_removal_quicklime     NaN     NaN
+2  chemical_lime_df_Mg_removal_quicklime     NaN     NaN
+3     water_lime_df_Mg_removal_quicklime     NaN     NaN
+2024-01-22 16:25:57,485 - ProcessManager - INFO - Arguments for CentrifugeQuicklime: (nan, nan)
+2024-01-22 16:25:57,499 - ProcessManager - INFO - Dataframe for CentrifugeQuicklime:                                           Variables  Values  per kg
+0     m_output_df_centrifuge_purification_quicklime     NaN     NaN
+1         m_in_df_centrifuge_purification_quicklime     NaN     NaN
+2         elec_df_centrifuge_purification_quicklime     NaN     NaN
+3  waste_solid_df_centrifuge_purification_quicklime     NaN     NaN
+2024-01-22 16:25:57,499 - ProcessManager - INFO - Arguments for ion_exchange_H: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan, None)
+2024-01-22 16:25:57,517 - ProcessManager - INFO - Dataframe for ion_exchange_H:                          Variables  Values  per kg
+0       m_output_df_ion_exchange_H     NaN     NaN
+1           m_in_df_ion_exchange_H     NaN     NaN
+2           elec_df_ion_exchange_H     NaN     NaN
+3          water_df_ion_exchange_H     NaN     NaN
+4   chemical_HCl_df_ion_exchange_H     NaN     NaN
+5  chemical_NaOH_df_ion_exchange_H     NaN     NaN
+6     waste_heat_df_ion_exchange_H     NaN     NaN
+7       waste_Cl_df_ion_exchange_H     NaN     NaN
+8       waste_Na_df_ion_exchange_H     NaN     NaN
+2024-01-22 16:25:57,517 - ProcessManager - INFO - Arguments for Liprec_TG: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan)
+2024-01-22 16:25:57,536 - ProcessManager - INFO - Dataframe for Liprec_TG:                        Variables        Values  per kg
+0          m_output_df_Liprec_TG           NaN     NaN
+1              m_in_df_Liprec_TG           NaN     NaN
+2                 E_df_Liprec_TG           NaN     NaN
+3  chemical_sodaash_df_Liprec_TG  4.918007e+07     NaN
+4             water_df_Liprec_TG  2.459003e+08     NaN
+2024-01-22 16:25:57,536 - ProcessManager - INFO - Arguments for CentrifugeTG: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, nan, 0)
+2024-01-22 16:25:57,554 - ProcessManager - INFO - Dataframe for CentrifugeTG:                          Variables        Values  per kg
+0        m_output_df_centrifuge_TG  3.599943e+07     1.0
+1            m_in_df_centrifuge_TG           NaN     NaN
+2            elec_df_centrifuge_TG           NaN     NaN
+3  recycled_waste_df_centrifuge_TG           NaN     NaN
+2024-01-22 16:25:57,554 - ProcessManager - INFO - Arguments for washing_TG: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 35999430.42008862)
+2024-01-22 16:25:57,571 - ProcessManager - INFO - Dataframe for washing_TG:                 Variables        Values    per kg
+0  m_output_df_washing_TG  8.399867e+07  1.000000
+1      m_in_df_washing_TG  3.599943e+07  0.428571
+2     water_df_washing_TG  4.799924e+07  0.571429
+3         E_df_washing_TG  2.217017e+07  0.263935
+2024-01-22 16:25:57,572 - ProcessManager - INFO - Arguments for dissolution: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 83998670.98020677)
+2024-01-22 16:25:57,586 - ProcessManager - INFO - Dataframe for dissolution:                  Variables        Values    per kg
+0  m_output_df_dissolution  5.455298e+08  1.000000
+1      m_in_df_dissolution  8.399867e+07  0.153976
+2     water_df_dissolution  4.615312e+08  0.846024
+3      elec_df_dissolution  0.000000e+00  0.000000
+2024-01-22 16:25:57,587 - ProcessManager - INFO - Arguments for Liprec_BG: (17153518.11777479, 44145685.246635295, 23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 545529830.2121121)
+2024-01-22 16:25:57,604 - ProcessManager - INFO - Dataframe for Liprec_BG:                  Variables        Values    per kg
+0    m_output_df_Liprec_BG  5.465245e+08  1.000000
+1        m_in_df_Liprec_BG  5.455298e+08  0.998180
+2  waste_heat_df_Liprec_BG -1.566572e+07 -0.028664
+3           E_df_Liprec_BG  2.704028e+08  0.494768
+2024-01-22 16:25:57,604 - ProcessManager - INFO - Arguments for CentrifugeBG: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 546524465.8392991)
+2024-01-22 16:25:57,621 - ProcessManager - INFO - Dataframe for CentrifugeBG:                        Variables        Values     per kg
+0      m_output_df_centrifuge_BG  3.599943e+07   1.000000
+1          m_in_df_centrifuge_BG  5.465245e+08  15.181475
+2          elec_df_centrifuge_BG  5.823621e+05   0.016177
+3  waste_liquid_df_centrifuge_BG -5.105250e+05  -0.014181
+2024-01-22 16:25:57,621 - ProcessManager - INFO - Arguments for washing_BG: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 35999430.42008862)
+2024-01-22 16:25:57,636 - ProcessManager - INFO - Dataframe for washing_BG:                 Variables        Values    per kg
+0  m_output_df_washing_BG  8.399867e+07  1.000000
+1      m_in_df_washing_BG  3.599943e+07  0.428571
+2     water_df_washing_BG  4.799924e+07  0.571429
+3         E_df_washing_BG  2.217017e+07  0.263935
+2024-01-22 16:25:57,636 - ProcessManager - INFO - Arguments for CentrifugeWash: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 83998670.98020677)
+2024-01-22 16:25:57,651 - ProcessManager - INFO - Dataframe for CentrifugeWash:                          Variables        Values    per kg
+0      m_output_df_centrifuge_wash  3.599943e+07  1.000000
+1          m_in_df_centrifuge_wash  8.399867e+07  2.333333
+2          elec_df_centrifuge_wash  8.950678e+04  0.002486
+3  waste_liquid_df_centrifuge_wash -4.799924e+01 -0.000001
+2024-01-22 16:25:57,651 - ProcessManager - INFO - Arguments for rotary_dryer: (23999620.280059077, {'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, 0.0017993366252072969, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 35999430.42008862)
+2024-01-22 16:25:57,665 - ProcessManager - INFO - Dataframe for rotary_dryer:                   Variables        Values    per kg
+0  m_output_df_rotary_dryer  2.399962e+07  1.000000
+1      m_in_df_rotary_dryer  3.599943e+07  1.500000
+2         E_df_rotary_dryer  5.929318e+07  2.470588
+3      elec_df_rotary_dryer  7.199886e+06  0.300000
+2024-01-22 16:25:57,843 - ProcessManager - INFO - Arguments for evaporation_ponds: ({'deposit_type': 'salar', 'country_location': 'AR', 'elevation': 3780, 'longitude': -66.70459, 'latitude': -24.57086, 'annual_airtemp': 6.3, 'evaporation_rate': 1.2, 'boilingpoint_process': 100.0, 'density_brine': 1.22, 'vec_ini': [0.03557377, 14.942205638474295, 9.177611940298508, 0.6810116086235489, 0.060696517412935316, 0.1517412935323383, 0.8443615257048093, 0.008623548922056384, nan, nan, nan, nan, nan, nan, nan, nan], 'density_enriched_brine': 1.33, 'vec_end': [3, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan], 'production': 24000000, 'operating_days': 328.5, 'lifetime': 40, 'brine_vol': 600, 'freshwater_reported': 1, 'freshwater_vol': 35, 'Li_efficiency': 0.61, 'number_wells': 10, 'well_depth_brine': 540, 'well_depth_freshwater': 62, 'distance_to_processing': 0, 'second_Li_enrichment_reported': 0, 'second_Li_enrichment': nan, 'quicklime_reported': 1, 'diesel_reported': 0, 'diesel_consumption': nan, 'motherliq_reported': 0}, 20775916800.0, 23999620.280059077)

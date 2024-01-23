@@ -1,0 +1,101 @@
+﻿Substance,categories,location,CF_DALY_per_kg
+"Particulates, < 2.5 um","('air', 'low population density, long-term')",Salar de Atacama,0.00000695
+"Particulates, < 2.5 um","('air', 'lower stratosphere + upper troposphere')",Salar de Atacama,0.00000695
+"Particulates, < 2.5 um","('air', 'non-urban air or from high stacks')",Salar de Atacama,0.00000695
+"Particulates, < 2.5 um","('air', 'urban air close to ground')",Salar de Atacama,0.00000695
+"Particulates, < 2.5 um","('air',)",Salar de Atacama,0.00000695
+"Particulates, < 2.5 um","('air', 'low population density, long-term')",Salar del Hombre Muerto ,0.0000194
+"Particulates, < 2.5 um","('air', 'lower stratosphere + upper troposphere')",Salar del Hombre Muerto ,0.0000194
+"Particulates, < 2.5 um","('air', 'non-urban air or from high stacks')",Salar del Hombre Muerto ,0.0000194
+"Particulates, < 2.5 um","('air', 'urban air close to ground')",Salar del Hombre Muerto ,0.0000194
+"Particulates, < 2.5 um","('air',)",Salar del Hombre Muerto ,0.0000194
+"Particulates, < 2.5 um","('air', 'low population density, long-term')",Salar de Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'lower stratosphere + upper troposphere')",Salar de Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'non-urban air or from high stacks')",Salar de Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'urban air close to ground')",Salar de Olaroz,0.0000192
+"Particulates, < 2.5 um","('air',)",Salar de Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'low population density, long-term')",Salar de Cauchari-Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'lower stratosphere + upper troposphere')",Salar de Cauchari-Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'non-urban air or from high stacks')",Salar de Cauchari-Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'urban air close to ground')",Salar de Cauchari-Olaroz,0.0000192
+"Particulates, < 2.5 um","('air',)",Salar de Cauchari-Olaroz,0.0000192
+"Particulates, < 2.5 um","('air', 'low population density, long-term')",Chaerhan Salt Lake,0.0000114
+"Particulates, < 2.5 um","('air', 'lower stratosphere + upper troposphere')",Chaerhan Salt Lake,0.0000114
+"Particulates, < 2.5 um","('air', 'non-urban air or from high stacks')",Chaerhan Salt Lake,0.0000114
+"Particulates, < 2.5 um","('air', 'urban air close to ground')",Chaerhan Salt Lake,0.0000114
+"Particulates, < 2.5 um","('air',)",Chaerhan Salt Lake,0.0000114
+Sulfur dioxide,"('air', 'low population density, long-term')",Salar de Atacama,0.00000111
+Sulfur dioxide,"('air', 'lower stratosphere + upper troposphere')",Salar de Atacama,0.00000111
+Sulfur dioxide,"('air', 'non-urban air or from high stacks')",Salar de Atacama,0.00000111
+Sulfur dioxide,"('air', 'urban air close to ground')",Salar de Atacama,0.00000111
+Sulfur dioxide,"('air',)",Salar de Atacama,0.00000111
+Sulfur dioxide,"('air', 'low population density, long-term')",Salar del Hombre Muerto ,0.00000276
+Sulfur dioxide,"('air', 'lower stratosphere + upper troposphere')",Salar del Hombre Muerto ,0.00000276
+Sulfur dioxide,"('air', 'non-urban air or from high stacks')",Salar del Hombre Muerto ,0.00000276
+Sulfur dioxide,"('air', 'urban air close to ground')",Salar del Hombre Muerto ,0.00000276
+Sulfur dioxide,"('air',)",Salar del Hombre Muerto ,0.00000276
+Sulfur dioxide,"('air', 'low population density, long-term')",Salar de Olaroz,0.00000283
+Sulfur dioxide,"('air', 'lower stratosphere + upper troposphere')",Salar de Olaroz,0.00000283
+Sulfur dioxide,"('air', 'non-urban air or from high stacks')",Salar de Olaroz,0.00000283
+Sulfur dioxide,"('air', 'urban air close to ground')",Salar de Olaroz,0.00000283
+Sulfur dioxide,"('air',)",Salar de Olaroz,0.00000283
+Sulfur dioxide,"('air', 'low population density, long-term')",Salar de Cauchari-Olaroz,0.00000283
+Sulfur dioxide,"('air', 'lower stratosphere + upper troposphere')",Salar de Cauchari-Olaroz,0.00000283
+Sulfur dioxide,"('air', 'non-urban air or from high stacks')",Salar de Cauchari-Olaroz,0.00000283
+Sulfur dioxide,"('air', 'urban air close to ground')",Salar de Cauchari-Olaroz,0.00000283
+Sulfur dioxide,"('air',)",Salar de Cauchari-Olaroz,0.00000283
+Sulfur dioxide,"('air', 'low population density, long-term')",Chaerhan Salt Lake,0.00000144
+Sulfur dioxide,"('air', 'lower stratosphere + upper troposphere')",Chaerhan Salt Lake,0.00000144
+Sulfur dioxide,"('air', 'non-urban air or from high stacks')",Chaerhan Salt Lake,0.00000144
+Sulfur dioxide,"('air', 'urban air close to ground')",Chaerhan Salt Lake,0.00000144
+Sulfur dioxide,"('air',)",Chaerhan Salt Lake,0.00000144
+Nitrogen oxides,"('air', 'low population density, long-term')",Salar de Atacama,0.000000265
+Nitrogen oxides,"('air', 'lower stratosphere + upper troposphere')",Salar de Atacama,0.000000265
+Nitrogen oxides,"('air', 'non-urban air or from high stacks')",Salar de Atacama,0.000000265
+Nitrogen oxides,"('air', 'urban air close to ground')",Salar de Atacama,0.000000265
+Nitrogen oxides,"('air',)",Salar de Atacama,0.000000265
+Nitrogen oxides,"('air', 'low population density, long-term')",Salar del Hombre Muerto ,0.000000736
+Nitrogen oxides,"('air', 'lower stratosphere + upper troposphere')",Salar del Hombre Muerto ,0.000000736
+Nitrogen oxides,"('air', 'non-urban air or from high stacks')",Salar del Hombre Muerto ,0.000000736
+Nitrogen oxides,"('air', 'urban air close to ground')",Salar del Hombre Muerto ,0.000000736
+Nitrogen oxides,"('air',)",Salar del Hombre Muerto ,0.000000736
+Nitrogen oxides,"('air', 'low population density, long-term')",Salar de Olaroz,0.00000123
+Nitrogen oxides,"('air', 'lower stratosphere + upper troposphere')",Salar de Olaroz,0.00000123
+Nitrogen oxides,"('air', 'non-urban air or from high stacks')",Salar de Olaroz,0.00000123
+Nitrogen oxides,"('air', 'urban air close to ground')",Salar de Olaroz,0.00000123
+Nitrogen oxides,"('air',)",Salar de Olaroz,0.00000123
+Nitrogen oxides,"('air', 'low population density, long-term')",Salar de Cauchari-Olaroz,0.00000123
+Nitrogen oxides,"('air', 'lower stratosphere + upper troposphere')",Salar de Cauchari-Olaroz,0.00000123
+Nitrogen oxides,"('air', 'non-urban air or from high stacks')",Salar de Cauchari-Olaroz,0.00000123
+Nitrogen oxides,"('air', 'urban air close to ground')",Salar de Cauchari-Olaroz,0.00000123
+Nitrogen oxides,"('air',)",Salar de Cauchari-Olaroz,0.00000123
+Nitrogen oxides,"('air', 'low population density, long-term')",Chaerhan Salt Lake,0.000000435
+Nitrogen oxides,"('air', 'lower stratosphere + upper troposphere')",Chaerhan Salt Lake,0.000000435
+Nitrogen oxides,"('air', 'non-urban air or from high stacks')",Chaerhan Salt Lake,0.000000435
+Nitrogen oxides,"('air', 'urban air close to ground')",Chaerhan Salt Lake,0.000000435
+Nitrogen oxides,"('air',)",Chaerhan Salt Lake,0.000000435
+Ammonia,"('air', 'low population density, long-term')",Salar de Atacama,0.00000248
+Ammonia,"('air', 'lower stratosphere + upper troposphere')",Salar de Atacama,0.00000248
+Ammonia,"('air', 'non-urban air or from high stacks')",Salar de Atacama,0.00000248
+Ammonia,"('air', 'urban air close to ground')",Salar de Atacama,0.00000248
+Ammonia,"('air',)",Salar de Atacama,0.00000248
+Ammonia,"('air', 'low population density, long-term')",Salar del Hombre Muerto ,0.00000631
+Ammonia,"('air', 'lower stratosphere + upper troposphere')",Salar del Hombre Muerto ,0.00000631
+Ammonia,"('air', 'non-urban air or from high stacks')",Salar del Hombre Muerto ,0.00000631
+Ammonia,"('air', 'urban air close to ground')",Salar del Hombre Muerto ,0.00000631
+Ammonia,"('air',)",Salar del Hombre Muerto ,0.00000631
+Ammonia,"('air', 'low population density, long-term')",Salar de Olaroz,0.000009
+Ammonia,"('air', 'lower stratosphere + upper troposphere')",Salar de Olaroz,0.000009
+Ammonia,"('air', 'non-urban air or from high stacks')",Salar de Olaroz,0.000009
+Ammonia,"('air', 'urban air close to ground')",Salar de Olaroz,0.000009
+Ammonia,"('air',)",Salar de Olaroz,0.000009
+Ammonia,"('air', 'low population density, long-term')",Salar de Cauchari-Olaroz,0.000009
+Ammonia,"('air', 'lower stratosphere + upper troposphere')",Salar de Cauchari-Olaroz,0.000009
+Ammonia,"('air', 'non-urban air or from high stacks')",Salar de Cauchari-Olaroz,0.000009
+Ammonia,"('air', 'urban air close to ground')",Salar de Cauchari-Olaroz,0.000009
+Ammonia,"('air',)",Salar de Cauchari-Olaroz,0.000009
+Ammonia,"('air', 'low population density, long-term')",Chaerhan Salt Lake,0.00000539
+Ammonia,"('air', 'lower stratosphere + upper troposphere')",Chaerhan Salt Lake,0.00000539
+Ammonia,"('air', 'non-urban air or from high stacks')",Chaerhan Salt Lake,0.00000539
+Ammonia,"('air', 'urban air close to ground')",Chaerhan Salt Lake,0.00000539
+Ammonia,"('air',)",Chaerhan Salt Lake,0.00000539

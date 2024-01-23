@@ -9,6 +9,7 @@ def create_activity_map(country_location):
         'elec_high_voltage': ("market for electricity, high voltage", country_location),
         'wastewater_average': ("market for wastewater, average", "RoW"),
         'waste_hazardous_underground': ("market for hazardous waste, for underground deposit", "RoW"),
+        'waste_nonhazardous_landfill': ("treatment of waste gypsum, inert material landfill", "RoW"),
         'heat_industrial_gas': ("heat production, natural gas, at industrial furnace >100kW", "RoW"),
         'steam_chemical_industry': ("market for steam, in chemical industry", "RoW"),
         'diesel_machine_high_load': ("machine operation, diesel, >= 74.57 kW, high load factor", "GLO"),
@@ -129,8 +130,8 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
             for _, m_output_row in m_outputs.iterrows() :
                 activity_name = m_output_row["Variables"].split('m_output_')[1]
                 new_act = db.new_activity(amount=1, code=activity_name, name=activity_name, unit="kilogram",
-                                          location=op_location, type = "process")
-
+                                          location=op_location, type="process")
+                print(new_act)
                 new_act['classifications'] = [('ISIC rev.4 ecoinvent', '0729')]
                 new_act['flow'] = activity_name
                 new_act.save()
@@ -201,7 +202,7 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                     (elec_flow.key, 0.007206, "kilowatt hour", "technosphere", country_location, None),
                                     (water_flow.key, 0.00125, "cubic meter", "biosphere", None,
                                      ("natural resource", "in ground")),
-                                    (water_evaporated_flow.key, 0.00125, "cubic meter", "biosphere", None,
+                                    (water_evaporated_flow.key, 0.00025, "cubic meter", "biosphere", None,
                                      ("air",))
                                     ]
                                 create_exchanges(water_act, exchanges)
@@ -239,9 +240,15 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             (salt_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
 
                     elif var.startswith(f'waste_solid') :
+                        if deposit_type == "geothermal":
                             waste_solid_flow = activity_objects['waste_hazardous_underground']
                             create_exchanges(new_act, [
                                 (waste_solid_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+                        elif deposit_type == "salar":
+                            waste_solid_flow = activity_objects['waste_nonhazardous_landfill']
+                            create_exchanges(new_act, [
+                                (waste_solid_flow.key, exchange_row['per kg'], "kilogram", "technosphere", "RoW", None)])
+
 
                     elif var.startswith(f'waste_liquid') :
                         if deposit_type == "geothermal":

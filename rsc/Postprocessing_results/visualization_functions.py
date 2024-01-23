@@ -4,6 +4,8 @@ import os
 import numpy as np
 import plotly.io as pio
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import datetime
 
 
 class Visualization :
@@ -149,31 +151,127 @@ class Visualization :
                 yaxis_range=[0, df['Impact'].max()]
                 )
 
+            # Generate a timestamp
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
             # Save the plot as PNG
             png_file_path = os.path.join(results_folder,
-                                         f"{abbrev_loc}_{formatted_impact_category}_{filename_suffix}.png")
+                                         f"{abbrev_loc}_{formatted_impact_category}_{filename_suffix}_{timestamp}.png")
             fig_all_efficiencies.write_image(png_file_path, width=800, height=600)
 
             # Save the plot as HTML
             html_file_path = os.path.join(results_folder,
-                                          f"{abbrev_loc}_{formatted_impact_category}_{filename_suffix}.html")
+                                          f"{abbrev_loc}_{formatted_impact_category}_{filename_suffix}_{timestamp}.html")
             fig_all_efficiencies.write_html(html_file_path)
 
             print(f"Saved {formatted_impact_category} plot as PNG and HTML.")
 
+    def plot_lca_results_comparison(directory_path) :
+        """
+        Plots LCA results from CSV files in the given directory with subplots for each category and specific styling.
 
-    def plot_sankey(process_steps):
-        labels = [step["name"] for step in process_steps]
+        :param directory_path: Path to the directory containing CSV files.
+        """
+        # List all CSV files in the directory
+        csv_files = [file for file in os.listdir(directory_path) if file.endswith('.csv')]
+
+        # Define the categories to plot and color sequence
+        categories = ['IPCC', 'PM', 'AWARE']
+        color_sequence = px.colors.qualitative.Antique
+
+        # Initialize subplots
+        fig = make_subplots(rows=len(categories), cols=1, subplot_titles=categories)
+
+        # Data container for all files
+        all_data = []
+
+        # Process each CSV file
+        for file in csv_files :
+            file_path = os.path.join(directory_path, file)
+            data = pd.read_csv(file_path)
+            site_name = file.split('_')[0]
+            data['Site'] = site_name
+            all_data.append(data)
+
+        # Combine all data into a single DataFrame
+        combined_data = pd.concat(all_data)
+
+        # Create and display bar charts for each category
+        for i, category in enumerate(categories, start=1) :
+            for site in combined_data['Site'].unique() :
+                site_data = combined_data[combined_data['Site'] == site]
+                fig.add_trace(
+                    go.Bar(x=[site], y=site_data[category], name=site,
+                           marker_color=color_sequence[i % len(color_sequence)]),
+                    row=i, col=1
+                    )
+
+        # Update the layout for a more professional look
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(family="Arial", size=12, color='black'),
+            title_font=dict(family="Arial", size=16, color='black'),
+            showlegend=True,
+            legend=dict(title='Site', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
+                        borderwidth=1),
+            margin=dict(autoexpand=True, l=100, r=20, t=110, b=70)
+            )
+
+        # Adjust axis settings for each subplot
+        for i in range(len(categories)) :
+            fig.update_xaxes(row=i + 1, col=1, showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False,
+                             showline=True,
+                             showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2,
+                             ticklen=5,
+                             tickfont=dict(family="Arial", size=12, color='black'))
+            fig.update_yaxes(row=i + 1, col=1, range=[0, combined_data[category].max()], showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False,
+                             showline=True,
+                             showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2,
+                             ticklen=5,
+                             tickfont=dict(family="Arial", size=12, color='black'))
+
+        # Directory for LCA comparison results
+        lca_comparison_dir = os.path.join(directory_path, 'LCA_allsites')
+
+        Visualization.ensure_folder_exists(lca_comparison_dir)
+
+        # Generate a timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Save the plot as PNG and HTML
+        file_suffix = f"LCA_allsites_{timestamp}.png"
+        png_file_path = os.path.join(directory_path, file_suffix)
+        fig.write_image(png_file_path, width=800, height=600 * len(categories))
+
+        file_suffix = f"LCA_allsites_{timestamp}.html"
+        html_file_path = os.path.join(directory_path, file_suffix)
+        fig.write_html(html_file_path)
+
+        print(f"Saved LCA Results plot as PNG and HTML in {directory_path}.")
+
+    def create_sankey_diagram(data, directory_path, abbrev_loc, efficiency_level, li_conc_level) :
+        """
+        Creates a Sankey diagram based on the specified efficiency and Li-concentration levels.
+
+        :param data: The complex nested dictionary containing the process data.
+        :param efficiency_level: The efficiency level to extract data from.
+        :param li_conc_level: The Li-concentration level to extract data from.
+        """
+        # Extract the relevant data
+        selected_data = data[efficiency_level][li_conc_level]['data_frames']
+
+        # Extracting process step names and m_output values
+        process_steps = list(selected_data.keys())
+        m_outputs = [selected_data[step]['Values'][0] for step in process_steps]  # Assuming first value is m_output
+
+        # Preparing data for Sankey diagram
+        labels = process_steps
         source = [i for i in range(len(process_steps) - 1)]
         target = [i + 1 for i in range(len(process_steps) - 1)]
-        values = [process_steps[i]["m_output"] for i in source]
+        values = m_outputs[:-1]
 
-        # Add final product to labels
-        labels.append("Lithium Carbonate")
-
-        # Adjust target for final product
-        target[-1] = len(labels) - 1
-
+        # Create the Sankey diagram
         fig = go.Figure(data=[go.Sankey(
             node=dict(
                 pad=15,
@@ -186,6 +284,26 @@ class Visualization :
                 target=target,
                 value=values
                 ))])
+
+
+        fig.update_layout(title_text="Sankey Diagram for Lithium Carbonate Production Process", font_size=10)
+
+        # Directory for LCA comparison results
+        lci_comparison_dir = os.path.join(directory_path, f'LCI_sankey_{abbrev_loc}')
+
+        Visualization.ensure_folder_exists(lci_comparison_dir)
+
+        # Generate a timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Save the plot as PNG and HTML
+        file_suffix = f"LCI_{abbrev_loc}_{timestamp}.png"
+        png_file_path = os.path.join(lci_comparison_dir, file_suffix)
+        fig.write_image(png_file_path, width=800, height=600)
+
+        file_suffix = f"LCI_{abbrev_loc}_{timestamp}.html"
+        html_file_path = os.path.join(lci_comparison_dir, file_suffix)
+        fig.write_html(html_file_path)
 
 
 

@@ -266,7 +266,7 @@ def adaptions_deposit_type(deposit_type, country_location, site_location, ei_nam
         db = creating_supplychain(activity_list, country_location, db)
 
         activity_list = [
-            ('df_rotary_dryer', country_location, 'kilogram', site_name),
+            ('df_rotary_dryer', site_location, 'kilogram', site_name),
             ('deep well drilling, for deep geothermal power reg', country_location, 'meter', ei_name)
             ]
 

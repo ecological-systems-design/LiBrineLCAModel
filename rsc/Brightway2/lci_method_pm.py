@@ -11,19 +11,20 @@ import bw2analyzer as bwa
 import tabulate
 
 
-def import_PM(ei, bio_f) :
+def import_PM(ei, bio_f, site_name, site_db) :
+    new_bio_name = "biosphere PM regionalized"
     m = [m for m in bd.methods if "PM regionalized" in str(m)]
-    if len(m) == 0 :
-        particulates = [act for act in bio_f if 'particulate' in act['name'].lower() or 'sulfur dioxide' in act[
-            'name'].lower() or 'nitrogen oxides' in act['name'].lower() or 'ammonia' in act['name'].lower()]
-        bio_acts = particulates
+    bio_acts = [act for act in bio_f if 'particulate' in act['name'].lower() or 'sulfur dioxide' in act[
+        'name'].lower() or 'nitrogen oxides' in act['name'].lower() or 'ammonia' in act['name'].lower()]
 
+
+    if len(m) == 0 :
         ei_loc_list = []
         for act in ei :
             if act.get('location') not in ei_loc_list :
                 ei_loc_list.append(act.get('location'))
 
-        new_bio_name = "biosphere PM regionalized"
+        ei_loc_list.append(site_name)
 
         biosphere_data = {}
         for bio_act in bio_acts :
@@ -45,6 +46,7 @@ def import_PM(ei, bio_f) :
 
         cf_pm1 = pd.read_csv(r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\CF_results_alternative_lithium_ecoinvent_regions_2022-02-14.csv", delimiter=';')
         cf_pm2_ada = pd.read_csv(r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\CF_PM_Geothermal.csv", delimiter=';')
+        cf_pm3_ada = pd.read_csv(r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\CF_PM_lakes.csv", delimiter=',')
 
         flows_list = []
         for flow in new_bio_db :
@@ -57,6 +59,12 @@ def import_PM(ei, bio_f) :
                         flow['location'] == cf_pm2_ada['location'][i] and \
                         str(flow['categories']) in str(cf_pm2_ada['categories'][i]) :
                     flows_list.append([flow.key, cf_pm2_ada['CF_DALY_per_kg'][i]])
+
+            for i in range(len(cf_pm3_ada['Substance'])) :
+                if str(flow['name']) == str(cf_pm3_ada['Substance'][i]) and \
+                        flow['location'] == cf_pm3_ada['location'][i] and \
+                        str(flow['categories']) in str(cf_pm3_ada['categories'][i]) :
+                    flows_list.append([flow.key, cf_pm3_ada['CF_DALY_per_kg'][i]])
 
         # Write new BW method
         aware_tuple = ('PM regionalized', 'Annual', 'All')
@@ -78,6 +86,13 @@ def import_PM(ei, bio_f) :
                 if exc.input in bio_acts :
                     act_contain_water_list.append(act)
 
+        for act in site_db :
+            for exc in act.exchanges() :
+                if exc.input in bio_acts :
+                    act_contain_water_list.append(act)
+
+        print(f"Number of activities containing water: {len(act_contain_water_list)}")
+
         for act in act_contain_water_list :
             for exc in act.exchanges() :
                 if exc.input in bio_acts :
@@ -86,7 +101,10 @@ def import_PM(ei, bio_f) :
                     if not flag_replaced :
                         # Copy data of the existing biosphere activity
                         data = deepcopy(exc.as_dict())
-                        data.pop('flow')
+                        try :
+                            data.pop('flow')
+                        except :
+                            pass
                         # Find regionalized biosphere activity from the new biosphere database
                         bio_act_regionalized = [
                             bio_act for bio_act in new_bio_db if bio_act['name'] == exc.input['name']
@@ -108,7 +126,67 @@ def import_PM(ei, bio_f) :
         pass
 
     else :
-        print("PM already exists as a method.")
-        pass
+        connected_to_biosphere3 = False
+        connected_to_biosphere_regionalized = False
+
+        act = [act for act in ei if f"heat production, natural gas, at industrial furnace >100kW" in act['name'] and
+               site_name in act['location']][0]
+
+        for exc in act.exchanges() :
+            database_name = exc.input[0]
+
+            if database_name == 'biosphere3' :
+                connected_to_biosphere3 = True
+            elif database_name == new_bio_name :
+                connected_to_biosphere_regionalized = True
+
+        # Now you can check the flags and act accordingly
+        if connected_to_biosphere3 :
+            new_bio_db = bd.Database(new_bio_name)
+
+            act_contain_water_list = []
+
+            for act in site_db :
+                for exc in act.exchanges() :
+                    if exc.input in bio_acts :
+                        act_contain_water_list.append(act)
+
+            print(f"Number of activities containing water: {len(act_contain_water_list)}")
+
+            for act in act_contain_water_list :
+                for exc in act.exchanges() :
+                    if exc.input in bio_acts :
+                        flag_replaced = exc.get("replaced with regionalized", False)
+
+                        if not flag_replaced :
+                            # Copy data of the existing biosphere activity
+                            data = deepcopy(exc.as_dict())
+                            try :
+                                data.pop('flow')
+                            except :
+                                pass
+                            # Find regionalized biosphere activity from the new biosphere database
+                            bio_act_regionalized = [
+                                bio_act for bio_act in new_bio_db if bio_act['name'] == exc.input['name']
+                                                                     and bio_act['categories'] == exc.input[
+                                                                         'categories']
+                                                                     and bio_act['location'] == act['location']
+                                ]
+                            assert len(bio_act_regionalized) == 1
+                            bio_act_regionalized = bio_act_regionalized[0]
+                            # Create new exchange that has all the data from the previous one, except for the input activity
+                            # that is now from the new biosphere database
+                            data['input'] = (bio_act_regionalized['database'], bio_act_regionalized['code'])
+                            act.new_exchange(**data).save()
+                            # Set the previous exchange amount to 0, we don't need None location anymore
+                            exc['amount'] = 0  # exc.delete()?
+                            # Mark that the exchange has been replaced
+                            exc['replaced with regionalized'] = True
+                            exc.save()
+            print(f'{site_db} is now linked to {new_bio_name}')
+            pass
+        elif connected_to_biosphere_regionalized :
+            print(f"AWARE regionalized already exists as a method and {site_db} is already linked to {new_bio_name}.")
+            pass
 
     return None
