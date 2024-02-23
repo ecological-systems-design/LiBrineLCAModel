@@ -139,8 +139,8 @@ def import_aware(ei, bio_f,site_name, site_db):
                     if not flag_replaced :
                         # Copy data of the existing biosphere activity
                         data = deepcopy(exc.as_dict())
-                        print(data)
-                        print(exc.input['name'], act['name'])
+                        #print(data)
+                        #print(exc.input['name'], act['name'])
                         try:
                             data.pop('flow')
                         except:

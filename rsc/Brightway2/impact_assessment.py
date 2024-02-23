@@ -73,7 +73,46 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
 
     return dict_impacts
 
+def calculate_impacts_for_brine_chemistry(activity, methods, dict_results, site_name, ei_name, abbrev_loc, eff_range=None, Li_conc_range=None, literature_eff=None, literature_Li_conc=None):
+    site_db = bd.Database(site_name)
+    ei_reg = bd.Database(ei_name)
 
+    dict_impacts = {}
+
+    # Default to empty lists if ranges are not provided
+    if eff_range is None:
+        eff_range = []
+    if Li_conc_range is None:
+        Li_conc_range = []
+
+    # Define the range or single value to use for efficiency and lithium concentration
+    eff_to_use = [literature_eff] if literature_eff is not None else eff_range
+    Li_conc_to_use = [literature_Li_conc] if literature_Li_conc is not None else Li_conc_range
+
+    # Check if either literature values or ranges are provided
+    if len(eff_to_use) == 0 or len(Li_conc_to_use) == 0 :
+        raise ValueError(
+            "Either literature values or ranges for efficiency and lithium concentration must be provided.")
+
+    # Iterate over the efficiency and lithium concentration values
+    for eff in eff_to_use:
+        for Li in Li_conc_to_use:
+            site_db = change_exchanges_in_database(eff, Li, site_name, abbrev_loc, dict_results)
+
+            # Calculate impacts for the activity
+            impacts = calculate_impacts(activity, methods)
+
+            rounded_Li = round(Li, 3)
+            rounded_eff = round(eff, 2)
+
+            file_names = [f"{site_name}_climatechange_{rounded_Li}_{rounded_eff}",
+                          f"{site_name}_waterscarcity_{rounded_Li}_{rounded_eff}",
+                          f"{site_name}_PM_{rounded_Li}_{rounded_eff}"]
+
+            # Add impacts to the dictionary and add the efficiency and Li concentration as keys
+            dict_impacts[eff, Li] = impacts
+
+    return dict_impacts
 
 
 
@@ -86,7 +125,7 @@ def saving_LCA_results(results, abbrev_loc) :
     if isinstance(results, dict) :
 
         # Get efficiency and Li-conc ranges for filename
-        efficiencies = [round(eff, 1) for (eff, _) in results.keys()]
+        efficiencies = [round(eff, 2) for (eff, _) in results.keys()]
         Li_concs = [Li_conc for (_, Li_conc) in results.keys()]
 
         min_eff, max_eff = min(efficiencies), max(efficiencies)
@@ -115,6 +154,47 @@ def saving_LCA_results(results, abbrev_loc) :
     # Ensure the results folder exists
     results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/rawdata"
     results_folder = os.path.join(results_path, f"LCA_results")
+    ensure_folder_exists(results_folder)
+
+    # Save the DataFrame as a CSV
+    csv_file_path = os.path.join(results_folder, f"{filename}.csv")
+    results_df.to_csv(csv_file_path, index=False)  # Add index=False if you don't want to save the index
+
+    print(f"Saved {filename} as CSV file")
+
+def saving_LCA_results_brinechemistry(results, abbrev_loc) :
+    if isinstance(results, dict) :
+
+        # Get efficiency and Li-conc ranges for filename
+        efficiencies = [round(eff, 2) for (eff, _) in results.keys()]
+        Li_concs = [Li_conc for (_, Li_conc) in results.keys()]
+
+        min_eff, max_eff = min(efficiencies), max(efficiencies)
+        min_Li_conc, max_Li_conc = min(Li_concs), max(Li_concs)
+
+        filename = f"{abbrev_loc}_eff_{min_eff}_to_{max_eff}_LiConc_{min_Li_conc}_to_{max_Li_conc}"
+
+        # Transforming the dictionary into the desired DataFrame format
+        transformed_data = []
+        for keys, values in results.items() :
+            row = {'Li-conc' : keys[1], 'eff' : keys[0]}
+            for inner_keys, value in values.items() :
+                if inner_keys[0].startswith('IPCC') :
+                    row['IPCC'] = value
+                elif inner_keys[0].startswith('AWARE') :
+                    row['AWARE'] = value
+                elif inner_keys[0].startswith('PM') :
+                    row['PM'] = value
+            transformed_data.append(row)
+        results_df = pd.DataFrame(transformed_data)
+    else :
+        results_df = results
+
+    print(results_df)
+
+    # Ensure the results folder exists
+    results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/rawdata"
+    results_folder = os.path.join(results_path, f"LCA_brinechemistry")
     ensure_folder_exists(results_folder)
 
     # Save the DataFrame as a CSV

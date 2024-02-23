@@ -31,7 +31,7 @@ if __name__ == '__main__' :
     print(bd.databases)
 
     eff = 0.45
-    Li_conc = 0.15
+    Li_conc = 0.06
     abbrev_loc = "Ola"
     op_location = "Salar de Olaroz"
 
@@ -76,7 +76,7 @@ if __name__ == '__main__' :
     min_eff = 0.4
     eff_steps = 0.05
     Li_conc_steps = 0.5
-    Li_conc_max = 0.15
+    Li_conc_max = 0.06
     Li_conc_min = 0.05
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,

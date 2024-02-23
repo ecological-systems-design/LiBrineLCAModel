@@ -71,11 +71,11 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.5
+    max_eff = 0.77
     min_eff = 0.4
     eff_steps = 0.3
     Li_conc_steps = 0.02
-    Li_conc_max = 0.07
+    Li_conc_max = 0.06999999999999999
     Li_conc_min = 0.05
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,

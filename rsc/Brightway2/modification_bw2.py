@@ -294,8 +294,11 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
     act_list = [act for act in site_db]
 
     for act in act_list :
-
+        print(act)
+        exc_list = [exc for exc in act.exchanges()]
+        print(exc_list)
         for exc in act.technosphere() :
+            print(exc, exc.input['name'])
             exc_name = exc.input['name']
 
             # Check if exc_name is in the list of regionalized activity names

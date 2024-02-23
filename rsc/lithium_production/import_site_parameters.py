@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import xarray as xr
 
 #Default values for non-critical values of a specific site
 standard_values = {
@@ -7,7 +8,7 @@ standard_values = {
     "boilingpoint_process" : np.nan,
     "density_brine" : 1.2,
     "density_enriched_brine" : 1.3,
-    "production" : 40000000,
+    "production" : 25000000,
     "operating_days" : 0.9 * 365,
     "lifetime" : 30,
     "brine_vol" : np.nan,
@@ -25,6 +26,38 @@ standard_values = {
     "diesel_consumption" : np.nan,
     "motherliq_reported" : 0
     }
+
+#make a dict of all classes in licarbonate_processes.py
+process_required_concentrations_dict = {
+    "evaporation_ponds" : [0],
+    "B_removal_organicsolvent" : [7, 6],
+    "CaMg_removal_sodiumhydrox" : [4, 5, 14, 13],
+    "Mg_removal_sodaash" : [5],
+    "sulfate_removal_calciumchloride": [6],
+    "SiFe_removal_limestone": [8, 11],
+    "MnZn_removal_lime": [10, 12]
+    }
+
+def convert_mg_L_to_wt_percent(mg_L_values, density):
+    # Example conversion, adjust based on actual chemistry
+    # Ensure density is a float
+    density = float(density)
+    wt_percent_values = [ ]
+
+    for value in mg_L_values :
+        # Convert value to float if it's not already
+        if isinstance(value, str) :
+            try :
+                value = float(value)
+            except ValueError :
+                # Handle the case where conversion fails
+                print(f"Conversion failed for value: {value}")
+                continue  # Skip this value or use a placeholder like 0 or np.nan
+
+        # Perform the calculation with numeric types
+        wt_percent = (value / 1000) / (density * 1000) * 100
+        wt_percent_values.append(wt_percent)
+    return wt_percent_values
 
 def boiling_point_at_elevation(elevation_meters):
     """
@@ -63,7 +96,7 @@ def haversine(coord1, coord2):
     distance = R * c
     return distance
 
-def find_closest_valid_site(current_site_lat, current_site_lon, op_data, vec_indices, offset):
+def find_closest_valid_site_brinechemistry(current_site_lat, current_site_lon, op_data, vec_indices, offset):
     if 'latitude' not in op_data.columns or 'longitude' not in op_data.columns:
         raise ValueError("Required columns 'latitude' and/or 'longitude' are missing in the data")
 
@@ -89,9 +122,69 @@ def find_closest_valid_site(current_site_lat, current_site_lon, op_data, vec_ind
 
     return closest_site_data
 
+def find_closest_valid_site_evaporation(current_site_lat, current_site_lon, op_data):
+    if 'latitude' not in op_data.columns or 'longitude' not in op_data.columns:
+        raise ValueError("Required columns 'latitude' and/or 'longitude' are missing in the data")
+
+    closest_distance = float('inf')
+    closest_site_data = None
+
+    for index, row in op_data.iterrows():
+        if index == current_site_lat:  # Skip the current site
+            continue
+
+        site_lat, site_lon = row['latitude'], row['longitude']
+        distance = haversine((current_site_lat, current_site_lon), (site_lat, site_lon))
+
+        if not pd.isna(row['evaporation_rate']):
+            print(f"Checking site at index {index}: distance = {distance}, closest so far = {closest_distance}")
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_site_data = row
+                print(f"New closest site found at index {index} with distance {distance}")
+
+    return closest_site_data
+
+def mean_annual_temperature(lat, lon, dataset):
+    """
+    Calculate the mean annual temperature for a given latitude and longitude.
+
+    Parameters:
+    lat (float): Latitude of the location.
+    lon (float): Longitude of the location.
+    dataset (xarray.Dataset): The dataset containing temperature data.
+
+    Returns:
+    float: Mean annual temperature for the specified location.
+    """
+    # Select the temperature data for the nearest location
+    temp_data = dataset['tas'].sel(lat=lat, lon=lon, method='nearest')
+
+    # Calculate the mean temperature across all time points
+    mean_temp = temp_data.mean(dim='time')
+
+    return mean_temp.values  # Return the mean temperature value
+
+def update_required_concentrations( process_sequence, vec_end, vec_ini):
+
+    process_update_status = {}
+
+    for process in process_sequence :
+        if process in process_required_concentrations_dict :
+            required_indices = process_required_concentrations_dict[ process ]
+            for i in required_indices :
+                if pd.isna(vec_end[ i ]) :
+                    ratio = (vec_end[0]/vec_ini[0])*0.1
+                    # Apply the rule to update the NaN value
+                    vec_end[ i ] = vec_ini[i] * ratio  #worst case that no salt is precipitated
+                    process_update_status[ process ] = 'Updated'
+                else :
+                    process_update_status[ process ] = 'No change'
+
+    return vec_end, process_update_status
 
 
-def extract_data(site_location, abbrev_loc, Li_conc = None) :
+def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     # Load the Excel file
     op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
                             sheet_name="Sheet1", index_col=0)
@@ -107,7 +200,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None) :
     site_data = dat.loc[site_location]
 
     # Check for NaN in critical values
-    critical_keys = ['deposit_type', 'country_location', 'elevation', 'annual_airtemp', 'longitude', 'latitude']
+    critical_keys = ['deposit_type', 'country_location', 'elevation', 'longitude', 'latitude']
     for key in critical_keys :
         if pd.isna(site_data[key]) :
             raise ValueError(f"Critical value missing for '{key}' in the data for location '{site_location}'")
@@ -115,9 +208,12 @@ def extract_data(site_location, abbrev_loc, Li_conc = None) :
     # Retrieve the deposit type
     deposit_type = site_data.get("deposit_type")
 
+    #Calculate the mean annual temperature
+    site_data["annual_airtemp"] = mean_annual_temperature(site_data["latitude"], site_data["longitude"],
+                                    xr.open_dataset(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\annual_air_temperature.nc', decode_times=False))
     # Define nan_indices based on deposit_type
     if deposit_type == "salar" :
-        nan_indices_ini = [0, 1, 2, 3, 4, 5, 6, 7, 8]  # Indices for "salar"
+        nan_indices_ini = [0, 4, 5, 6, 7]  # Indices for "salar"
     elif deposit_type == "geothermal" :
         nan_indices_ini = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]  # Indices for "geothermal"
     else :
@@ -128,23 +224,36 @@ def extract_data(site_location, abbrev_loc, Li_conc = None) :
         if key not in critical_keys and pd.isna(value) :
             site_data[key] = standard_values.get(key, np.nan)
 
-    vec_ini = [value if pd.notna(value) else np.nan for value in
-               site_data.values[10 :26]]
-    vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[28 :44]]
+    # Extract the initial and final brine chemistry data
+    # Use provided vec_ini if available
+    if vec_ini is None :
+        # Original logic to construct vec_ini from Sheet1
+        vec_ini = [ value if pd.notna(value) else np.nan for value in site_data.values[ 11 :27 ] ]
+    else:
+        print(vec_ini)
+        vec_ini = convert_mg_L_to_wt_percent(vec_ini, site_data['density_brine'])
+        print(vec_ini)
+        # Calculate the sum of converted wt.% values
+        total_wt_percent = sum(vec_ini)
+
+        # Calculate the last value as 100 - SUM(vec_ini_converted) and append it
+        last_value = 100 - total_wt_percent
+        vec_ini = vec_ini + [ last_value ]
+
+
+    vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[29 :45]]
 
     if Li_conc is not None:
         vec_ini[0] = Li_conc
 
-    print(f"vec_ini before: {vec_ini}")
     if any(pd.isna(vec_ini[i]) for i in nan_indices_ini) :
-        closest_site_data = find_closest_valid_site(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 10)
+        closest_site_data = find_closest_valid_site_brinechemistry(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 10)
         if closest_site_data is not None :
             for i in nan_indices_ini :
                 offset_index = i + 10  # Apply the offset here
                 if pd.isna(vec_ini[i]) :
                     vec_ini[i] = closest_site_data.iloc[
                         offset_index]  # Use the offset index to access data in closest_site_data
-    print(f"vec_ini after: {vec_ini}")
 
     # Convert all elements in vec_ini to floats, replace non-numeric values with 0 or NaN
     vec_ini_float = []
@@ -159,6 +268,33 @@ def extract_data(site_location, abbrev_loc, Li_conc = None) :
 
     # Set the last element of vec_ini
     vec_ini[-1] = 100 - sum_of_others
+
+    # Initialize an empty list to store the process sequence
+    process_sequence = [ ]
+
+    # Iterate over the index and value in the Series
+    for index, value in site_data.items() :
+        # Check if the index starts with 'process_'
+        if str(index).startswith('process_') :
+            # If the value is not empty or NaN, add the process to the list
+            if value and not pd.isna(value) :
+                process_sequence.append(value)
+
+
+
+    # Update vec_end if there are nan values using the function from above
+    vec_end, process_update_status = update_required_concentrations(process_sequence, vec_end,
+                                                                    vec_ini)
+
+    if "evaporation_ponds" in process_sequence:
+        if pd.isna(site_data["evaporation_rate"]):
+            closest_site_data = find_closest_valid_site_evaporation(site_data['latitude'], site_data['longitude'], dat)
+            if closest_site_data is not None:
+                site_data["evaporation_rate"] = closest_site_data["evaporation_rate"]
+    else:
+        site_data["evaporation_rate"] = 0 # Set to 0 if the process is not in the sequence
+
+
 
     # Create a dictionary for the extracted data
     extracted_database = {
@@ -191,7 +327,9 @@ def extract_data(site_location, abbrev_loc, Li_conc = None) :
             "quicklime_reported": site_data['quicklime_reported'],
             "diesel_reported": site_data['diesel_reported'],
             "diesel_consumption": site_data['diesel_consumption'],
-            "motherliq_reported": site_data['motherliq_reported']
+            "motherliq_reported": site_data['motherliq_reported'],
+            "process_sequence": process_sequence,
+            "ini_Li": vec_ini[0]
 
             }
         }
@@ -223,4 +361,36 @@ def update_config_value(config, key, new_value):
         config[key] = new_value
     else:
         print(f"Key '{key}' not found in the {config} dictionary.")
+
+
+def convert_to_numeric(df, column_list):
+    for column in column_list :
+        # Attempt to convert each value in the column to float, removing commas
+        df[ column ] = df[ column ].apply(lambda x : float(str(x).replace(',', '')) if isinstance(x, str) else x)
+    return df
+
+def prepare_brine_analyses(file_path, abbrev_loc):
+
+    #load and prepare sheet4 for brine analyses
+    columns_to_convert = ['ini_Li','ini_Cl','ini_Na','ini_K','ini_Ca','ini_Mg',
+                          'ini_SO4','ini_B','ini_Si','ini_As','ini_Mn','ini_Fe','ini_Zn','ini_Sr','ini_Ba','ini_H2O']
+    sheet4_df = pd.read_excel(file_path, sheet_name="Sheet4", index_col=0)
+    # Apply the conversion function
+    sheet4_df = convert_to_numeric(sheet4_df, columns_to_convert)
+    # Replace non-numeric placeholders with NaN (or other value as needed)
+    sheet4_df.replace({'–' : np.nan}, inplace=True)
+
+    # Use a boolean mask to filter rows where the index starts with {abbrev_loc}_
+    # This is more precise than .filter and allows for specific pattern matching
+    matched_analyses = sheet4_df[ sheet4_df.index.to_series().str.startswith(f"{abbrev_loc}_") ]
+
+    # Convert matched analyses to a structured format (dictionary or list)
+    analyses_dict = {idx : row.tolist() for idx, row in matched_analyses.iterrows()}
+
+    # Return the structured format containing matched analyses
+    return analyses_dict
+
+
+
+
 

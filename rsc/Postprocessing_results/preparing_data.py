@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 
 file_path = r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\results_Ata\Salar de Atacama_waterscarcity_0.15.csv"
 
@@ -154,3 +155,62 @@ def preparing_data_recursivecalculation(file_path, category_mapping) :
     return df
 
 
+def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
+
+    excel_data = pd.read_excel(file_path)
+
+    # Transpose the data for easier processing
+
+    transposed_data = excel_data.transpose()
+
+    # Set the first row as the header
+
+    transposed_data.columns = transposed_data.iloc[ 0 ]
+
+    # Drop the first row since it's now the header
+
+    transposed_data = transposed_data.drop(transposed_data.index[ 0 ])
+
+    # Extracting the relevant columns: Site name, abbreviation, and country location, ini_Li, Li_efficiency
+
+    sites_info = {}
+
+    for site, row in transposed_data.iterrows() :
+        site_info = {
+            "abbreviation" : row[ "abbreviation" ],
+            "country_location" : row[ "country_location" ],
+            "ini_Li" : row.get("ini_Li", None),
+            "Li_efficiency" : row.get("Li_efficiency", None)
+            }
+
+        # Add to the main dictionary
+
+        sites_info[ site ] = site_info
+
+
+    # Dictionary to store the matched results for plotting
+    matched_results = {}
+
+    # Process each CSV file in the directory
+    for file in os.listdir(directory_path) :
+        if file.endswith('.csv') :
+            # Extract site abbreviation from the file name
+            site_abbreviation = file.split('_')[ 0 ]
+            # Find the corresponding site info
+            for site, info in sites_info.items() :
+                if info[ "abbreviation" ] == site_abbreviation :
+                    print(site_abbreviation)
+                    # Read CSV file
+                    csv_data = pd.read_csv(os.path.join(directory_path, file))
+                    # Check for matching ini_Li and Li_efficiency
+                    for _, row in csv_data.iterrows() :
+                        print(row[ 'Li-conc' ], info[ 'ini_Li' ], row[ 'eff' ], info[ 'Li_efficiency' ])
+
+                        if (round(row[ 'Li-conc' ], 3) == round(info[ 'ini_Li' ], 3)
+                                and round(row[ 'eff' ],2) == round(info[ 'Li_efficiency' ],2)) :
+                            # Store IPCC and AWARE values for the site
+                            matched_results[ site ] = {'IPCC' : row[ 'IPCC' ], 'AWARE' : row[ 'AWARE' ]}
+                            print(matched_results)
+                            break  # Found the matching row, no need to check further rows
+
+    return matched_results, sites_info

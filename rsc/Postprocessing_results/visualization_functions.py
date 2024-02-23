@@ -6,6 +6,7 @@ import plotly.io as pio
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison
 
 
 class Visualization :
@@ -31,13 +32,13 @@ class Visualization :
         # Define a professional font
         font_family = "Arial"
 
-        resources = ['Energy', 'Electricity', 'Water']
+        resources = [ 'Energy', 'Electricity', 'Water' ]
         for resource in resources :
-            data = []
+            data = [ ]
             for efficiency, Li_conc_results in results_dict.items() :
                 for Li_conc, results in Li_conc_results.items() :
-                    resource_value = results['resources_per_kg'][resources.index(resource)]
-                    data.append({'Li_conc' : Li_conc, 'Efficiency' : round(efficiency, 1), resource : resource_value})
+                    resource_value = results[ 'resources_per_kg' ][ resources.index(resource) ]
+                    data.append({'Li_conc' : Li_conc, 'Efficiency' : round(efficiency, 2), resource : resource_value})
 
             df = pd.DataFrame(data)
 
@@ -67,8 +68,8 @@ class Visualization :
                 autosize=True,
                 margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
                 showlegend=True,
-                xaxis_range=[0, df['Li_conc'].max()],
-                yaxis_range=[0, df[resource].max()]
+                xaxis_range=[ 0, df[ 'Li_conc' ].max() ],
+                yaxis_range=[ 0, df[ resource ].max() ]
                 )
 
             # Save the plot as PNG
@@ -81,6 +82,7 @@ class Visualization :
             fig_all_efficiencies.write_html(html_file_path)
 
             print(f"Saved {resource} per kg plot as PNG and HTML.")
+
 
 
     def plot_impact_categories(results_dict, abbrev_loc) :
@@ -101,8 +103,8 @@ class Visualization :
         font_family = "Arial"
 
         # Get efficiency and Li-conc ranges for filename
-        efficiencies = [round(eff, 1) for (eff, _) in results_dict.keys()]
-        Li_concs = [Li_conc for (_, Li_conc) in results_dict.keys()]
+        efficiencies = [ round(eff, 1) for (eff, _) in results_dict.keys() ]
+        Li_concs = [ Li_conc for (_, Li_conc) in results_dict.keys() ]
 
         min_eff, max_eff = min(efficiencies), max(efficiencies)
         min_Li_conc, max_Li_conc = min(Li_concs), max(Li_concs)
@@ -113,11 +115,11 @@ class Visualization :
         for impact_category in impact_categories :
             formatted_impact_category = Visualization.format_impact_category_name(impact_category)
 
-            data = []
+            data = [ ]
             for (efficiency, Li_conc), impacts in results_dict.items() :
                 impact_value = impacts.get(impact_category,
                                            0)  # Provide a default value of 0 if impact_category is not present
-                data.append({'Li_conc': Li_conc, 'Efficiency': round(efficiency, 1), 'Impact': impact_value})
+                data.append({'Li_conc' : Li_conc, 'Efficiency' : round(efficiency, 1), 'Impact' : impact_value})
 
             df = pd.DataFrame(data)
 
@@ -147,8 +149,8 @@ class Visualization :
                 autosize=True,
                 margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
                 showlegend=True,
-                xaxis_range=[0, df['Li_conc'].max()],
-                yaxis_range=[0, df['Impact'].max()]
+                xaxis_range=[ 0, df[ 'Li_conc' ].max() ],
+                yaxis_range=[ 0, df[ 'Impact' ].max() ]
                 )
 
             # Generate a timestamp
@@ -166,89 +168,6 @@ class Visualization :
 
             print(f"Saved {formatted_impact_category} plot as PNG and HTML.")
 
-    def plot_lca_results_comparison(directory_path) :
-        """
-        Plots LCA results from CSV files in the given directory with subplots for each category and specific styling.
-
-        :param directory_path: Path to the directory containing CSV files.
-        """
-        # List all CSV files in the directory
-        csv_files = [file for file in os.listdir(directory_path) if file.endswith('.csv')]
-
-        # Define the categories to plot and color sequence
-        categories = ['IPCC', 'PM', 'AWARE']
-        color_sequence = px.colors.qualitative.Antique
-
-        # Initialize subplots
-        fig = make_subplots(rows=len(categories), cols=1, subplot_titles=categories)
-
-        # Data container for all files
-        all_data = []
-
-        # Process each CSV file
-        for file in csv_files :
-            file_path = os.path.join(directory_path, file)
-            data = pd.read_csv(file_path)
-            site_name = file.split('_')[0]
-            data['Site'] = site_name
-            all_data.append(data)
-
-        # Combine all data into a single DataFrame
-        combined_data = pd.concat(all_data)
-
-        # Create and display bar charts for each category
-        for i, category in enumerate(categories, start=1) :
-            for site in combined_data['Site'].unique() :
-                site_data = combined_data[combined_data['Site'] == site]
-                fig.add_trace(
-                    go.Bar(x=[site], y=site_data[category], name=site,
-                           marker_color=color_sequence[i % len(color_sequence)]),
-                    row=i, col=1
-                    )
-
-        # Update the layout for a more professional look
-        fig.update_layout(
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(family="Arial", size=12, color='black'),
-            title_font=dict(family="Arial", size=16, color='black'),
-            showlegend=True,
-            legend=dict(title='Site', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
-                        borderwidth=1),
-            margin=dict(autoexpand=True, l=100, r=20, t=110, b=70)
-            )
-
-        # Adjust axis settings for each subplot
-        for i in range(len(categories)) :
-            fig.update_xaxes(row=i + 1, col=1, showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False,
-                             showline=True,
-                             showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2,
-                             ticklen=5,
-                             tickfont=dict(family="Arial", size=12, color='black'))
-            fig.update_yaxes(row=i + 1, col=1, range=[0, combined_data[category].max()], showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False,
-                             showline=True,
-                             showticklabels=True, linecolor='black', linewidth=2, ticks='outside', tickwidth=2,
-                             ticklen=5,
-                             tickfont=dict(family="Arial", size=12, color='black'))
-
-        # Directory for LCA comparison results
-        lca_comparison_dir = os.path.join(directory_path, 'LCA_allsites')
-
-        Visualization.ensure_folder_exists(lca_comparison_dir)
-
-        # Generate a timestamp
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Save the plot as PNG and HTML
-        file_suffix = f"LCA_allsites_{timestamp}.png"
-        png_file_path = os.path.join(directory_path, file_suffix)
-        fig.write_image(png_file_path, width=800, height=600 * len(categories))
-
-        file_suffix = f"LCA_allsites_{timestamp}.html"
-        html_file_path = os.path.join(directory_path, file_suffix)
-        fig.write_html(html_file_path)
-
-        print(f"Saved LCA Results plot as PNG and HTML in {directory_path}.")
 
     def create_sankey_diagram(data, directory_path, abbrev_loc, efficiency_level, li_conc_level) :
         """
@@ -259,20 +178,21 @@ class Visualization :
         :param li_conc_level: The Li-concentration level to extract data from.
         """
         # Extract the relevant data
-        selected_data = data[efficiency_level][li_conc_level]['data_frames']
+        selected_data = data[ efficiency_level ][ li_conc_level ][ 'data_frames' ]
 
         # Extracting process step names and m_output values
         process_steps = list(selected_data.keys())
-        m_outputs = [selected_data[step]['Values'][0] for step in process_steps]  # Assuming first value is m_output
+        m_outputs = [ selected_data[ step ][ 'Values' ][ 0 ] for step in
+                      process_steps ]  # Assuming first value is m_output
 
         # Preparing data for Sankey diagram
         labels = process_steps
-        source = [i for i in range(len(process_steps) - 1)]
-        target = [i + 1 for i in range(len(process_steps) - 1)]
-        values = m_outputs[:-1]
+        source = [ i for i in range(len(process_steps) - 1) ]
+        target = [ i + 1 for i in range(len(process_steps) - 1) ]
+        values = m_outputs[ :-1 ]
 
         # Create the Sankey diagram
-        fig = go.Figure(data=[go.Sankey(
+        fig = go.Figure(data=[ go.Sankey(
             node=dict(
                 pad=15,
                 thickness=20,
@@ -283,8 +203,7 @@ class Visualization :
                 source=source,
                 target=target,
                 value=values
-                ))])
-
+                )) ])
 
         fig.update_layout(title_text="Sankey Diagram for Lithium Carbonate Production Process", font_size=10)
 
@@ -305,10 +224,338 @@ class Visualization :
         html_file_path = os.path.join(lci_comparison_dir, file_suffix)
         fig.write_html(html_file_path)
 
+    def plot_LCA_results_comparison(file_path, directory_path, save_dir) :
+        matched_results, sites_info = preparing_data_for_LCA_results_comparison(file_path, directory_path)
+
+        # Modify the site name to include Li concentration in the desired format with three decimal places
+        for site in sites_info :
+            li_conc = float(sites_info[ site ][ 'ini_Li' ])
+            sites_info[ site ][ 'ini_Li' ] = f"{site} ({li_conc:.3f} wt. %)"
+
+        # Sort the sites first by country, then by Li concentration within each country
+        combined_data = {sites_info[ site ][ 'ini_Li' ] : {'IPCC' : matched_results[ site ][ 'IPCC' ],
+                                                           'AWARE' : matched_results[ site ][ 'AWARE' ],
+                                                           'country' : sites_info[ site ][ 'country_location' ]}
+                         for site in matched_results}
+
+        sorted_data = sorted(combined_data.items(), key=lambda x : (x[ 1 ][ 'country' ],
+                                                                    -float(x[ 0 ].split('(')[ 1 ].split(' wt.')[
+                                                                               0 ].strip())))
+
+        # Extracting sorted data for the plot
+        sorted_sites = [ site for site, _ in sorted_data ]
+        ipcc_values = [ data[ 'IPCC' ] for _, data in sorted_data ]
+        aware_values = [ data[ 'AWARE' ] for _, data in sorted_data ]
+
+        # Creating subplots
+        fig = make_subplots(rows=2, cols=1)
+
+        # Adding IPCC subplot with no x-axis names and dark red color
+        fig.add_trace(
+            go.Bar(x=sorted_sites, y=ipcc_values, name='Climate change impacts', marker_color='rgb(139, 0, 0)'),
+            row=1, col=1
+            )
+        # Remove x-axis labels for the first plot
+        fig.update_xaxes(tickvals=[ ], row=1, col=1)
+
+        # Adding AWARE subplot with blue color
+        fig.add_trace(
+            go.Bar(x=sorted_sites, y=aware_values, name='Water scarcity impacts', marker_color='rgb(0, 0, 139)'),
+            row=2, col=1
+            )
+
+        # Customizing the layout to accommodate the larger plot and other requirements
+        font_family = "Arial"
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(family=font_family, size=14, color='black'),
+            title='LCA Results per Site (Grouped by Country)',
+            showlegend=False,
+            legend=dict(title='Impact Type', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
+                        borderwidth=1),
+            margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
+            autosize=False,
+            width=1200,  # Adjust the width to your preference
+            height=600,  # Adjust the height to your preference
+            )
+
+        # Update axes properties to add grids, lines, and ticks
+        axis_settings = dict(
+            showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
+            linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
+            tickfont=dict(family=font_family, size=12, color='black')
+            )
+
+        fig.update_xaxes(axis_settings)
+        fig.update_yaxes(axis_settings, title_text="kg CO2eq/ kg Li2CO3", row=1, col=1)
+        fig.update_yaxes(axis_settings, title_text="m3 world eq/kg Li2CO3", row=2, col=1)
+
+        # Add text labels for impact types
+        fig.add_annotation(text="Climate change impacts", xref="paper", yref="paper", x=1, y=0.95, showarrow=False)
+        fig.add_annotation(text="Water scarcity impacts", xref="paper", yref="paper", x=1, y=0.45, showarrow=False)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+    def plot_LCA_results_comparison_old(file_path, directory_path, save_dir) :
+        matched_results, sites_info = preparing_data_for_LCA_results_comparison(file_path, directory_path)
+
+        # Modify the site name to include Li concentration in the desired format with three decimal places
+        for site in sites_info :
+            li_conc = float(sites_info[ site ][ 'ini_Li' ])
+            sites_info[ site ]['ini_Li' ] = f"{site} ({li_conc:.3f} wt. %)"
+
+        # Sort the sites first by country, then by Li concentration within each country
+        combined_data = {sites_info[ site ][ 'ini_Li' ] : {'IPCC' : matched_results[ site ][ 'IPCC' ],
+                                                                            'AWARE' : matched_results[ site ][
+                                                                                'AWARE' ],
+                                                                            'country' : sites_info[ site ][
+                                                                                'country_location' ]}
+                         for site in matched_results}
+
+
+        sorted_data = sorted(combined_data.items(), key=lambda x : (
+            x[ 1 ][ 'country' ],
+            -float(x[ 0 ].split('(')[ 1 ].split(' wt.')[ 0 ].strip())
+            ))
+
+        # Extracting sorted data for the plot
+        sorted_sites = [ site for site, _ in sorted_data ]
+        ipcc_values = [ data[ 'IPCC' ] for _, data in sorted_data ]
+        aware_values = [ data[ 'AWARE' ] for _, data in sorted_data ]
+
+        # Creating subplots
+        fig = make_subplots(rows=2, cols=1)
+
+        # Adding IPCC subplot
+        fig.add_trace(
+            go.Bar(x=sorted_sites, y=ipcc_values, name='Climate change impacts'),
+            row=1, col=1
+            )
+
+        # Adding AWARE subplot
+        fig.add_trace(
+            go.Bar(x=sorted_sites, y=aware_values, name='Water scarcity impacts'),
+            row=2, col=1
+            )
+
+        # Customizing the layout to accommodate the larger plot and other requirements
+        font_family = "Arial"
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(family=font_family, size=14, color='black'),
+            title='LCA Results per Site (Grouped by Country)',
+            showlegend=False,
+            legend=dict(title='Impact Type', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
+                        borderwidth=1),
+            margin=dict(autoexpand=True, l=100, r=20, t=110, b=70),
+            autosize=False,
+            width=1200,  # Adjust the width to your preference
+            height=600,  # Adjust the height to your preference
+            )
+
+        # Update axes properties to add grids, lines, and ticks
+        axis_settings = dict(
+            showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, showline=True,
+            linecolor='black', linewidth=2, ticks='outside', tickwidth=2, ticklen=5,
+            tickfont=dict(family=font_family, size=12, color='black')
+            )
+
+        fig.update_xaxes(axis_settings)
+        fig.update_yaxes(axis_settings, title_text="kg CO2eq/ kg Li2CO3", row=1, col=1)
+        fig.update_yaxes(axis_settings, title_text="m3 world eq/kg Li2CO3", row=2, col=1)
+
+        # Add text labels for impact types
+        fig.add_annotation(text="Climate change impacts", xref="paper", yref="paper", x=1, y=0.95, showarrow=False)
+        fig.add_annotation(text="Water scarcity impacts", xref="paper", yref="paper", x=1, y=0.45, showarrow=False)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+    def create_global_map(save_dir, data,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
+        """
+        Creates a global map of sites using Plotly.
+
+        Parameters:
+        - data: DataFrame containing the site data.
+        - longitude_col: Name of the column containing longitude values.
+        - latitude_col: Name of the column containing latitude values.
+        - name_col: Name of the column containing site names.
+        """
+
+        global_map = go.Figure(go.Scattergeo(
+            lon=data[longitude_col],
+            lat=data[latitude_col],
+            mode='markers',
+            marker=dict(size=8,color='blue',line=dict(width=1,color='white')),
+            text=data[name_col]  # Display site name on hover
+            ))
+
+        global_map.update_layout(
+            title='Global Distribution of Operations',
+            geo=dict(
+                projection_type='natural earth',
+                showland=True,
+                landcolor='lightgrey',
+                countrycolor='black'
+                )
+            )
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_globalmap_{timestamp}.png')
+        global_map.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_globalmap_{timestamp}.html')
+        global_map.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+        return global_map
+
+    def create_submap(save_dir, data,region_bounds,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
+        """
+        Creates a submap for a specific region using Plotly.
+
+        Parameters:
+        - data: DataFrame containing the site data.
+        - region_bounds: Dictionary with keys 'lon_min', 'lon_max', 'lat_min', 'lat_max' defining the region's bounds.
+        - longitude_col: Name of the column containing longitude values.
+        - latitude_col: Name of the column containing latitude values.
+        - name_col: Name of the column containing site names.
+        """
+
+        submap = go.Figure(go.Scattergeo(
+            lon=data[longitude_col],
+            lat=data[latitude_col],
+            mode='markers',
+            marker=dict(size=8,color='red',line=dict(width=1,color='white')),
+            text=data[name_col]  # Display site name on hover
+            ))
+
+        submap.update_layout(
+            title='Detailed View of Specific Region',
+            geo=dict(
+                projection_type='natural earth',
+                showland=True,
+                landcolor='lightgrey',
+                countrycolor='black',
+                lonaxis=dict(range=[region_bounds['lon_min'],region_bounds['lon_max']]),
+                lataxis=dict(range=[region_bounds['lat_min'],region_bounds['lat_max']])
+                )
+            )
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_submap_{timestamp}.png')
+        submap.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_submap_{timestamp}.html')
+        submap.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+        return submap
+
+    def create_plots_from_brinechemistry(directory_path, save_dir) :
+        # Dictionary to hold the aggregated data for each site
+        site_data = {}
+
+
+        # Process each CSV file in the directory
+        for file in os.listdir(directory_path) :
+            if file.endswith('.csv') :
+                # Extract site abbreviation from the file name
+                site_abbreviation = file.split('_')[0]
+
+                # Load the CSV file
+                file_path = os.path.join(directory_path,file)
+                csv_data = pd.read_csv(file_path)
+
+                # Aggregate data by site
+                if site_abbreviation not in site_data :
+                    site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+
+                for _,row in csv_data.iterrows() :
+                    site_data[site_abbreviation]['Li-conc'].append(row['Li-conc'])
+                    site_data[site_abbreviation]['IPCC'].append(row['IPCC'])
+                    site_data[site_abbreviation]['AWARE'].append(row['AWARE'])
 
 
 
+        fig = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact","Water Scarcity Impact"))
+
+        # Generate a list of unique colors for each site
+        colors = px.colors.qualitative.Antique
+        color_map = {site : colors[i % len(colors)] for i,site in enumerate(site_data.keys())}
+
+        # Create subplots for each site
+        for site,data in site_data.items() :
 
 
+            # Add scatter plot for climate change impact
+            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['IPCC'],mode='markers', name=site,
+                                 marker=dict(color=color_map[site])),row=1,col=1)
+
+            # Add scatter plot for water scarcity impact
+            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['AWARE'],mode='markers', name=site,
+                                 marker=dict(color=color_map[site])),row=2,col=1)
+
+        # Update layout
+        fig.update_layout(height=600,width=800,title_text=f"Impacts for {site}")
+        fig.update_xaxes(range=[0, 0.4], title_text="Li-conc (weight %)",row=1,col=1)
+        fig.update_xaxes(range=[0, 0.4],title_text="Li-conc (weight %)",row=2,col=1)
+        fig.update_yaxes(range = [0, 100], title_text="IPCC",row=1,col=1)
+        fig.update_yaxes(range = [0, 40], title_text="AWARE",row=2,col=1)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
 
 
