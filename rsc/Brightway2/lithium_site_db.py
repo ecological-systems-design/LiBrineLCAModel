@@ -4,13 +4,24 @@ import bw2data as bd
 
 
 # Define your mapping for activities outside the function
-def create_activity_map(country_location):
+def create_activity_map(country_location, abbrev_loc):
+    if abbrev_loc == "Ola":
+        electricity_list = ("heat and power co-generation, natural gas, 1MW electrical, lean burn", "RoW")
+        heat_list = ("heat and power co-generation, natural gas, 1MW electrical, lean burn", "RoW")
+    else:
+        electricity_list = ("market for electricity, high voltage", country_location)
+        heat_list = ("heat production, natural gas, at industrial furnace >100kW", "RoW")
+
+    print('Activities chosen: ')
+    print(electricity_list)
+    print(heat_list)
+
     activity_map = {
-        'elec_high_voltage': ("market for electricity, high voltage", country_location),
+        'elec_high_voltage': electricity_list,
         'wastewater_average': ("market for wastewater, average", "RoW"),
         'waste_hazardous_underground': ("market for hazardous waste, for underground deposit", "RoW"),
         'waste_nonhazardous_landfill': ("treatment of waste gypsum, inert material landfill", "RoW"),
-        'heat_industrial_gas': ("heat production, natural gas, at industrial furnace >100kW", "RoW"),
+        'heat_industrial_gas': heat_list,
         'steam_chemical_industry': ("market for steam, in chemical industry", "RoW"),
         'diesel_machine_high_load': ("machine operation, diesel, >= 74.57 kW, high load factor", "GLO"),
         'salt_tailing_landfill': ("treatment of salt tailing from potash mine, residual material landfill", "RoW"),
@@ -20,7 +31,6 @@ def create_activity_map(country_location):
 
     return activity_map
 
-# Define your map for bio flows outside the function
 
 def create_bio_flow_map():
     bio_flow_map = {
@@ -111,7 +121,8 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
         db.register()
 
         # Required activities and flows
-        activity_map = create_activity_map(country_location)
+        activity_map = create_activity_map(country_location, abbrev_loc)
+        print(activity_map)
         bio_flow_map = create_bio_flow_map()
 
         activity_objects = {key : find_activity_by_name_and_location(name, ei_name, location)

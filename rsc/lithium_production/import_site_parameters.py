@@ -8,7 +8,7 @@ standard_values = {
     "boilingpoint_process" : np.nan,
     "density_brine" : 1.2,
     "density_enriched_brine" : 1.3,
-    "production" : 25000000,
+    "production" : 10000000,
     "operating_days" : 0.9 * 365,
     "lifetime" : 30,
     "brine_vol" : np.nan,
@@ -311,7 +311,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
             "vec_ini" : vec_ini,  # Vector with initial brine chemistry data
             "density_enriched_brine" : site_data.get("density_enriched_brine", np.nan),
             "vec_end" : vec_end,  # Vector with enriched brine chemistry data
-            "production" : site_data["production"],
+            "production" : site_data.get("production", np.nan),
             "operating_days" : site_data["operating_days"],
             "lifetime" : site_data["lifetime"],
             "brine_vol" : site_data["brine_vol"],

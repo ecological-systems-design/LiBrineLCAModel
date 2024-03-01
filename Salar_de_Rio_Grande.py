@@ -22,7 +22,7 @@ if __name__ == '__main__' :
     bd.projects.set_current(project)
     print(project)
 
-    #del bd.databases[site_name]
+    del bd.databases[site_name]
     #del bd.databases[ei_name]
 
     country_location = "AR"
@@ -31,7 +31,7 @@ if __name__ == '__main__' :
     print(bd.databases)
 
     eff = 0.77
-    Li_conc = 0.01
+    Li_conc = 0.034426
     abbrev_loc = "Rio"
     op_location = "Salar de Rio Grande"
 

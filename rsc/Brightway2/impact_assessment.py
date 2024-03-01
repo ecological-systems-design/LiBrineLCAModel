@@ -30,6 +30,7 @@ def calculate_impacts(activity, methods) :
 
 # function to iterate over inventories and calculate impacts
 def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, site_name, ei_name, abbrev_loc, eff_range=None, Li_conc_range=None, literature_eff=None, literature_Li_conc=None):
+    print('beginning of function', abbrev_loc)
     site_db = bd.Database(site_name)
     ei_reg = bd.Database(ei_name)
 
@@ -97,6 +98,7 @@ def calculate_impacts_for_brine_chemistry(activity, methods, dict_results, site_
     # Iterate over the efficiency and lithium concentration values
     for eff in eff_to_use:
         for Li in Li_conc_to_use:
+            print('abbrev_loc:', abbrev_loc)
             site_db = change_exchanges_in_database(eff, Li, site_name, abbrev_loc, dict_results)
 
             # Calculate impacts for the activity

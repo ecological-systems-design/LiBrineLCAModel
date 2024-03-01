@@ -557,5 +557,3 @@ class Visualization :
         fig.write_html(save_path_html)
 
         print(f"Figure saved to {save_path_png} and {save_path_html}")
-
-

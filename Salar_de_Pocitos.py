@@ -1,8 +1,7 @@
-import os
-from pathlib import Path
-import pickle
-
 import bw2data as bd
+from pathlib import Path
+
+import os
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -10,32 +9,31 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Salar de Atacama"
+site_name = f"Salar de Pocitos"
 biosphere = f"biosphere3"
 deposit_type = "salar"
 
-site_location = "Ata"
+site_location = site_name[:3]
 
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_21'
+    project = f'Site_{site_name}_1'
     bd.projects.set_current(project)
     print(project)
-
 
     #del bd.databases[site_name]
     # del bd.databases[ei_name]
 
-    country_location = "CL"
+    country_location = "AR"
 
     # print all brightway2 databases
     print(bd.databases)
 
-    eff = 0.45
-    Li_conc = 0.15
-    abbrev_loc = "Ata"
-    op_location = "Salar de Atacama"
+    eff = 0.77
+    Li_conc = 0.007951
+    abbrev_loc = "Poc"
+    op_location = "Salar de Pocitos"
 
     # initialize the processing sequence
     from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
@@ -45,13 +43,10 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
-        transport_brine(),
-        B_removal_organicsolvent(),
-        Centrifuge_general(custom_name=None),
-        Mg_removal_sodaash(),
-        CentrifugeSoda(),
-        Mg_removal_quicklime(),
-        CentrifugeQuicklime(),
+        Li_adsorption(),
+        triple_evaporator(),
+        ion_exchange_L(),
+        DLE_evaporation_ponds(),
         Liprec_TG(),
         CentrifugeTG(),
         washing_TG(),
@@ -76,12 +71,12 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.9
-    min_eff = 0.3
-    eff_steps = 0.3
-    Li_conc_steps = 0.05
-    Li_conc_max = 0.25
-    Li_conc_min = 0.05
+    max_eff = 0.77
+    min_eff = 0.6
+    eff_steps = 0.1
+    Li_conc_steps = 0.01
+    Li_conc_max = 0.007951
+    Li_conc_min = 0.001
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
@@ -98,11 +93,9 @@ if __name__ == '__main__' :
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    from rsc.Brightway2.lci_method_pm import import_PM
+    # from rsc.Brightway2.lci_method_pm import import_PM
 
-    import_PM(ei_reg, bio, site_name, site_db)
-
-    # print(results)
+    # import_PM(ei_reg, bio, site_name, site_db)
 
     # Filter methods based on your criteria
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
@@ -110,7 +103,8 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    # method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    # print(method_PM)
 
     method_list = [method_cc, method_water]
 
@@ -118,22 +112,13 @@ if __name__ == '__main__' :
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
-    print('abbrev_loc:', abbrev_loc)
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range
-                                                       )
+                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range,
+                                                       literature_eff=None, literature_Li_conc=None)
+    # print(impacts)
 
     # saving results
-    from rsc.Brightway2.impact_assessment import saving_LCA_results
-
-    # Get efficiency and Li-conc ranges for filename
-    efficiencies = [round(eff, 1) for (eff, _) in impacts.keys()]
-    Li_concs = [Li_conc for (_, Li_conc) in impacts.keys()]
-
-    min_eff, max_eff = min(efficiencies), max(efficiencies)
-    min_Li_conc, max_Li_conc = min(Li_concs), max(Li_concs)
-
-    filename = f"eff_{min_eff}_to_{max_eff}_LiConc_{min_Li_conc}_to_{max_Li_conc}"
+    from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
 
     saving_LCA_results(impacts, abbrev_loc)
 
@@ -141,6 +126,3 @@ if __name__ == '__main__' :
 
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
-
-
-

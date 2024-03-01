@@ -18,7 +18,7 @@ site_location = "Fen"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_9'
+    project = f'Site_{site_name}_10'
     bd.projects.set_current(project)
     print(project)
 
@@ -30,7 +30,7 @@ if __name__ == '__main__' :
     # print all brightway2 databases
     print(bd.databases)
 
-    eff = 0.52
+    eff = 0.77
     Li_conc = 0.066169154
     abbrev_loc = "Fen"
     op_location = "Fenix"
@@ -71,7 +71,7 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.52
+    max_eff = 0.77
     min_eff = 0.4
     eff_steps = 0.3
     Li_conc_steps = 0.02

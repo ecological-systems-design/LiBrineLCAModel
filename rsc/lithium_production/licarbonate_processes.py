@@ -44,12 +44,18 @@ class evaporation_ponds :
         print(site_parameters)
 
         operating_time = op_days * 24 * 60 * 60  # Operating time in seconds
-
+        print('Overall efficiency within function ',overall_efficiency)
+        m_in_initial = m_in
         # Volume and mass changes during evaporation
-        brinemass_req = vec_end[0] / vec_ini[0]  # Required mass of brine to gain 1 kg concentrated brine
+        if round(vec_end[0], 4) != round(vec_ini[0], 4):
+            brinemass_req = vec_end[0] / (vec_ini[0] * overall_efficiency)  # Required mass of brine to gain 1 kg concentrated brine
+        else:
+            brinemass_req = round(vec_end[0], 4)/round(vec_ini[0], 4)
+            m_in = m_in/overall_efficiency
         brinemass_proc = 1.00
         brinemass_evap = brinemass_req - brinemass_proc  # Required mass which needs to be evaporated and precipitated
-
+        print('brine req ',brinemass_req)
+        print('brine_proc ', brinemass_proc)
 
         # Elemental losses during evaporation based on chemical composition
         vec_loss = [
@@ -59,7 +65,8 @@ class evaporation_ponds :
             for i in range(len(vec_end))
             ]
 
-        epsilon = 1e-1  # Tolerance level
+
+        epsilon = 1e-20  # Tolerance level for the elemental losses
 
         if any((loss < -epsilon or loss > epsilon) and not np.isnan(loss) for loss in vec_loss) :
 
@@ -123,8 +130,11 @@ class evaporation_ponds :
             m_salt = 0
             freshwater_vol = water_evaporationponds / (dens_frw * 1000) / operating_time
 
-        m_Li = m_in * vec_ini[0] / 100  # mass of lithium in the annual pumped brine [kg]
-
+        m_Li = (m_in_initial * vec_ini[0] )/ 100  # mass of lithium in the annual pumped brine [kg]
+        print('m_in ', m_in_initial)
+        print('m_Li ', m_Li)
+        print('vec_ini[0] ', vec_ini[0])
+        print('vec_end[0] ', vec_end[0])
 
         # Well field system
         power_well = gravity_constant * (
@@ -165,6 +175,7 @@ class evaporation_ponds :
         df_process['per kg'] = df_process['Values'] / df_process.iloc[0][1]
 
         m_out = df_process.iloc[0]['Values']
+        print(df_process)
 
         return {
             'process_name' : process_name,
@@ -1700,18 +1711,26 @@ class CentrifugeWash(CentrifugeBase) :
 
 
 class CentrifugePurification :
-    def __init__(self, waste_name) :
+    def __init__(self, waste_name, custom_name = None) :
+        print('custom_name: ', custom_name)
         # Ensure the waste_name is valid (non-empty and a string)
         if not isinstance(waste_name, str) or not waste_name.strip() :
             raise ValueError("waste_name must be a non-empty string")
-        self.process_name = f'df_centrifuge_purification_{waste_name.strip().lower()}'
+        if custom_name is not None :
+            self.process_name = custom_name
+            print(self.process_name)
+        else :
+            self.process_name = f'df_centrifuge_purification_{waste_name.strip().lower()}'
+            print(self.process_name)
 
     def execute(self, waste, m_in) :
+        process_name = self.process_name if self.process_name else f"df_centrifuge_purification_{waste.strip().lower()}"
         print('m_in ', m_in)
         print('waste ', waste)
         elec_centri = waste / 100
         m_output = m_in - waste
         print('m_output ', m_output)
+        print(self.process_name)
 
         # Compile data for dataframe
         variables = ['m_output', 'm_in', 'elec', 'waste_solid']
@@ -1726,6 +1745,7 @@ class CentrifugePurification :
         df_process = pd.DataFrame(df_data)
 
         df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
+        print(df_process)
 
         m_out = df_process.iloc[0]["Values"]
 
@@ -1760,9 +1780,9 @@ class CentrifugeQuicklime(CentrifugePurification) :
 
 #Centrifuge with pure information
 class Centrifuge_general(CentrifugePurification) :
-    def __init__(self) :
+    def __init__(self, custom_name) :
         super().__init__(
-            waste_name="general"
+            waste_name="general",custom_name = custom_name
             )
 
 
@@ -1915,6 +1935,8 @@ def setup_site(eff, site_parameters) :
     Dens_ini = site_parameters['density_brine']  # initial density of brine
     v_pumpbrs = site_parameters['brine_vol']  # volume of brine pumped per second
     op_days = site_parameters['operating_days']  # number of operating days per year
+    prod_year = site_parameters['production']
+    print('literature production ', prod_year)
 
     if eff == site_parameters['Li_efficiency'] : #TODO idea: if eff is not provided, then use the range of efficiencies
         eff = site_parameters['Li_efficiency']
@@ -1924,10 +1946,6 @@ def setup_site(eff, site_parameters) :
 
     # Check if brine_vol is not provided and calculate it using production and Li_conc
     if pd.isna(v_pumpbrs) and 'production' in site_parameters :
-        # Production of Li2CO3 in kg/yr
-        prod_year = site_parameters['production']
-
-        # Calculate volume of brine pumped per second (L/s)
         # Rearranging the production formula to solve for v_pumpbrs
         v_pumpbrs = (prod_year * (2 * Li) / (2 * Li + C + O * 3)) / (
                     op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) * (1 / eff) * 1000
@@ -1937,9 +1955,11 @@ def setup_site(eff, site_parameters) :
     # Mass of brine going into the process sequence
     v_pumpbr = ((v_pumpbrs / 1000) * op_days * 60 * 60 * 24)#/ eff  # volume of brine [m3/yr]
     m_pumpbr = v_pumpbr * Dens_ini * 1000  # mass of pumped brine per year [kg/yr]
-    prod_year = (((v_pumpbrs / 1000) * op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) / (
+    if pd.isna(prod_year):
+        prod_year = (((v_pumpbrs / 1000) * op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) / (
             (2 * Li) / (2 * Li + C + O * 3)))*eff
     print('Brine vol ', v_pumpbrs)
+    print('Brine mass ', m_pumpbr)
     print('Production prod_year ', prod_year)
 
     return prod_year, m_pumpbr
@@ -1987,6 +2007,16 @@ class ProcessManager :
         self.keys_not_to_overwrite = ["Ca_mass_brine", "water_RO", "water_evap", "motherliq", "mass_CO2", "prod_libicarb", "water_NF"]
         self.logger = logging.getLogger('ProcessManager')
         self.log_folder = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/data/logging_files"
+
+    def _check_dependencies(self,current_process_base_name,executed_processes) :
+        dependencies = self.process_dependencies.get(current_process_base_name,[])
+        for dependency in dependencies :
+            dependency_pattern = dependency + '_'
+            dependency_satisfied = any(
+                proc.startswith(dependency_pattern) or proc == dependency for proc in executed_processes
+                )
+            if not dependency_satisfied :
+                raise Exception(f"Dependency {dependency} for {current_process_base_name} has not been executed yet!")
 
     def _get_args_for_process(self, process_instance) :
         process_type = type(process_instance)
@@ -2067,21 +2097,29 @@ class ProcessManager :
 
         results = {}
         executed_processes = set()
+        process_counts = {}
 
         for process_instance in self.process_sequence:
             process_name = type(process_instance).__name__
+            custom_name = getattr(process_instance,'custom_name',None)
+
+            if custom_name :
+                # Use the custom name directly if provided
+                unique_process_name = custom_name
+            else :
+                # Increment and use count for unique naming if no custom name is provided
+                process_counts[process_name] = process_counts.get(process_name,0) + 1
+                unique_process_name = f"{process_name}_{process_counts[process_name]}"
+
 
             updated_args = self._get_args_for_process(process_instance)
-            self.logger.info(f"Arguments for {process_name}: {updated_args}")
+            self.logger.info(f"Arguments for {unique_process_name}: {updated_args}")
 
-            if process_name in self.process_dependencies:
-                for dependency in self.process_dependencies[process_name]:
-                    if dependency not in executed_processes:
-                        raise Exception(f"Dependency {dependency} for {process_name} has not been executed yet!")
+            self._check_dependencies(process_name, executed_processes)
 
             try:
-                #logging.info(f"Executing {process_name}")
-                #print(f"Before process {process_name}, m_in = {self.m_in}")
+                logging.info(f"Executing {process_name}")
+
 
                 result = process_instance.execute(*updated_args)  # Unpack the updated_args
                 #logging.info(f"Result for {process_name}: {result}")
@@ -2107,53 +2145,58 @@ class ProcessManager :
 
 
                 self.m_in = result['m_out']
-                results[process_name] = result['data_frame']
-                self.data_frames[result['process_name']] = result['data_frame']
+                results[unique_process_name] = result['data_frame']
 
-                executed_processes.add(process_name)
+
+
+                self.data_frames[unique_process_name] = result['data_frame']
+
+                executed_processes.add(unique_process_name)
 
             except Exception as e:
-                logging.error(f"Error in {process_name}: {str(e)}")
+                logging.error(f"Error in {unique_process_name}: {str(e)}")
                 raise e
 
 
-        if 'df_Li_adsorption' in self.data_frames and (
-                'df_reverse_osmosis' in self.data_frames and 'df_triple_evaporator' in self.data_frames) :
-            self.data_frames['df_Li_adsorption'], self.data_frames['df_reverse_osmosis'], self.data_frames[
-                'df_triple_evaporator'] = Li_adsorption.update_adsorption_RO_evaporator(
-                self.data_frames['df_Li_adsorption'], self.dynamic_attributes["water_RO"],
-                self.dynamic_attributes['water_evap'], self.data_frames['df_reverse_osmosis'],
-                self.data_frames['df_triple_evaporator'], T_desorp, hCHH, heat_loss, self.site_parameters)
 
-        if 'df_Li_adsorption' in self.data_frames and 'df_nanofiltration' in self.data_frames \
-            and 'df_reverse_osmosis' in self.data_frames:
-            self.data_frames['df_Li_adsorption'], self.data_frames['df_nanofiltration'], self.data_frames[
-                'df_reverse_osmosis'] = Li_adsorption.update_adsorption_nanofiltration_RO(
-                self.data_frames['df_Li_adsorption'], self.dynamic_attributes['water_NF'],
-                self.data_frames['df_nanofiltration'], self.data_frames['df_reverse_osmosis'])
+        if 'Li_adsorption_1' in self.data_frames and (
+                'reverse_osmosis_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames) :
+            self.data_frames['Li_adsorption_1'], self.data_frames['reverse_osmosis_1'], self.data_frames[
+                'triple_evaporator_1'] = Li_adsorption.update_adsorption_RO_evaporator(
+                self.data_frames['Li_adsorption_1'], self.dynamic_attributes["water_RO"],
+                self.dynamic_attributes['water_evap'], self.data_frames['reverse_osmosis_1'],
+                self.data_frames['triple_evaporator_1'], T_desorp, hCHH, heat_loss, self.site_parameters)
 
-        if 'df_Li_adsorption' in self.data_frames and 'df_triple_evaporator' in self.data_frames \
-                and not 'df_reverse_osmosis' in self.data_frames:
-            self.data_frames['df_Li_adsorption'], self.data_frames['df_triple_evaporator'] = Li_adsorption.update_adsorption_evaporator(
-                self.data_frames['df_Li_adsorption'], self.dynamic_attributes['water_evap'],
-                self.data_frames['df_triple_evaporator'], T_desorp, T_adsorp, hCHH, heat_loss, self.site_parameters)
+        if 'Li_adsorption_1' in self.data_frames and 'nanofiltration_1' in self.data_frames \
+            and 'reverse_osmosis_1' in self.data_frames:
+            self.data_frames['Li_adsorption_1'], self.data_frames['nanofiltration_1'], self.data_frames[
+                'reverse_osmosis_1'] = Li_adsorption.update_adsorption_nanofiltration_RO(
+                self.data_frames['Li_adsorption_1'], self.dynamic_attributes['water_NF'],
+                self.data_frames['nanofiltration_1'], self.data_frames['reverse_osmosis_1'])
 
-        if 'df_Li_adsorption' in self.data_frames and 'df_triple_evaporator' in self.data_frames \
-                and not 'df_reverse_osmosis' in self.data_frames :
-            self.data_frames['df_triple_evaporator'] = triple_evaporator.update_triple_evaporator(
-                self.data_frames['df_triple_evaporator'], self.site_parameters)
+        if 'Li_adsorption_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames \
+                and not 'reverse_osmosis_1' in self.data_frames:
+            self.data_frames['Li_adsorption_1'], self.data_frames['triple_evaporator_1'] = Li_adsorption.update_adsorption_evaporator(
+                self.data_frames['Li_adsorption_1'], self.dynamic_attributes['water_evap'],
+                self.data_frames['triple_evaporator_1'], T_desorp, T_adsorp, hCHH, heat_loss, self.site_parameters)
+
+
+        if 'Li_adsorption_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames \
+                and not 'reverse_osmosis_1' in self.data_frames :
+            self.data_frames['triple_evaporator_1'] = triple_evaporator.update_triple_evaporator(
+                self.data_frames['triple_evaporator_1'], self.site_parameters)
 
             print(f"Updated triple evaporator and Li_adsorption.")
 
-        if 'df_ion_exchange_L' in self.data_frames and 'df_triple_evaporator' in self.data_frames \
-                and not 'df_Li_adsorption' in self.data_frames:
-            self.data_frames['df_ion_exchange_L'] = ion_exchange_L.update_IX(self.data_frames['df_ion_exchange_L'],
-                                                                             self.data_frames['df_triple_evaporator'])
+        if 'ion_exchange_L' in self.data_frames and 'triple_evaporator' in self.data_frames \
+                and not 'Li_adsorption' in self.data_frames:
+            self.data_frames['ion_exchange_L'] = ion_exchange_L.update_IX(self.data_frames['ion_exchange_L'],
+                                                                             self.data_frames['triple_evaporator'])
 
-        if 'df_ion_exchange_H' in self.data_frames and 'df_triple_evaporator' in self.data_frames\
-                and not 'df_Li_adsorption' in self.data_frames:
-            self.data_frames['df_ion_exchange_H'] = ion_exchange_H.update_IX(self.data_frames['df_ion_exchange_H'],
-                                                                             self.data_frames['df_triple_evaporator'])
+        if 'ion_exchange_H' in self.data_frames and 'triple_evaporator' in self.data_frames\
+                and not 'Li_adsorption' in self.data_frames:
+            self.data_frames['ion_exchange_H'] = ion_exchange_H.update_IX(self.data_frames['ion_exchange_H'],
+                                                                             self.data_frames['triple_evaporator'])
 
         return results
 

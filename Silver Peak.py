@@ -43,12 +43,12 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
-        Centrifuge_general(),
+        Centrifuge_general(custom_name=None),
         Liprec_TG(),
-        washing_TG(),
         CentrifugeTG(),
+        washing_TG(),
         dissolution(),
-        Centrifuge_general(),
+        Centrifuge_general(custom_name="df_centrifuge_general_second"),
         ion_exchange_H(custom_name = None),
         ion_exchange_H(custom_name = "df_ion_exchange_H_second"),
         ion_exchange_L(),

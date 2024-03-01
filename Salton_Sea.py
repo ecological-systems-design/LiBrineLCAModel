@@ -27,7 +27,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_60'
+    project = f'Site_{site_name}_760'
     bd.projects.set_current(project)
     print(project)
 
@@ -86,12 +86,12 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.9
+    max_eff = 0.5
     min_eff = 0.3
-    eff_steps = 0.1
-    Li_conc_steps = 0.001
+    eff_steps = 0.2
+    Li_conc_steps = 0.02
     Li_conc_max = 0.03
-    Li_conc_min = 0.001
+    Li_conc_min = 0.01
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                    min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
@@ -108,8 +108,8 @@ if __name__ == '__main__' :
     from rsc.Brightway2.lci_method_aware import import_aware
     import_aware(ei_reg, bio, site_name, site_db)
 
-    from rsc.Brightway2.lci_method_pm import import_PM
-    import_PM(ei_reg, bio,site_name, site_db)
+    #from rsc.Brightway2.lci_method_pm import import_PM
+    #import_PM(ei_reg, bio,site_name, site_db)
 
 
     # Filter methods based on your criteria
@@ -118,18 +118,18 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
     #print(method_PM)
 
-    method_list = [method_cc,  method_water, method_PM]
+    method_list = [method_cc,  method_water]
 
     from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, eff_range, Li_conc_range,
-                                                       abbrev_loc)
+                                                       site_name, ei_name,abbrev_loc, eff_range, Li_conc_range
+                                                       )
     print(impacts)
 
     # saving results

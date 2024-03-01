@@ -4,6 +4,14 @@ import bw2data as bd
 from rsc.Brightway2.setting_up_db_env import database_environment
 
 def create_inventory_map(abbrev_loc) :
+    print(abbrev_loc)
+
+    if abbrev_loc == "Ola":
+        heat_act = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
+        elec_act = heat_act
+    else:
+        heat_act = "heat production, natural gas, at industrial furnace >100kW"
+        elec_act = "market for electricity, high voltage"
 
     inventory_map = {
         "market for hydrochloric acid, without water, in 30% solution state": "chemical_HCl",
@@ -12,8 +20,8 @@ def create_inventory_map(abbrev_loc) :
         "market for limestone, crushed, washed": "chemical_limestone",
         "market for quicklime, milled, packed": "chemical_lime",
         "market for cationic resin": "chemical_adsorbent",
-        "market for electricity, high voltage": "elec_",
-        "heat production, natural gas, at industrial furnace >100kW": "E_",
+        elec_act: "elec_",
+        heat_act: "E_",
         "market for hazardous waste, for underground deposit": "waste_solid",
         "treatment of waste gypsum, inert material landfill": "waste_solid",
         f"waste_liquid_{abbrev_loc}": "waste_liquid",
