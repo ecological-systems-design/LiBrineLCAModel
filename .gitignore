@@ -131,3 +131,8 @@ dmypy.json
 # my local files
 data/ecoinvent 3.9.1_cutoff_ecoSpold02
 .idea
+data/ecoinvent 3.10_cutoff_ecoSpold02
+data/ecoinvent 3.10_cutoff_ecoSpold02.7z
+results/recursive_calculation/*
+data/logging_files/*
+results/figures/*
