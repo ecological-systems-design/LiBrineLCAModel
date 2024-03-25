@@ -22,7 +22,7 @@ if __name__ == '__main__' :
     bd.projects.set_current(project)
     print(project)
 
-    #del bd.databases[site_name]
+    del bd.databases[site_name]
     #del bd.databases[ei_name]
 
     country_location = "AR"

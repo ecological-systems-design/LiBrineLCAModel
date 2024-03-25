@@ -309,27 +309,34 @@ class Visualization :
         fig.write_html(save_path_html)
 
         print(f"Figure saved to {save_path_png} and {save_path_html}")
-    def plot_LCA_results_comparison_old(file_path, directory_path, save_dir) :
+
+    def plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_dir) :
         matched_results, sites_info = preparing_data_for_LCA_results_comparison(file_path, directory_path)
 
         # Modify the site name to include Li concentration in the desired format with three decimal places
         for site in sites_info :
             li_conc = float(sites_info[ site ][ 'ini_Li' ])
-            sites_info[ site ]['ini_Li' ] = f"{site} ({li_conc:.3f} wt. %)"
+            sites_info[ site ][ 'ini_Li' ] = f"{site} ({li_conc:.3f} wt. %)"
 
         # Sort the sites first by country, then by Li concentration within each country
         combined_data = {sites_info[ site ][ 'ini_Li' ] : {'IPCC' : matched_results[ site ][ 'IPCC' ],
-                                                                            'AWARE' : matched_results[ site ][
-                                                                                'AWARE' ],
-                                                                            'country' : sites_info[ site ][
-                                                                                'country_location' ]}
+                                                           'AWARE' : matched_results[ site ][ 'AWARE' ],
+                                                           'country' : sites_info[ site ][ 'country_location' ],
+                                                           'technology_group' : sites_info[ site ][ 'technology_group' ],
+                                                           'activity_status': sites_info[ site ][ 'activity_status' ],
+                                                           'activity_status_order' : sites_info[site]['activity_status_order']
+                         }
                          for site in matched_results}
 
-
-        sorted_data = sorted(combined_data.items(), key=lambda x : (
-            x[ 1 ][ 'country' ],
-            -float(x[ 0 ].split('(')[ 1 ].split(' wt.')[ 0 ].strip())
-            ))
+        sorted_data = sorted(
+            combined_data.items(),
+            key=lambda x : (
+                x[1]['activity_status_order'],
+                x[1]['technology_group'],
+                x[1]['country'],
+                -float(x[0].split('(')[1].split(' wt.')[0].strip())
+                )
+            )
 
         # Extracting sorted data for the plot
         sorted_sites = [ site for site, _ in sorted_data ]
@@ -339,15 +346,17 @@ class Visualization :
         # Creating subplots
         fig = make_subplots(rows=2, cols=1)
 
-        # Adding IPCC subplot
+        # Adding IPCC subplot with no x-axis names and dark red color
         fig.add_trace(
-            go.Bar(x=sorted_sites, y=ipcc_values, name='Climate change impacts'),
+            go.Bar(x=sorted_sites, y=ipcc_values, name='Climate change impacts', marker_color='rgb(139, 0, 0)'),
             row=1, col=1
             )
+        # Remove x-axis labels for the first plot
+        fig.update_xaxes(tickvals=[ ], row=1, col=1)
 
-        # Adding AWARE subplot
+        # Adding AWARE subplot with blue color
         fig.add_trace(
-            go.Bar(x=sorted_sites, y=aware_values, name='Water scarcity impacts'),
+            go.Bar(x=sorted_sites, y=aware_values, name='Water scarcity impacts', marker_color='rgb(0, 0, 139)'),
             row=2, col=1
             )
 
@@ -389,13 +398,67 @@ class Visualization :
             os.makedirs(save_dir)
 
         # Save the figure to the specified directory
-        save_path_png = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.png')
+        save_path_png = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.png')
         fig.write_image(save_path_png)
 
-        save_path_html = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.html')
+        save_path_html = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.html')
         fig.write_html(save_path_html)
 
         print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+    def plot_LCA_results_scatter(file_path,directory_path,save_dir) :
+        matched_results,sites_info = preparing_data_for_LCA_results_comparison(file_path,directory_path)
+
+        # Extracting data for the plot
+        scatter_data = [{
+            'site' : site,
+            'IPCC' : matched_results[site]['IPCC'],
+            'AWARE' : matched_results[site]['AWARE'],
+            'Li_concentration' : info['ini_Li'],
+            'Technology_Group' : info['technology_group']
+            } for site,info in sites_info.items() if site in matched_results]
+
+        # Creating the scatter plot
+        fig = make_subplots(rows=1,cols=1)
+
+        # Group data by technology group to plot them with different markers
+        for tech_group,group_data in pd.DataFrame(scatter_data).groupby('Technology_Group') :
+            tech_group_data = group_data.to_dict('records')
+            fig.add_trace(
+                go.Scatter(
+                    x=[d['IPCC'] for d in tech_group_data],
+                    y=[d['AWARE'] for d in tech_group_data],
+                    mode='markers',
+                    marker=dict(
+                        size=[d['Li_concentration'] for d in tech_group_data],
+                        sizemode='area',
+                        sizeref=2. * max([d['Li_concentration'] for d in tech_group_data]) / (40. ** 2),
+                        sizemin=4
+                        ),
+                    name=tech_group
+                    )
+                )
+
+        # Update layout
+        fig.update_layout(
+            title='Climate Change vs. Water Scarcity Impacts by Li-Concentration',
+            xaxis_title='IPCC - Climate Change Impacts',
+            yaxis_title='AWARE - Water Scarcity Impacts',
+            legend_title='Technology Group'
+            )
+
+        # Save the figure
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.png'))
+
+        fig.write_html(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.html'))
+
+        print(f"Scatter plot saved in {save_dir}")
+
 
     def create_global_map(save_dir, data,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
         """

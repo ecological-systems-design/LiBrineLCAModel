@@ -14,6 +14,7 @@ def get_process_sequence(process_names):
     sequence = []
     ion_exchange_H_count = 0  # Counter for ion_exchange_H
     ion_exchange_L_count = 0  # Counter for ion_exchange_L
+    centrifuge_general_count = 0 # Counter for centrifuge_general
 
     for proc in process_names:
         if proc == 'ion_exchange_H':
@@ -26,6 +27,12 @@ def get_process_sequence(process_names):
             custom_name = None if ion_exchange_L_count == 1 else f"df_ion_exchange_L_{ion_exchange_L_count}"
             print(f"Instantiating process: ion_exchange_L with custom name {custom_name}")
             sequence.append(ion_exchange_L(custom_name=custom_name))
+        elif proc == 'Centrifuge_general':
+            centrifuge_general_count += 1
+            custom_name = None if centrifuge_general_count == 1 else f"df_centrifuge_general_{centrifuge_general_count}"
+            print(f"Instantiating process: Centrifuge_general with custom name {custom_name}")
+            sequence.append(Centrifuge_general(custom_name=custom_name))
+
         elif proc in process_function_map:
             print(f"Instantiating process: {proc}")
             sequence.append(process_function_map[proc]())
@@ -174,32 +181,39 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'Site_{site_name}_literature_values_test2'
+        project = f'Site_{site_name}_literature_final'
+        print(f"Currently assessing: {project}")
 
         # Initialize flags to check the existence of project and results
         project_exists = project in bd.projects
         results_exist = False
-
+        print(project_exists)
         # Check for existing result files for the site
-        if project_exists:
-            for file in os.listdir(directory_path):
+
+        if project_exists :
+            # Iterate through each file in the directory
+            for file in os.listdir(directory_path) :
+                # Check if the file is a CSV file that starts with the given abbreviation
                 if file.startswith(abbreviation) and file.endswith('.csv') :
-                    csv_data = pd.read_csv(os.path.join(directory_path, file))
-                    for _, row in csv_data.iterrows() :
+                    csv_data = pd.read_csv(os.path.join(directory_path,file))
+                    # Check each row in the CSV file
+                    for _,row in csv_data.iterrows() :
                         # Round both values to 5 decimal places before comparing
-                        if round(row[ 'Li-conc' ], 5) == round(target_ini_Li, 5) and round(row[ 'eff' ], 5) == round(
-                                target_eff, 5) :
+                        if round(row['Li-conc'],5) == round(target_ini_Li,5) and round(row['eff'],5) == round(
+                                target_eff,5) :
                             print(f"Results already exist for site {site_name} with abbreviation {abbreviation}.")
                             results_exist = True
-                            break
-                    if results_exist :
-                        break
+                            break  # Exit the loop as we found the results
 
-                    else:
-                        print(f"No results found for site {site_name} with abbreviation {abbreviation}.")
-                        #delete bd.project
-                        bd.projects.delete_project(project, delete_dir=True)
-                        bd.projects.set_current(project)
+                    if results_exist :
+                        break  # Exit the file loop as we found the results in one of the files
+
+            # Check if results_exist is still False after checking all files
+            if not results_exist :
+                print(f"No results found for site {site_name} with abbreviation {abbreviation}.")
+                # Delete the project as no results are found in any file
+                bd.projects.delete_project(project,delete_dir=True)
+                bd.projects.set_current(project)
 
 
         # Print status

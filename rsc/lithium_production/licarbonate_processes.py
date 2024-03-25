@@ -589,7 +589,7 @@ class acidification :
 
 
 # Li-ion selective adsorption
-class Li_adsorption : #TODO check the adsorption capacity for salar brines - seems to be odd
+class Li_adsorption :
     def execute(self, prod, site_parameters, m_in) :
         process_name = 'df_Li_adsorption'
         life = site_parameters['lifetime']  # lifetime of the plant
@@ -603,11 +603,16 @@ class Li_adsorption : #TODO check the adsorption capacity for salar brines - see
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
 
         if deposit_type == 'salar' :
-            water_adsorbent = (prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-4)*dens_pulp
+            water_adsorbent = ((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-4)*dens_pulp) #/0.33 #/0.15
+            ratio = water_adsorbent/10259525960.338968
+            print('Ratio ', ratio)
+            #water_adsorbent = 4.346526e+09
             #water_adsorbent = ((dens_pulp/(Li_out_adsorb/10e-6 * dens_pulp)) * (prod * ((2 * Li) / (2 * Li + C + 3 * O)))) #TODO check if numbers are correct
             E_adsorp = (
                             ((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
                         ) / heat_loss
+            print(f'Energy first: {E_adsorp}')
+
         else :
             water_adsorbent = 100 * adsorbent_invest #TODO check if this is correct
             E_adsorp = (
@@ -681,9 +686,11 @@ class Li_adsorption : #TODO check the adsorption capacity for salar brines - see
 
         return df_adsorption, df_reverse_osmosis, df_triple_evaporator
 
-    def update_adsorption_nanofiltration_RO(df_adsorption, water_NF, water_RO, df_nanofiltration, df_reverse_osmosis):
+    def update_adsorption_nanofiltration_RO(df_adsorption, water_NF, water_RO, df_nanofiltration, df_reverse_osmosis,
+                                            site_parameters):
         new_value = df_adsorption.iloc[3, 1] - water_NF - water_RO
         df_adsorption.loc[3, 'Values'] = new_value
+        T_out = site_parameters['annual_airtemp']  # annual air temperature
 
         new_value_kg = df_adsorption.iloc[3, 2] - (water_NF / df_adsorption.iloc[0, 1]) - (
                 water_RO / df_adsorption.iloc[0, 1])
@@ -692,11 +699,29 @@ class Li_adsorption : #TODO check the adsorption capacity for salar brines - see
         if new_value < 0:
             new_value = 0
             new_value_kg = 0
-            water_NF = water_NF - df_adsorption.iloc[3, 1]
 
         df_adsorption.loc[3,'Values'] = new_value
         df_adsorption.loc[3,'per kg'] = new_value_kg
 
+        #adapting energy demand based on T_nano and T_desorp
+
+        if T_nano > T_desorp:
+            E_water_nano = (((T_nano - T_desorp) * hCHH * (water_NF+water_RO)) / 10 ** 6) * heat_loss
+            E_adsorp_without_nano_water = (((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1]) / 10 ** 6) / heat_loss
+            E_adsorp_adapted = E_adsorp_without_nano_water - E_water_nano
+
+
+            if E_adsorp_adapted < 0:
+                E_adsorp_adapted = 0
+
+
+        else:
+            E_adsorp_adapted = ((((T_desorp - T_out) * hCHH * df_adsorption.iloc[3, 1]) +
+                                ((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1])) / 10 ** 6) / heat_loss
+
+        df_adsorption.loc[5, 'Values'] = E_adsorp_adapted
+        print(f'Energy adapted: {E_adsorp_adapted}')
+        df_adsorption.loc[5, 'per kg'] = E_adsorp_adapted / df_adsorption.iloc[0, 1]
 
         return df_adsorption, df_nanofiltration, df_reverse_osmosis
 
@@ -1945,7 +1970,7 @@ def setup_site(eff, site_parameters) :
         site_parameters['Li_efficiency'] = eff
 
     # Check if brine_vol is not provided and calculate it using production and Li_conc
-    if pd.isna(v_pumpbrs) and 'production' in site_parameters :
+    if pd.isna(v_pumpbrs):
         # Rearranging the production formula to solve for v_pumpbrs
         v_pumpbrs = (prod_year * (2 * Li) / (2 * Li + C + O * 3)) / (
                     op_days * 24 * 60 * 60 * (1000 * Dens_ini) * (Li_conc / 100)) * (1 / eff) * 1000
@@ -2086,8 +2111,7 @@ class ProcessManager :
         elif process_type == DLE_evaporation_ponds:
             return (self.site_parameters, self.m_in)
         elif process_type == nanofiltration:
-            water_NF = self.dynamic_attributes.get("water_NF", None)
-            return (self.site_parameters, self.m_in, water_NF)
+            return (self.site_parameters, self.m_in)
         else :
             raise ValueError(f"Unsupported process: {process_type}")
 
@@ -2171,8 +2195,10 @@ class ProcessManager :
             and 'reverse_osmosis_1' in self.data_frames:
             self.data_frames['Li_adsorption_1'], self.data_frames['nanofiltration_1'], self.data_frames[
                 'reverse_osmosis_1'] = Li_adsorption.update_adsorption_nanofiltration_RO(
-                self.data_frames['Li_adsorption_1'], self.dynamic_attributes['water_NF'],
-                self.data_frames['nanofiltration_1'], self.data_frames['reverse_osmosis_1'])
+                self.data_frames['Li_adsorption_1'], self.dynamic_attributes['water_NF'], self.dynamic_attributes['water_RO'],
+                self.data_frames['nanofiltration_1'], self.data_frames['reverse_osmosis_1'], self.site_parameters)
+
+            print('Updated Li_adsorption, nanofiltration and reverse osmosis.')
 
         if 'Li_adsorption_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames \
                 and not 'reverse_osmosis_1' in self.data_frames:

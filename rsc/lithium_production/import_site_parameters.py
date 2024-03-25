@@ -228,11 +228,9 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     # Use provided vec_ini if available
     if vec_ini is None :
         # Original logic to construct vec_ini from Sheet1
-        vec_ini = [ value if pd.notna(value) else np.nan for value in site_data.values[ 11 :27 ] ]
+        vec_ini = [ value if pd.notna(value) else np.nan for value in site_data.values[ 13 :29 ] ]
     else:
-        print(vec_ini)
         vec_ini = convert_mg_L_to_wt_percent(vec_ini, site_data['density_brine'])
-        print(vec_ini)
         # Calculate the sum of converted wt.% values
         total_wt_percent = sum(vec_ini)
 
@@ -241,7 +239,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         vec_ini = vec_ini + [ last_value ]
 
 
-    vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[29 :45]]
+    vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[31 :47]]
 
     if Li_conc is not None:
         vec_ini[0] = Li_conc

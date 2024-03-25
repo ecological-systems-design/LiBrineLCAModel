@@ -1,5 +1,6 @@
 import bw2data as bd
 from pathlib import Path
+from rsc.lithium_production.licarbonate_processes import *
 
 import os
 
@@ -9,16 +10,16 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Salar de Pocitos"
+site_name = f"Chaerhan"
 biosphere = f"biosphere3"
 deposit_type = "salar"
 
-site_location = site_name[:3]
+site_location = "Chaer"
 
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_5'
+    project = f'Site_{site_name}_4'
     bd.projects.set_current(project)
     print(project)
 
@@ -31,21 +32,21 @@ if __name__ == '__main__' :
     print(bd.databases)
 
     eff = 0.77
-    Li_conc = 0.007951
-    abbrev_loc = "Poc"
-    op_location = "Salar de Pocitos"
+    Li_conc = 0.022
+    abbrev_loc = "Chaer"
+    op_location = "Chaerhan"
 
     # initialize the processing sequence
     from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
 
     process_sequence = [
         evaporation_ponds(),
         Li_adsorption(),
-        triple_evaporator(),
-        ion_exchange_L(),
+        ion_exchange_H(custom_name=None),
+        nanofiltration(),
+        reverse_osmosis(),
         DLE_evaporation_ponds(),
         Liprec_TG(),
         CentrifugeTG(),
@@ -72,11 +73,11 @@ if __name__ == '__main__' :
     dataframes_dict = manager.run(filename)
 
     max_eff = 0.77
-    min_eff = 0.6
-    eff_steps = 0.1
-    Li_conc_steps = 0.01
-    Li_conc_max = 0.007951
-    Li_conc_min = 0.001
+    min_eff = 0.77
+    eff_steps = 0.01
+    Li_conc_steps = 0.03
+    Li_conc_max = 0.022
+    Li_conc_min = 0.01
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
@@ -93,9 +94,9 @@ if __name__ == '__main__' :
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    # from rsc.Brightway2.lci_method_pm import import_PM
+    #from rsc.Brightway2.lci_method_pm import import_PM
 
-    # import_PM(ei_reg, bio, site_name, site_db)
+    #import_PM(ei_reg, bio, site_name, site_db)
 
     # Filter methods based on your criteria
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
@@ -103,7 +104,7 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    # method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
     # print(method_PM)
 
     method_list = [method_cc, method_water]
@@ -114,8 +115,8 @@ if __name__ == '__main__' :
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
                                                        site_name, ei_name, abbrev_loc, eff_range, Li_conc_range,
-                                                       literature_eff=None, literature_Li_conc=None)
-    # print(impacts)
+                                                        literature_eff=None, literature_Li_conc=None)
+    #print(impacts)
 
     # saving results
     from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
@@ -126,3 +127,5 @@ if __name__ == '__main__' :
 
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
+
+

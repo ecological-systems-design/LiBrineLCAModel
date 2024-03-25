@@ -136,3 +136,5 @@ data/ecoinvent 3.10_cutoff_ecoSpold02.7z
 results/recursive_calculation/*
 data/logging_files/*
 results/figures/*
+results/rawdata/*
+archive/*

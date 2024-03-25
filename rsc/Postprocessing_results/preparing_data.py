@@ -171,16 +171,45 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
 
     transposed_data = transposed_data.drop(transposed_data.index[ 0 ])
 
+    # Dictionary to group activity status
+
+    activity_status_order = {
+        'Grassroots' : '1 - Exploration - Early stage',
+        'Exploration' : '1 - Exploration - Early stage',
+        'Target Outline' : '1 - Exploration - Early stage',
+        'Commissioning' : '1 - Exploration - Early stage',
+        'Prefeas/Scoping' : '1 - Exploration - Early stage',
+        'Advanced exploration' : '1 - Exploration - Early stage',
+        'Feasibility Started' : '1 - Exploration - Early stage',
+        'Reserves Development' : '2 - Exploration - Late stage',
+        'Feasibility' : '2 - Exploration - Late stage',  # If Feasibility means Feasibility complete
+        'Feasibility complete' : '2 - Exploration - Late stage',
+        'Construction started' : '2 - Exploration - Late stage',
+        'Construction planned' : '2 - Exploration - Late stage',
+        'Preproduction' : '3 - Mine stage',
+        'Production' : '3 - Mine stage',
+        'Operating' : '3 - Mine stage',
+        'Satellite' : '3 - Mine stage',
+        'Expansion' : '3 - Mine stage',
+        'Limited Production' : '3 - Mine stage',
+        'Residual Production' : '3 - Mine stage'
+        }
+
     # Extracting the relevant columns: Site name, abbreviation, and country location, ini_Li, Li_efficiency
 
     sites_info = {}
 
     for site, row in transposed_data.iterrows() :
+        activity_status = row.get("activity_status",None)
         site_info = {
             "abbreviation" : row[ "abbreviation" ],
             "country_location" : row[ "country_location" ],
             "ini_Li" : row.get("ini_Li", None),
-            "Li_efficiency" : row.get("Li_efficiency", None)
+            "Li_efficiency" : row.get("Li_efficiency", None),
+            "deposit_type" : row.get("deposit_type", None),
+            "technology_group": row.get("technology_group", None),
+            "activity_status": row.get("activity_status", None),
+            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other')
             }
 
         # Add to the main dictionary

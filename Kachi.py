@@ -9,7 +9,7 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"Salar de Pocitos"
+site_name = f"Kachi"
 biosphere = f"biosphere3"
 deposit_type = "salar"
 
@@ -18,12 +18,12 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_5'
+    project = f'Site_{site_name}_3'
     bd.projects.set_current(project)
     print(project)
 
     #del bd.databases[site_name]
-    #del bd.databases[ei_name]
+    # del bd.databases[ei_name]
 
     country_location = "AR"
 
@@ -31,9 +31,9 @@ if __name__ == '__main__' :
     print(bd.databases)
 
     eff = 0.77
-    Li_conc = 0.007951
-    abbrev_loc = "Poc"
-    op_location = "Salar de Pocitos"
+    Li_conc = 0.02
+    abbrev_loc = "Kach"
+    op_location = "Kachi"
 
     # initialize the processing sequence
     from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
@@ -75,8 +75,8 @@ if __name__ == '__main__' :
     min_eff = 0.6
     eff_steps = 0.1
     Li_conc_steps = 0.01
-    Li_conc_max = 0.007951
-    Li_conc_min = 0.001
+    Li_conc_max = 0.02
+    Li_conc_min = 0.01
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,

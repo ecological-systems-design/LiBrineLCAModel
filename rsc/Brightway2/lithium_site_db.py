@@ -8,11 +8,13 @@ def create_activity_map(country_location, abbrev_loc):
     if abbrev_loc == "Ola":
         electricity_list = ("heat and power co-generation, natural gas, 1MW electrical, lean burn", "RoW")
         heat_list = ("heat and power co-generation, natural gas, 1MW electrical, lean burn", "RoW")
+    elif abbrev_loc == "Chaer":
+        electricity_list = ("electricity, high voltage, production mix", country_location)
+        heat_list = ("heat production, natural gas, at industrial furnace >100kW", "RoW")
     else:
         electricity_list = ("market for electricity, high voltage", country_location)
         heat_list = ("heat production, natural gas, at industrial furnace >100kW", "RoW")
 
-    print('Activities chosen: ')
     print(electricity_list)
     print(heat_list)
 

@@ -61,6 +61,7 @@ T_adsorp = 85  # Temperature in Li-ion adsorption (adsorption)
 T_boron = 10  # Temperature in boron removal
 T_Mg_soda = 60  # Temperature in Mg removal by soda ash
 T_motherliq = 80  # Temperature of mother liquor
+T_nano = 45  # Temperature of nanofiltration
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 adsorb_capacity_salar = 0.004 / (1 / 1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin

@@ -6,6 +6,8 @@ import pandas as pd
 # from operational_data_salton import *
 from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
 
+from rsc.lithium_production.licarbonate_processes import *
+
 
 import os
 
@@ -51,7 +53,7 @@ if __name__ == '__main__' :
     from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+    # from rsc.lithium_production.licarbonate_processes import *
 
     process_sequence = [
         SiFe_removal_limestone(),
