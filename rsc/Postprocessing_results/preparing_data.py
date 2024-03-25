@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 import os
+from rsc.lithium_production.import_site_parameters import standard_values
 
-file_path = r"C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\results_Ata\Salar de Atacama_waterscarcity_0.15.csv"
+
 
 category_mapping = {
     'df_centrifuge_wash' : 'df_Liprec_BG',
@@ -174,33 +175,40 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
     # Dictionary to group activity status
 
     activity_status_order = {
-        'Grassroots' : '1 - Exploration - Early stage',
-        'Exploration' : '1 - Exploration - Early stage',
-        'Target Outline' : '1 - Exploration - Early stage',
-        'Commissioning' : '1 - Exploration - Early stage',
-        'Prefeas/Scoping' : '1 - Exploration - Early stage',
-        'Advanced exploration' : '1 - Exploration - Early stage',
-        'Feasibility Started' : '1 - Exploration - Early stage',
+        # Early stage
+        'Grassroots' : '3 - Exploration - Early stage',
+        'Exploration' : '3 - Exploration - Early stage',
+        'Target Outline' : '3 - Exploration - Early stage',
+        'Commissioning' : '3 - Exploration - Early stage',
+        'Prefeas/Scoping' : '3 - Exploration - Early stage',
+        'Advanced exploration' : '3 - Exploration - Early stage',
+        'Feasibility Started' : '3 - Exploration - Early stage',
+        # Late stage
         'Reserves Development' : '2 - Exploration - Late stage',
-        'Feasibility' : '2 - Exploration - Late stage',  # If Feasibility means Feasibility complete
+        'Feasibility' : '2 - Exploration - Late stage',
         'Feasibility complete' : '2 - Exploration - Late stage',
         'Construction started' : '2 - Exploration - Late stage',
         'Construction planned' : '2 - Exploration - Late stage',
-        'Preproduction' : '3 - Mine stage',
-        'Production' : '3 - Mine stage',
-        'Operating' : '3 - Mine stage',
-        'Satellite' : '3 - Mine stage',
-        'Expansion' : '3 - Mine stage',
-        'Limited Production' : '3 - Mine stage',
-        'Residual Production' : '3 - Mine stage'
+        # Mine stage
+        'Preproduction' : '1 - Mine stage',
+        'Production' : '1 - Mine stage',
+        'Operating' : '1 - Mine stage',
+        'Satellite' : '1 - Mine stage',
+        'Expansion' : '1 - Mine stage',
+        'Limited production' : '1 - Mine stage',
+        'Residual production' : '1 - Mine stage'
         }
 
-    # Extracting the relevant columns: Site name, abbreviation, and country location, ini_Li, Li_efficiency
 
     sites_info = {}
 
     for site, row in transposed_data.iterrows() :
         activity_status = row.get("activity_status",None)
+
+        production_value = row.get("production",standard_values.get("production"))
+        if pd.isna(production_value) :  # Check if the value is nan
+            production_value = standard_values.get("production","Unknown")  # Replace with the default if it's nan
+
         site_info = {
             "abbreviation" : row[ "abbreviation" ],
             "country_location" : row[ "country_location" ],
@@ -209,7 +217,8 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
             "deposit_type" : row.get("deposit_type", None),
             "technology_group": row.get("technology_group", None),
             "activity_status": row.get("activity_status", None),
-            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other')
+            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other'),
+            "production" : production_value,
             }
 
         # Add to the main dictionary
@@ -228,7 +237,6 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
             # Find the corresponding site info
             for site, info in sites_info.items() :
                 if info[ "abbreviation" ] == site_abbreviation :
-                    print(site_abbreviation)
                     # Read CSV file
                     csv_data = pd.read_csv(os.path.join(directory_path, file))
                     # Check for matching ini_Li and Li_efficiency

@@ -332,7 +332,7 @@ class Visualization :
             combined_data.items(),
             key=lambda x : (
                 x[1]['activity_status_order'],
-                x[1]['technology_group'],
+                #x[1]['technology_group'],
                 x[1]['country'],
                 -float(x[0].split('(')[1].split(' wt.')[0].strip())
                 )
@@ -402,6 +402,277 @@ class Visualization :
         fig.write_image(save_path_png)
 
         save_path_html = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+    def plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_dir) :
+        matched_results,sites_info = preparing_data_for_LCA_results_comparison(file_path,directory_path)
+
+        # Sort the sites first by country, then by Li concentration within each country
+        combined_data = {site : {'IPCC' : matched_results[site]['IPCC'],
+                                 'AWARE' : matched_results[site]['AWARE'],
+                                 'Li_conc' : sites_info[site]['ini_Li'],
+                                 'country' : sites_info[site]['country_location'],
+                                 'technology_group' : sites_info[site]['technology_group'],
+                                 'activity_status' : sites_info[site]['activity_status'],
+                                 'activity_status_order' : sites_info[site]['activity_status_order'],
+                                 'production': sites_info[site]['production']
+                                 }
+                         for site in matched_results}
+
+        sorted_data = sorted(
+            combined_data.items(),
+            key=lambda x : (
+                x[1]['activity_status_order'],
+                # x[1]['technology_group'],
+                x[1]['production'],
+                -x[1]['Li_conc']
+                )
+            )
+
+        # Extracting sorted data for the plot
+        sorted_sites = [site for site,_ in sorted_data]
+        ipcc_values = [data['IPCC'] for _,data in sorted_data]
+        aware_values = [data['AWARE'] for _,data in sorted_data]
+        li_conc_values = [data['Li_conc'] for _,data in sorted_data]
+
+        # Define a mapping of technology groups to patterns
+        technology_patterns = {
+            'geo_DLE' : '/',
+            'salar_conv' : '\\',
+            'salar_IX' : 'x',
+            'salar_DLE' : '-'
+            }
+
+        # Creating subplots
+        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,
+                            specs=[[{"secondary_y" : True}],[{"secondary_y" : True}]])
+
+        # Iterate over the sorted data to add each bar individually to apply patterns
+        for site,data in sorted_data :
+            tech_group = sites_info[site.split(' (')[0]]['technology_group']  # Extract technology group for the site
+            pattern_shape = technology_patterns.get(tech_group,None)  # Get the pattern for the technology group
+
+            # Adding IPCC subplot bar with pattern
+            fig.add_trace(
+                go.Bar(x=[site],y=[data['IPCC']],name='Climate change impacts',
+                       marker=dict(color='rgb(184, 145, 95)',pattern_shape=pattern_shape)),
+                row=1,col=1,secondary_y=False
+                )
+
+            # Adding AWARE subplot bar with pattern
+            fig.add_trace(
+                go.Bar(x=[site],y=[data['AWARE']],name='Water scarcity impacts',
+                       marker=dict(color='rgb(97, 104, 91)',pattern_shape=pattern_shape)),
+                row=2,col=1,secondary_y=False
+                )
+        # # Adding IPCC subplot
+        # fig.add_trace(
+        #     go.Bar(x=sorted_sites,y=ipcc_values,name='Climate change impacts',marker_color='rgb(184, 145, 95)'),
+        #     row=1,col=1,secondary_y=False
+        #     )
+
+        # Adding Li-conc as diamonds on the secondary y-axis for IPCC
+        fig.add_trace(
+            go.Scatter(x=sorted_sites,y=li_conc_values,name='Li concentration',mode='markers',
+                       marker=dict(symbol='diamond',size=8,color='black')),
+            row=1,col=1,secondary_y=True
+            )
+
+        # # Adding AWARE subplot
+        # fig.add_trace(
+        #     go.Bar(x=sorted_sites,y=aware_values,name='Water scarcity impacts',marker_color='rgb(97, 104, 91)'),
+        #     row=2,col=1,secondary_y=False
+        #     )
+
+        # Adding Li-conc as diamonds on the secondary y-axis for AWARE
+        fig.add_trace(
+            go.Scatter(x=sorted_sites,y=li_conc_values,name='Li concentration',mode='markers',
+                       marker=dict(symbol='diamond',size=8,color='rgb(7, 30, 39)')),
+            row=2,col=1,secondary_y=True
+            )
+
+        # Customizing the layout to accommodate the larger plot and other requirements
+        font_family = "Arial"
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(family=font_family,size=14,color='black'),
+            title='LCA Results per Site (Grouped by Country)',
+            showlegend=False,
+            legend=dict(title='Impact Type',x=1.05,y=1,bgcolor='rgba(255, 255, 255, 1)',bordercolor='black',
+                        borderwidth=1),
+            margin=dict(autoexpand=True,l=100,r=20,t=110,b=70),
+            autosize=False,
+            width=1200,  # Adjust the width to your preference
+            height=600,  # Adjust the height to your preference
+            )
+
+        # Update axes properties to add grids, lines, and ticks
+        axis_settings = dict(
+            showgrid=False,gridwidth=1,gridcolor='lightgrey',zeroline=False,showline=True,
+            linecolor='black',linewidth=2,ticks='outside',tickwidth=2,ticklen=5,
+            tickfont=dict(family=font_family,size=12,color='black')
+            )
+
+        fig.update_xaxes(axis_settings)
+        fig.update_yaxes(axis_settings,title_text="kg CO2eq/ kg Li2CO3",row=1,col=1)
+        fig.update_yaxes(axis_settings,title_text="m3 world eq/kg Li2CO3",row=2,col=1)
+
+        # Update y-axis labels for secondary y-axes
+        fig.update_yaxes(title_text="Li conc.(wt. %)",row=1,col=1,secondary_y=True)
+        fig.update_yaxes(title_text="Li conc. (wt. %)",row=2,col=1,secondary_y=True)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_Comparison_exploration_Li_conc_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_Comparison_exploration_Li_conc_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+    def plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_dir) :
+        matched_results,sites_info = preparing_data_for_LCA_results_comparison(file_path,directory_path)
+
+        # Sort the sites first by country, then by Li concentration within each country
+        combined_data = {site : {'IPCC' : matched_results[site]['IPCC'],
+                                 'AWARE' : matched_results[site]['AWARE'],
+                                 'Li_conc' : sites_info[site]['ini_Li'],
+                                 'country' : sites_info[site]['country_location'],
+                                 'technology_group' : sites_info[site]['technology_group'],
+                                 'activity_status' : sites_info[site]['activity_status'],
+                                 'activity_status_order' : sites_info[site]['activity_status_order'],
+                                 'production': sites_info[site]['production']
+                                 }
+                         for site in matched_results}
+
+        sorted_data = sorted(
+            combined_data.items(),
+            key=lambda x : (
+                # x[1]['technology_group'],
+                x[1]['production'],
+                x[1]['activity_status_order'],
+                -x[1]['Li_conc']
+                )
+            )
+
+        # Extracting sorted data for the plot
+        sorted_sites = [site for site,_ in sorted_data]
+        ipcc_values = [data['IPCC'] for _,data in sorted_data]
+        aware_values = [data['AWARE'] for _,data in sorted_data]
+        li_conc_values = [data['Li_conc'] for _,data in sorted_data]
+        max_production_value = max(data['production'] for _, data in sorted_data if data['production'] > 0)
+
+
+        # Define a mapping of technology groups to patterns
+        technology_patterns = {
+            'geo_DLE' : '/',
+            'salar_conv' : '\\',
+            'salar_IX' : 'x',
+            'salar_DLE' : '-'
+            }
+
+        # Creating subplots
+        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,
+                            specs=[[{"secondary_y" : True}],[{"secondary_y" : True}]])
+
+        # Iterate over the sorted data to add each bar individually to apply patterns
+        for site,data in sorted_data :
+            tech_group = sites_info[site.split(' (')[0]]['technology_group']  # Extract technology group for the site
+            pattern_shape = technology_patterns.get(tech_group,None)  # Get the pattern for the technology group
+            normalized_width = data['production'] / max_production_value
+
+            # Adding IPCC subplot bar with pattern
+            fig.add_trace(
+                go.Bar(x=[site],y=[data['IPCC']],name='Climate change impacts',
+                       marker=dict(color='rgb(184, 145, 95)',pattern_shape=pattern_shape),
+                       width=normalized_width),
+                row=1,col=1,secondary_y=False
+                )
+
+            # Adding AWARE subplot bar with pattern
+            fig.add_trace(
+                go.Bar(x=[site],y=[data['AWARE']],name='Water scarcity impacts',
+                       marker=dict(color='rgb(97, 104, 91)',pattern_shape=pattern_shape),
+                       width=normalized_width),
+                row=2,col=1,secondary_y=False
+                )
+        # # Adding IPCC subplot
+        # fig.add_trace(
+        #     go.Bar(x=sorted_sites,y=ipcc_values,name='Climate change impacts',marker_color='rgb(184, 145, 95)'),
+        #     row=1,col=1,secondary_y=False
+        #     )
+
+        # Adding Li-conc as diamonds on the secondary y-axis for IPCC
+        fig.add_trace(
+            go.Scatter(x=sorted_sites,y=li_conc_values,name='Li concentration',mode='markers',
+                       marker=dict(symbol='diamond',size=8,color='black')),
+            row=1,col=1,secondary_y=True
+            )
+
+        # # Adding AWARE subplot
+        # fig.add_trace(
+        #     go.Bar(x=sorted_sites,y=aware_values,name='Water scarcity impacts',marker_color='rgb(97, 104, 91)'),
+        #     row=2,col=1,secondary_y=False
+        #     )
+
+        # Adding Li-conc as diamonds on the secondary y-axis for AWARE
+        fig.add_trace(
+            go.Scatter(x=sorted_sites,y=li_conc_values,name='Li concentration',mode='markers',
+                       marker=dict(symbol='diamond',size=8,color='rgb(7, 30, 39)')),
+            row=2,col=1,secondary_y=True
+            )
+
+        # Customizing the layout to accommodate the larger plot and other requirements
+        font_family = "Arial"
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(family=font_family,size=14,color='black'),
+            title='LCA Results per Site (based on production)',
+            showlegend=False,
+            legend=dict(title='Impact Type',x=1.05,y=1,bgcolor='rgba(255, 255, 255, 1)',bordercolor='black',
+                        borderwidth=1),
+            margin=dict(autoexpand=True,l=100,r=20,t=110,b=70),
+            autosize=False,
+            width=1200,  # Adjust the width to your preference
+            height=600,  # Adjust the height to your preference
+            )
+
+        # Update axes properties to add grids, lines, and ticks
+        axis_settings = dict(
+            showgrid=False,gridwidth=1,gridcolor='lightgrey',zeroline=False,showline=True,
+            linecolor='black',linewidth=2,ticks='outside',tickwidth=2,ticklen=5,
+            tickfont=dict(family=font_family,size=12,color='black')
+            )
+
+        fig.update_xaxes(axis_settings)
+        fig.update_yaxes(axis_settings,title_text="kg CO2eq/ kg Li2CO3",row=1,col=1)
+        fig.update_yaxes(axis_settings,title_text="m3 world eq/kg Li2CO3",row=2,col=1)
+
+        # Update y-axis labels for secondary y-axes
+        fig.update_yaxes(title_text="Li conc.(wt. %)",row=1,col=1,secondary_y=True)
+        fig.update_yaxes(title_text="Li conc. (wt. %)",row=2,col=1,secondary_y=True)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_Comparison_production_Li_conc_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_Comparison_production_Li_conc_{timestamp}.html')
         fig.write_html(save_path_html)
 
         print(f"Figure saved to {save_path_png} and {save_path_html}")
