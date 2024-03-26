@@ -18,11 +18,15 @@ if __name__ == '__main__' :
     #results, sites_info = preparing_data_for_LCA_results_comparison(file_path, directory_path)
     #make the graph
     #Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
-    Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
+    #Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
 
-    Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
+    #Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
 
-    Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
+    Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
+
+    Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
+
+    #Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
     #run_analysis_for_all_sites(file_path, directory_path)
 
     #TODO: check Chaerhan with dilution factor from previous paper
