@@ -6,7 +6,7 @@ import plotly.io as pio
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram
 
 
 class Visualization :
@@ -821,7 +821,9 @@ class Visualization :
 
         # Group data by technology group to plot them with different markers
         for tech_group,group_data in pd.DataFrame(scatter_data).groupby('Technology_Group') :
-            tech_group_data = group_data.to_dict('records')
+            tech_group = sites_info[site.split(' (')[0]]['technology_group']  # Extract technology group for the site
+            pattern_shape = technology_patterns.get(tech_group,None)  # Get the pattern for the technology group
+
             fig.add_trace(
                 go.Scatter(
                     x=[d['IPCC'] for d in tech_group_data],
@@ -839,7 +841,6 @@ class Visualization :
 
         # Customizing the layout to accommodate the larger plot and other requirements
         font_family = "Arial"
-
 
         fig.update_layout(
             plot_bgcolor='white',
@@ -887,51 +888,57 @@ class Visualization :
 
         print(f"Scatter plot saved in {save_dir}")
 
+
     def plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_dir) :
         matched_results,sites_info = preparing_data_for_LCA_results_comparison(file_path,directory_path)
 
         # Create a dataframe from the data
-        df = pd.DataFrame([
-            {
-                'Site' : site,
-                'IPCC' : data['IPCC'],
-                'AWARE' : data['AWARE'],
-                'Li_concentration' : sites_info[site]['ini_Li'],
-                'Technology_Group' : sites_info[site]['technology_group']
-                }
-            for site,data in matched_results.items()
-            ])
+        scatter_data = [{
+            'site' : site,
+            'IPCC' : matched_results[site]['IPCC'],
+            'AWARE' : matched_results[site]['AWARE'],
+            'Li_concentration' : info['ini_Li'],
+            'Technology_Group' : info['technology_group']
+            } for site,info in sites_info.items() if site in matched_results]
 
         # Creating two subplots, one for IPCC and one for AWARE
         fig = make_subplots(rows=2,cols=1,subplot_titles=('IPCC vs. Li-Concentration','AWARE vs. Li-Concentration'))
 
-        # Adding scatter plot for IPCC
-        fig.add_trace(
-            go.Scatter(
-                x=df['Li_concentration'],
-                y=df['IPCC'],
-                mode='markers',
-                marker=dict(size=12),
-                name='IPCC',
-                text=df['Site']  # Assuming you want to display the site name on hover
-                ),
-            row=1,
-            col=1
-            )
+        technology_patterns = {
+            'geo_DLE' : 'rgb(197, 182, 120)',
+            'salar_conv' : 'rgb(140, 124, 68)',
+            'salar_IX' : 'rgb(126, 169, 158)',
+            'salar_DLE' : 'rgb(185, 113, 54)'
+            }
 
-        # Adding scatter plot for AWARE
-        fig.add_trace(
-            go.Scatter(
-                x=df['Li_concentration'],
-                y=df['AWARE'],
-                mode='markers',
-                marker=dict(size=12),
-                name='AWARE',
-                text=df['Site']  # Assuming you want to display the site name on hover
-                ),
-            row=2,
-            col=1
-            )
+        for tech_group,group_df in pd.DataFrame(scatter_data).groupby('Technology_Group') :
+            color = technology_patterns.get(tech_group,'rgb(0,0,0)')  # Default to black if not found
+
+            fig.add_trace(
+                go.Scatter(
+                    x=group_df['Li_concentration'],
+                    y=group_df['IPCC'],
+                    mode='markers',
+                    marker=dict(size=14,color=color),
+                    name=f'IPCC - {tech_group}',
+                    text=group_df['site']  # Site name on hover
+                    ),
+                row=1,
+                col=1
+                )
+
+            fig.add_trace(
+                go.Scatter(
+                    x=group_df['Li_concentration'],
+                    y=group_df['AWARE'],
+                    mode='markers',
+                    marker=dict(size=14,color=color),
+                    name=f'AWARE - {tech_group}',
+                    text=group_df['site']  # Site name on hover
+                    ),
+                row=2,
+                col=1
+                )
 
         # Customizing the layout to accommodate the larger plot and other requirements
         font_family = "Arial"
@@ -983,6 +990,7 @@ class Visualization :
         print(f"Scatter plot saved in {save_dir}")
 
 
+
     def create_global_map(save_dir, data,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
         """
         Creates a global map of sites using Plotly.
@@ -1028,6 +1036,8 @@ class Visualization :
         print(f"Figure saved to {save_path_png} and {save_path_html}")
 
         return global_map
+
+
 
     def create_submap(save_dir, data,region_bounds,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
         """
@@ -1143,3 +1153,78 @@ class Visualization :
         fig.write_html(save_path_html)
 
         print(f"Figure saved to {save_path_png} and {save_path_html}")
+
+
+    def create_waterfall_plots(file_path):
+        df = prepare_data_for_waterfall_diagram(file_path)
+
+        # Reverse the DataFrame to start with the last process
+        reversed_df = df.iloc[: :-1].reset_index(drop=True)
+
+        # Remove text in brackets from the 'Activity' column for cleaner display
+        reversed_df['Activity'] = reversed_df['Activity'].str.replace(r"\(.*\)","",regex=True).str.strip()
+
+        # Calculate the score differences which will be the height of each bar
+        reversed_df['Score_Diff'] = reversed_df['Score'].diff().fillna(reversed_df['Score'].iloc[0])
+
+        # The 'Start' column represents where each bar starts on the y-axis
+        reversed_df['Start'] = reversed_df['Score'] - reversed_df['Score_Diff']
+
+        # Initialize a waterfall chart
+        fig = go.Figure()
+
+        # Add bars to the chart
+        for index,row in reversed_df.iterrows() :
+            # The base for the bar is the score of the previous process
+            base = row['Start'] if index > 0 else 0
+
+            fig.add_trace(go.Bar(
+                name=row['Activity'],
+                x=[row['Activity']],
+                y=[row['Score_Diff']],  # Height of the bar is the score difference
+                base=[base],  # Starting point for the bar
+                hoverinfo="name+y+text",
+                textposition="outside"
+                ))
+
+        fig.update_layout(
+            title="Process Contributions to Total Score (Reversed)",
+            barmode='stack',  # Bars are stacked, but with the correct base they will appear to float
+            showlegend=False,
+            plot_bgcolor='white',  # Set background to white
+            xaxis=dict(
+                showline=True,
+                linewidth=1,
+                linecolor='black',
+                mirror=True,
+                tickmode='linear',
+                tickfont=dict(family='Arial',color='black',size=12),
+                ticklen=10,  # Set tick length to extend ticks outside the plot area
+                tickwidth=2  # Set tick width as desired
+                ),
+            yaxis=dict(
+                showline=True,
+                linewidth=1,
+                linecolor='black',
+                mirror=True,
+                zeroline=False,
+                tickmode='array',
+                tickfont=dict(family='Arial',color='black',size=15),
+                tickvals=[i * 10 for i in range(int(reversed_df['Score'].max() / 10) + 1)],
+                dtick=10,  # Set the interval between ticks
+                ticklen=10,  # Set tick length to extend ticks outside the plot area
+                tickwidth=2  # Set tick width as desired
+                ),
+            font=dict(size=12),  # Adjust the global font size
+            bargap=0  # Bars are touching each other
+            )
+
+        # Customize axis ticks to be outside
+        fig.update_xaxes(ticks="outside")
+        fig.update_yaxes(ticks="outside",tickvals=[i * 10 for i in range(int(reversed_df['Score'].max() / 10) + 1)])
+
+
+        # Save the plot as a PNG file
+        fig.write_image("your_chart.png")
+
+        fig.write_html("your_chart.html")

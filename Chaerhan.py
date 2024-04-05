@@ -23,8 +23,8 @@ if __name__ == '__main__' :
     bd.projects.set_current(project)
     print(project)
 
-    #del bd.databases[site_name]
-    #del bd.databases[ei_name]
+    del bd.databases[site_name]
+    del bd.databases[ei_name]
 
     country_location = "AR"
 
@@ -44,7 +44,7 @@ if __name__ == '__main__' :
     process_sequence = [
         evaporation_ponds(),
         Li_adsorption(),
-        ion_exchange_H(custom_name=None),
+        ion_exchange_L(custom_name=None),
         nanofiltration(),
         reverse_osmosis(),
         DLE_evaporation_ponds(),

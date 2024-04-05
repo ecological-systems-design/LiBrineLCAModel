@@ -1,7 +1,10 @@
+import os
+
 import numpy as np
 import pandas as pd
-import os
+
 from rsc.lithium_production.import_site_parameters import standard_values
+
 
 
 
@@ -251,3 +254,262 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
                             break  # Found the matching row, no need to check further rows
 
     return matched_results, sites_info
+
+
+def simplify_process_name(name) :
+    # This function simplifies the process name by removing 'df_' and additional details.
+    if name.startswith("'df_") :
+        # Remove 'df_' prefix and extra details
+        simple_name = name[4 :].split("'")[0].strip()
+        return simple_name.replace('_',' ').title()  # Replace underscores with spaces and title-case it
+    return name
+
+
+def categorize_activities(row, chemical_map):
+    activity = row['Activity']
+
+    # Categorization logic
+    if any(activity.startswith(f"'{chem['activity_name']}'") for chem in chemical_map.values()) :
+        return 'chemicals'
+    elif 'df_' in activity :
+        return 'process'
+    elif "'market for natural gas, high pressure' (cubic meter, RoW, None)" in activity :
+        return 'heat'
+    elif 'electricity, high voltage' in activity :
+        return 'electricity'
+    else :
+        return 'rest'
+
+
+def prepare_data_for_visualization_firstrun(file_path) :
+    df = pd.read_csv(file_path)
+
+    # Initialize an empty dictionary to hold the aggregated data
+    data_for_visualization = {}
+
+    for index,row in df.iterrows() :
+        process_name = simplify_process_name(row['Activity'])
+
+        if process_name not in data_for_visualization :
+            data_for_visualization[process_name] = {
+                'Score' : 0,
+                'Contributing Activities' : [],
+                'Contributing Activity Scores' : []
+                }
+
+        if row['Activity'].startswith("'df_") :
+            # Update the process score
+            data_for_visualization[process_name]['Score'] += row['Score']
+        else :
+            # Find the corresponding process to add this activity
+            for process,details in data_for_visualization.items() :
+                if process in process_name :
+                    details['Contributing Activities'].append(process_name)
+                    details['Contributing Activity Scores'].append(row['Score'])
+                    break
+
+    return data_for_visualization
+
+def prepare_data_for_visualization(file_path, chemical_map):
+    df = pd.read_csv(file_path)
+
+    # Initialize an empty dictionary to hold the aggregated data
+    data_for_visualization = {}
+
+    for index, row in df.iterrows():
+        process_name = simplify_process_name(row['Activity'])
+
+        if process_name not in data_for_visualization:
+            data_for_visualization[process_name] = {
+                'Score': row['Score'] if row['Activity'].startswith("'df_") else 0,
+                'Categories': {'chemicals': 0, 'heat': 0, 'electricity': 0, 'rest': 0}
+            }
+
+        # For contributing activities, categorize and sum the scores
+        if not row['Activity'].startswith("'df_"):
+            category = categorize_activity(row['Activity'], chemical_map)
+            data_for_visualization[process_name]['Categories'][category] += row['Score']
+
+    return data_for_visualization
+
+
+def prepare_data_for_visualization_try_try(file_path, chemical_map):
+    df = pd.read_csv(file_path)
+
+    # Initialize a list to store the processed data
+    processed_data = []
+
+    # Set to track which df_ processes have their immediate contributing activity identified
+    processed_df_activities = set()
+
+    # Iterate over the DataFrame in reverse level order to capture highest contributing activities first
+    for level in sorted(df['Level'].unique(), reverse=True):
+        current_level_df = df[df['Level'] == level]
+
+        # Iterate over each activity in the current level
+        for idx, row in current_level_df.iterrows():
+            activity = row['Activity']
+            if activity.startswith("'df_"):
+                # Directly include 'df_' processes and mark them as processed
+                processed_data.append(row)
+                processed_df_activities.add(activity)
+            else:
+                # Check if this activity is an immediate contributing activity
+                if not any(act for act in processed_df_activities if act in activity):
+                    processed_data.append(row)
+                    # Mark this activity's process as having its immediate contributing activity identified
+                    processed_df_activities.update(current_level_df['Activity'])
+
+    # Concatenate the list of processed data into a DataFrame and sort
+    processed_df = pd.concat(processed_data, axis=1).transpose()
+    processed_df = processed_df.sort_values(by='Level')
+
+    # Categorize activities
+    processed_df['Category'] = processed_df.apply(lambda row: categorize_activities(row, chemical_map), axis=1)
+
+    return processed_df
+
+
+def prepare_data_for_visualization_adjusted1(file_path) :
+    df = pd.read_csv(file_path)
+    processed_data = []
+
+    # Iterate through each unique level in the dataframe
+    for level in sorted(df['Level'].unique()) :
+        # Get all activities at the current level
+        current_level_activities = df[df['Level'] == level]
+
+        for _,activity_row in current_level_activities.iterrows() :
+            # Directly add 'df_' activities
+            if activity_row['Activity'].startswith("'df_") :
+                processed_data.append(activity_row)
+                # Find direct contributors that are not 'df_' activities at the next level
+                next_level_activities = df[(df['Level'] == level + 1) & (~df['Activity'].str.startswith("'df_"))]
+                for _,next_activity_row in next_level_activities.iterrows() :
+                    # Check if there's a deeper activity in the supply chain
+                    deeper_activities = df[(df['Level'] > level + 1) & (df['Score'] < next_activity_row['Score']) & (
+                        df['Activity'].str.contains(next_activity_row['Activity'].split("'")[1]))]
+
+                    processed_data.append(next_activity_row)
+
+    # Convert the list of rows to a DataFrame
+    processed_df = pd.DataFrame(processed_data).drop_duplicates().sort_values(by='Level')
+
+    return processed_df
+
+def prepare_data_for_visualization_adjusted2(file_path) :
+    df = pd.read_csv(file_path)
+
+    # Initialize an empty DataFrame for the result
+    result_df = pd.DataFrame()
+
+    # Iterate through each level and process 'df_' and non-'df_' activities
+    for level in sorted(df['Level'].unique()) :
+        current_level_df = df[df['Level'] == level]
+
+        # Process 'df_' activities and their immediate non-'df_' next-level activities
+        for _,activity_row in current_level_df.iterrows() :
+            if activity_row['Activity'].startswith("'df_") :
+                # Add 'df_' activities directly to the result
+                result_df = result_df.append(activity_row)
+
+                # Get next level non-'df_' activities
+                next_level = level + 1
+                next_level_activities = df[(df['Level'] == next_level) & (~df['Activity'].str.contains("'df_"))]
+
+                # Check each next-level non-'df_' activity
+                for _,next_activity_row in next_level_activities.iterrows() :
+                    # Check if the next activity is a deeper part of the current activity's supply chain
+                    deeper_activities = df[(df['Level'] > next_level) & (df['Score'] < next_activity_row['Score'])]
+
+                    # Only add if there are no deeper activities
+                    if deeper_activities.empty :
+                        result_df = result_df.append(next_activity_row)
+
+    # Sort and reset index for the result DataFrame
+    result_df = result_df.sort_values(by=['Level','Score'],ascending=[True,False]).reset_index(drop=True)
+
+    return result_df
+
+
+def prepare_data_for_waterfall_diagram(file_path):
+    df = pd.read_csv(file_path)
+
+    # Label 'df_' activities as 'process' and others as 'Supplychain'
+    df['Location_within_supplychain'] = df['Activity'].apply(lambda x : 'process' if 'df_' in x else 'Supplychain')
+
+    # Initialize an empty set to keep track of indices to delete
+    rows_to_delete = set()
+
+    # Iterate over the DataFrame to find 'process' rows
+    for i in range(len(df)) :
+        current_row = df.iloc[i]
+
+        if 'process' in current_row['Location_within_supplychain'] :
+            process_level = current_row['Level']
+            last_kept_supplychain_level = None
+
+            # Find and mark 'Supplychain' rows that are level + 1
+            for j in range(i + 1,len(df)) :
+                next_row = df.iloc[j]
+
+                # Keep the 'Supplychain' row if it's level + 1 relative to the 'process'
+                if 'Supplychain' in next_row['Location_within_supplychain'] and next_row[
+                    'Level'] == process_level + 1 and last_kept_supplychain_level is None :
+                    last_kept_supplychain_level = next_row['Level']
+
+                # Delete subsequent 'Supplychain' rows that are level + 1 compared to the last kept 'Supplychain' row
+                elif last_kept_supplychain_level is not None and 'Supplychain' in next_row[
+                    'Location_within_supplychain'] and next_row['Level'] > last_kept_supplychain_level :
+                    rows_to_delete.add(j)
+
+    # Drop the rows marked for deletion
+    df = df.drop(list(rows_to_delete)).reset_index(drop=True)
+
+    process_data = []
+    current_process = None
+    current_process_level = None
+    current_process_score = 0
+
+    # Iterate through each row in the dataframe
+    for i,row in df.iterrows() :
+        if 'process' in row['Location_within_supplychain'] :
+            current_process = row['Activity']
+            current_process_level = row['Level']
+            current_process_score = row['Score']
+
+            # Find all 'Supplychain' activities at the required level
+            supplychain_scores = [(item['Activity'],item['Score']) for index,item in df.iterrows()
+                                  if 'Supplychain' in item['Location_within_supplychain'] and item[
+                                      'Level'] == current_process_level + 1]
+
+            # Find the score of the next process at level + 1, if it exists
+            next_process_score = next((item['Score'] for index,item in df.iterrows()
+                                       if 'process' in item['Location_within_supplychain'] and item[
+                                           'Level'] == current_process_level + 1),0)
+
+            # Calculate 'rest' by subtracting the sum of the supply chain scores and the next process score from the current process score
+            sum_supplychain_scores = sum(score for _,score in supplychain_scores)
+            rest = current_process_score - sum_supplychain_scores - next_process_score
+
+            # Append 'rest' to details if not zero
+            details = supplychain_scores[:]
+            if rest > 0 :
+                details.append(('Rest',rest))
+
+            # Append the data for this process
+            process_data.append({
+                'Activity' : current_process,
+                'Score' : current_process_score,
+                'Details' : details
+                })
+
+    # Convert to DataFrame
+    process_df = pd.DataFrame(process_data)
+    print(process_df)
+
+    return process_df
+
+
+
+

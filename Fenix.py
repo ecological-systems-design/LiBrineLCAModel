@@ -1,6 +1,8 @@
 import bw2data as bd
 from pathlib import Path
 
+from rsc.lithium_production.licarbonate_processes import *
+
 import os
 
 if not os.path.exists("results") :
@@ -18,7 +20,7 @@ site_location = "Fen"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_10'
+    project = f'Site_{site_name}_12'
     bd.projects.set_current(project)
     print(project)
 
@@ -39,7 +41,6 @@ if __name__ == '__main__' :
     from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
 
     process_sequence = [
         evaporation_ponds(),
@@ -72,11 +73,11 @@ if __name__ == '__main__' :
     dataframes_dict = manager.run(filename)
 
     max_eff = 0.77
-    min_eff = 0.4
+    min_eff = 0.77
     eff_steps = 0.3
     Li_conc_steps = 0.02
     Li_conc_max = 0.066169154
-    Li_conc_min = 0.05
+    Li_conc_min = 0.066169154
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,

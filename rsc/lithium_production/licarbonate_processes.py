@@ -89,7 +89,7 @@ class evaporation_ponds :
             # Quicklime demand if reported
             if quicklime_reported == 1 :
                 water_quicklime, chemical_quicklime, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbrine_removed, m_in,
-                                                                                   brinemass_evap, second_Li_enrichment, prod)
+                                                                                   brinemass_evap, second_Li_enrichment, prod, m_in_initial)
 
 
             else:
@@ -192,7 +192,7 @@ class evaporation_ponds :
             'motherliq' : None,
             'water_NF': None
             }
-    def quicklime_usage(self, vec_loss, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment, prod) :
+    def quicklime_usage(self, vec_loss, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment, prod, m_in_initial) :
         """
            Calculate quicklime usage and related parameters.
 
@@ -211,7 +211,7 @@ class evaporation_ponds :
         # Now, if you want to perform an action based on this
         if all(is_nan_vec_loss_except_first) :
             # Missing information on chemistry of brine when sent to processing plant
-            lime_low_quality = 4 * prod #TODO rough estimation on the quicklime consumption when the chemistry is not reported
+            lime_low_quality = proxy_quicklime_OLAROZ * m_in_initial
             water_lime_low_quality = (lime_low_quality / (Ca + O)) * (
                     H * 2 + O)
 
@@ -603,15 +603,15 @@ class Li_adsorption :
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
 
         if deposit_type == 'salar' :
-            water_adsorbent = ((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-4)*dens_pulp) #/0.33 #/0.15
-            ratio = water_adsorbent/10259525960.338968
-            print('Ratio ', ratio)
+            water_adsorbent = (((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O)
+            #water_adsorbent = 10259525960.338968
+            #print('Ratio ', ratio)
             #water_adsorbent = 4.346526e+09
             #water_adsorbent = ((dens_pulp/(Li_out_adsorb/10e-6 * dens_pulp)) * (prod * ((2 * Li) / (2 * Li + C + 3 * O)))) #TODO check if numbers are correct
             E_adsorp = (
                             ((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
                         ) / heat_loss
-            print(f'Energy first: {E_adsorp}')
+            #print(f'Energy first: {E_adsorp}')
 
         else :
             water_adsorbent = 100 * adsorbent_invest #TODO check if this is correct

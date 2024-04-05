@@ -15,8 +15,6 @@ def create_activity_map(country_location, abbrev_loc):
         electricity_list = ("market for electricity, high voltage", country_location)
         heat_list = ("heat production, natural gas, at industrial furnace >100kW", "RoW")
 
-    print(electricity_list)
-    print(heat_list)
 
     activity_map = {
         'elec_high_voltage': electricity_list,

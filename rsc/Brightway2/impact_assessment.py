@@ -214,7 +214,7 @@ def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca
 
     # Initialize DataFrame at the top level
     if level == 0 :
-        results_df = pd.DataFrame(columns=['Level', 'Fraction', 'Score', 'Description'])
+        results_df = pd.DataFrame(columns=['Level', 'Fraction', 'Score', 'Activity'])
 
     # LCA calculation logic
     if lca_obj is None :
@@ -232,7 +232,7 @@ def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca
     # Append data to DataFrame
     fraction = lca_obj.score / total_score if total_score else 0
     results_df = results_df.append(
-        {'Level' : level, 'Fraction' : fraction, 'Score' : lca_obj.score, 'Description' : str(activity)},
+        {'Level' : level, 'Fraction' : fraction, 'Score' : lca_obj.score, 'Activity' : str(activity)},
         ignore_index=True)
 
     # print(f"Level {level}: Appended data. DataFrame now has {len(results_df)} rows.")  # Debugging print
@@ -257,7 +257,7 @@ def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca
     # Save results to CSV at the top level
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    filename = filename + f'_{timestamp}_' + ".txt"
+    filename = filename + f'_{timestamp}_' + ".csv"
     if level == 0 :
         file_path = os.path.join(results_folder, filename)
         results_df.to_csv(file_path, index=False)
