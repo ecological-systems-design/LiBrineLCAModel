@@ -1,9 +1,9 @@
 import os
-
 import numpy as np
 import pandas as pd
-
+import datetime
 from rsc.lithium_production.import_site_parameters import standard_values
+from rsc.Brightway2.lithium_site_db import chemical_map
 
 
 
@@ -34,129 +34,6 @@ def read_csv_results(file_path) :
         return df
     except FileNotFoundError :
         print("File not found. Please check the file path.")
-
-
-def preparing_data_recursivecalculation(file_path, category_mapping) :
-    df = read_csv_results(file_path)
-
-    df['Location_within_supplychain'] = df['Activity'].apply(lambda x : x if 'df_' in x else 'Supplychain')
-
-    for i in range(len(df)) :
-        if i == len(df) - 1 :
-            break
-
-        current_row = df.iloc[i]
-        next_row = df.iloc[i + 1]
-
-        if 'df_' in current_row['Location_within_supplychain'] :
-            df.at[i, 'Category'] = current_row['Location_within_supplychain']
-
-        elif current_row['Location_within_supplychain'] == 'Supplychain' :
-            if current_row['Level'] < next_row['Level'] :
-                df.at[i, 'Category'] = current_row['Activity']
-                df.at[i + 1, 'Activity'] = current_row['Activity']
-
-            else :
-                df.at[i, 'Category'] = current_row['Activity']
-
-    df = df[df['Category'] != df['Category'].shift()]
-    df = df.sort_values('Level')
-
-    percent_threshold = 1e-6  # Adjust the percent threshold as needed
-    total_threshold = 1e-6  # Adjust the total threshold as needed
-
-    for level in df['Level'] :
-        rows = df.loc[df['Level'] == level]
-        df_level_rest = df.loc[
-            (df['Level'] == level) & (df['Category'].str.contains('df_')) & (df['Activity'] == 'rest')]
-        if df_level_rest.empty :
-            for _, row in rows.iterrows() :
-                if 'df_' in row['Category'] :
-                    rest = row['Percent'] - df.loc[df['Level'] == level + 1, 'Percent'].sum()
-                    rest_tot = row['Total'] - df.loc[df['Level'] == level + 1, 'Total'].sum()
-                    if rest >= percent_threshold :
-                        new_data = {
-                            'Level' : level,
-                            'Percent' : rest,
-                            'Total' : rest_tot,
-                            'Activity' : "rest",
-                            'Location_within_supplychain' : "Supplychain",
-                            'Category' : row['Category']
-                            }
-                        df = df.append(new_data, ignore_index=True)
-                        print(f"Rest for level {level}: {rest}")
-                    else :
-                        if abs(rest) < percent_threshold :
-                            rest = 0
-                            rest_tot = 0
-                            new_data = {
-                                'Level' : level,
-                                'Percent' : rest,
-                                'Total' : rest_tot,
-                                'Activity' : "rest",
-                                'Location_within_supplychain' : "Supplychain",
-                                'Category' : row['Category']
-                                }
-                            df = df.append(new_data, ignore_index=True)
-
-                        else :
-                            pass
-        else :
-            pass
-
-    df = df.sort_values('Level')
-
-    for index, row in df.iterrows() :
-        if "deep well drilling, for deep geothermal power" in row['Activity'] :
-            level = row['Level']
-            matching_rows = df.loc[(df['Level'] == level) & (df['Activity'].str.startswith('df_')), 'Category']
-            if len(matching_rows) > 0 :
-                category = matching_rows.values[0]
-
-                df.at[index, 'Category'] = category
-
-        elif 'df_' not in row['Activity'] and row['Activity'] != 'rest' :
-            # Get the level and category of the corresponding 'df_' row
-            level = row['Level']
-            matching_rows = df.loc[(df['Level'] == level) & (df['Activity'].str.startswith('df_')), 'Category']
-
-            if len(matching_rows) > 0 :
-                category = matching_rows.values[0]
-
-                # Update the Category value in the original dataframe
-                df.at[index, 'Category'] = category
-
-    df['Level'] = df.apply(lambda row : row['Level'] - 1 if not (row['Activity'].startswith('df_') or
-                                                                 "rest" in row['Activity']) else row['Level'], axis=1)
-
-    for index, row in df.iterrows() :
-        if 'df_' not in row['Activity'] :
-            level = row['Level']
-            matching_row = df[(df['Activity'].str.contains('df_')) & (df['Level'] == level)]
-            if not matching_row.empty :
-                df.at[index, 'Category'] = matching_row['Category'].values[0]
-
-    df = df[~df['Activity'].str.contains('df_')]
-
-    df['Level'] = df['Level'].max() - df['Level']
-
-    # Group rows based on the specified conditions
-    for category, new_category in category_mapping.items() :
-        if category in df['Category'].values and "rest" in df['Activity'].values :
-            # Filter rows with the current category
-            rows_to_group = df[df['Category'] == category]
-            print(rows_to_group)
-            rows_to_group['Category'] = new_category
-            df.update(rows_to_group)
-
-    df = df.groupby(['Category'], as_index=False).agg(
-        {"Level" : np.min, "Percent" : np.sum, "Total" : np.sum,
-         "Activity" : pd.Series.mode, "Supplychain" : pd.Series.mode})
-
-    df = df.sort_values('Level')
-    df['Level'] = 1
-
-    return df
 
 
 def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
@@ -250,7 +127,6 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
                                 and round(row[ 'eff' ],2) == round(info[ 'Li_efficiency' ],2)) :
                             # Store IPCC and AWARE values for the site
                             matched_results[ site ] = {'IPCC' : row[ 'IPCC' ], 'AWARE' : row[ 'AWARE' ]}
-                            print(matched_results)
                             break  # Found the matching row, no need to check further rows
 
     return matched_results, sites_info
@@ -281,155 +157,66 @@ def categorize_activities(row, chemical_map):
         return 'rest'
 
 
-def prepare_data_for_visualization_firstrun(file_path) :
-    df = pd.read_csv(file_path)
+# Function to categorize details
+def categorize_details(details_list,chemical_map) :
+    # Initialize a dictionary to hold categorized details and their summed scores
+    categorized = {
+        'Heat' : [],
+        'Electricity' : [],
+        'Chemicals' : [],
+        'Rest' : []
+        }
 
-    # Initialize an empty dictionary to hold the aggregated data
-    data_for_visualization = {}
+    # Initialize a dictionary to hold the sum of scores for each category
+    category_scores = {
+        'Heat' : 0,
+        'Electricity' : 0,
+        'Chemicals' : 0,
+        'Rest' : 0
+        }
 
-    for index,row in df.iterrows() :
-        process_name = simplify_process_name(row['Activity'])
+    # Check each detail and categorize it, summing the scores as well
+    for detail in details_list :
+        activity,score = detail
 
-        if process_name not in data_for_visualization :
-            data_for_visualization[process_name] = {
-                'Score' : 0,
-                'Contributing Activities' : [],
-                'Contributing Activity Scores' : []
-                }
-
-        if row['Activity'].startswith("'df_") :
-            # Update the process score
-            data_for_visualization[process_name]['Score'] += row['Score']
+        # Check for heat-related activities
+        if 'natural gas' in activity.lower() :
+            categorized['Heat'].append(detail)
+            category_scores['Heat'] += score
+        # Check for electricity-related activities
+        elif 'electricity' in activity.lower() :
+            categorized['Electricity'].append(detail)
+            category_scores['Electricity'] += score
+        # Check for chemical-related activities
+        elif any(chem in activity for chem in chemical_map) :
+            categorized['Chemicals'].append(detail)
+            category_scores['Chemicals'] += score
+        # Everything else is classified as 'Rest'
         else :
-            # Find the corresponding process to add this activity
-            for process,details in data_for_visualization.items() :
-                if process in process_name :
-                    details['Contributing Activities'].append(process_name)
-                    details['Contributing Activity Scores'].append(row['Score'])
-                    break
+            categorized['Rest'].append(detail)
+            category_scores['Rest'] += score
 
-    return data_for_visualization
+    return categorized,category_scores
 
-def prepare_data_for_visualization(file_path, chemical_map):
-    df = pd.read_csv(file_path)
+def merge_details(details_list):
+    # Create a dictionary to hold the sum of scores for each activity
+    details_dict = {}
 
-    # Initialize an empty dictionary to hold the aggregated data
-    data_for_visualization = {}
+    for detail in details_list:
+        # Unpack the tuple
+        activity_name, score = detail
 
-    for index, row in df.iterrows():
-        process_name = simplify_process_name(row['Activity'])
+        # If the activity is already in the dictionary, add the score; otherwise, add the activity to the dictionary
+        if activity_name in details_dict:
+            details_dict[activity_name] += score
+        else:
+            details_dict[activity_name] = score
 
-        if process_name not in data_for_visualization:
-            data_for_visualization[process_name] = {
-                'Score': row['Score'] if row['Activity'].startswith("'df_") else 0,
-                'Categories': {'chemicals': 0, 'heat': 0, 'electricity': 0, 'rest': 0}
-            }
+    # Convert the dictionary back to the list of tuples format
+    merged_details = [(activity, score) for activity, score in details_dict.items()]
 
-        # For contributing activities, categorize and sum the scores
-        if not row['Activity'].startswith("'df_"):
-            category = categorize_activity(row['Activity'], chemical_map)
-            data_for_visualization[process_name]['Categories'][category] += row['Score']
+    return merged_details
 
-    return data_for_visualization
-
-
-def prepare_data_for_visualization_try_try(file_path, chemical_map):
-    df = pd.read_csv(file_path)
-
-    # Initialize a list to store the processed data
-    processed_data = []
-
-    # Set to track which df_ processes have their immediate contributing activity identified
-    processed_df_activities = set()
-
-    # Iterate over the DataFrame in reverse level order to capture highest contributing activities first
-    for level in sorted(df['Level'].unique(), reverse=True):
-        current_level_df = df[df['Level'] == level]
-
-        # Iterate over each activity in the current level
-        for idx, row in current_level_df.iterrows():
-            activity = row['Activity']
-            if activity.startswith("'df_"):
-                # Directly include 'df_' processes and mark them as processed
-                processed_data.append(row)
-                processed_df_activities.add(activity)
-            else:
-                # Check if this activity is an immediate contributing activity
-                if not any(act for act in processed_df_activities if act in activity):
-                    processed_data.append(row)
-                    # Mark this activity's process as having its immediate contributing activity identified
-                    processed_df_activities.update(current_level_df['Activity'])
-
-    # Concatenate the list of processed data into a DataFrame and sort
-    processed_df = pd.concat(processed_data, axis=1).transpose()
-    processed_df = processed_df.sort_values(by='Level')
-
-    # Categorize activities
-    processed_df['Category'] = processed_df.apply(lambda row: categorize_activities(row, chemical_map), axis=1)
-
-    return processed_df
-
-
-def prepare_data_for_visualization_adjusted1(file_path) :
-    df = pd.read_csv(file_path)
-    processed_data = []
-
-    # Iterate through each unique level in the dataframe
-    for level in sorted(df['Level'].unique()) :
-        # Get all activities at the current level
-        current_level_activities = df[df['Level'] == level]
-
-        for _,activity_row in current_level_activities.iterrows() :
-            # Directly add 'df_' activities
-            if activity_row['Activity'].startswith("'df_") :
-                processed_data.append(activity_row)
-                # Find direct contributors that are not 'df_' activities at the next level
-                next_level_activities = df[(df['Level'] == level + 1) & (~df['Activity'].str.startswith("'df_"))]
-                for _,next_activity_row in next_level_activities.iterrows() :
-                    # Check if there's a deeper activity in the supply chain
-                    deeper_activities = df[(df['Level'] > level + 1) & (df['Score'] < next_activity_row['Score']) & (
-                        df['Activity'].str.contains(next_activity_row['Activity'].split("'")[1]))]
-
-                    processed_data.append(next_activity_row)
-
-    # Convert the list of rows to a DataFrame
-    processed_df = pd.DataFrame(processed_data).drop_duplicates().sort_values(by='Level')
-
-    return processed_df
-
-def prepare_data_for_visualization_adjusted2(file_path) :
-    df = pd.read_csv(file_path)
-
-    # Initialize an empty DataFrame for the result
-    result_df = pd.DataFrame()
-
-    # Iterate through each level and process 'df_' and non-'df_' activities
-    for level in sorted(df['Level'].unique()) :
-        current_level_df = df[df['Level'] == level]
-
-        # Process 'df_' activities and their immediate non-'df_' next-level activities
-        for _,activity_row in current_level_df.iterrows() :
-            if activity_row['Activity'].startswith("'df_") :
-                # Add 'df_' activities directly to the result
-                result_df = result_df.append(activity_row)
-
-                # Get next level non-'df_' activities
-                next_level = level + 1
-                next_level_activities = df[(df['Level'] == next_level) & (~df['Activity'].str.contains("'df_"))]
-
-                # Check each next-level non-'df_' activity
-                for _,next_activity_row in next_level_activities.iterrows() :
-                    # Check if the next activity is a deeper part of the current activity's supply chain
-                    deeper_activities = df[(df['Level'] > next_level) & (df['Score'] < next_activity_row['Score'])]
-
-                    # Only add if there are no deeper activities
-                    if deeper_activities.empty :
-                        result_df = result_df.append(next_activity_row)
-
-    # Sort and reset index for the result DataFrame
-    result_df = result_df.sort_values(by=['Level','Score'],ascending=[True,False]).reset_index(drop=True)
-
-    return result_df
 
 
 def prepare_data_for_waterfall_diagram(file_path):
@@ -504,12 +291,119 @@ def prepare_data_for_waterfall_diagram(file_path):
                 'Details' : details
                 })
 
+    new_process_data = []
+    for item in process_data :
+        # Check if any key in the category_mapping is a substring of the 'Activity'
+        mapped_activity = next((value for key,value in category_mapping.items() if key in item['Activity']),
+                               item['Activity'])
+
+        # Now find the existing entry, if any, that matches the mapped_activity
+        existing = next((x for x in new_process_data if x['Activity'] == mapped_activity),None)
+
+        if existing :
+            # If the activity exists, we merge the details and update the score if it's higher
+            existing['Details'] += item['Details']
+            existing['Score'] = max(existing['Score'],item['Score'])
+        else :
+            # If the activity does not exist, we add it to the new list
+            item['Activity'] = mapped_activity
+            new_process_data.append(item)
+
+    # After merging, we need to ensure that details are unique and merged properly
+    for item in new_process_data :
+        item['Details'] = merge_details(item['Details'])
+
+    # Categorize details and calculate category scores for the new grouped data
+    for item in new_process_data :
+        categorized_details,category_scores = categorize_details(item['Details'],chemical_map)
+        item['Categorized_Details'] = categorized_details
+        item['Category_Scores'] = category_scores
+
+
+    for data in new_process_data :
+        if 'Details' in data :
+            categorized_details,category_scores = categorize_details(data['Details'],chemical_map)
+            data['Categorized_Details'] = categorized_details
+            data['Category_Scores'] = category_scores  # Store the summed scores for each category
+
+
     # Convert to DataFrame
-    process_df = pd.DataFrame(process_data)
-    print(process_df)
-
-    return process_df
+    grouped_process_df = pd.DataFrame(new_process_data)
+    return grouped_process_df
 
 
+def find_latest_matching_file_old(directory,li_conc,eff,impact_type) :
+    latest_file = None
+    latest_time = None
+
+    for file in os.listdir(directory) :
+        if all(x in file for x in [str(li_conc),str(eff),impact_type,'.csv']) :
+            # Extract timestamp from the file name
+            try :
+                timestamp_str = file.split('_')[-1].split('.')[0]
+                timestamp = datetime.datetime.strptime(timestamp_str,'%Y%m%d_%H%M%S')
+                if latest_time is None or timestamp > latest_time :
+                    latest_time = timestamp
+                    latest_file = file
+            except ValueError as e :
+                print(f"Error parsing timestamp from {file}: {e}")
+
+    return os.path.join(directory,latest_file) if latest_file else None
+
+
+def find_latest_matching_file(directory, li_conc, eff, impact_type):
+    if not os.path.exists(directory):
+        print(f"Directory does not exist: {directory}")
+        return None
+
+    latest_file = None
+    latest_time = None
+
+    for file in os.listdir(directory):
+        if all(x in file for x in [str(li_conc), str(eff), impact_type, '.csv']):
+            # Extract timestamp from the file name
+            try:
+                parts = file.split('_')
+                # Extract the date and time parts based on the known structure
+                date_part = parts[-3]  # Date should be the third-last segment
+                time_part = parts[-2]  # Time should be the second-last segment
+                timestamp_str = f"{date_part}_{time_part}"
+                timestamp = datetime.datetime.strptime(timestamp_str, '%Y%m%d_%H%M%S')
+                if latest_time is None or timestamp > latest_time:
+                    latest_time = timestamp
+                    latest_file = file
+            except ValueError as e:
+                print(f"Error parsing timestamp from {file}: {e}")
+
+    return os.path.join(directory, latest_file) if latest_file else None
+
+def process_data_based_on_excel(excel_path, base_directory):
+    excel_data = pd.read_excel(excel_path)
+    # Transpose the data for easier processing
+
+    transposed_data = excel_data.transpose()
+
+    # Set the first row as the header
+
+    transposed_data.columns = transposed_data.iloc[0]
+
+    # Drop the first row since it's now the header
+
+    excel_data = transposed_data.drop(transposed_data.index[0])
+
+    for index, row in excel_data.iterrows():
+        abbrev_loc = row['abbreviation']
+        li_conc = row['ini_Li']
+        eff = row['Li_efficiency']
+
+        target_directory = os.path.join(base_directory, f'results_{abbrev_loc}')
+
+        for impact_type in ['climatechange', 'waterscarcity']:
+            latest_file_path = find_latest_matching_file(target_directory, li_conc, eff, impact_type)
+            if latest_file_path:
+                print(f"Processing file: {latest_file_path}")
+                prepare_data_for_waterfall_diagram(latest_file_path)
+            else:
+                print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and Eff: {eff}")
 
 

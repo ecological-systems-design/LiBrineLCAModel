@@ -6,7 +6,7 @@ import plotly.io as pio
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file
 
 
 class Visualization :
@@ -1155,7 +1155,7 @@ class Visualization :
         print(f"Figure saved to {save_path_png} and {save_path_html}")
 
 
-    def create_waterfall_plots(file_path):
+    def create_waterfall_plots(file_path, save_dir, abbrev_loc, li_conc, eff, impact_type, location) :
         df = prepare_data_for_waterfall_diagram(file_path)
 
         # Reverse the DataFrame to start with the last process
@@ -1167,31 +1167,46 @@ class Visualization :
         # Calculate the score differences which will be the height of each bar
         reversed_df['Score_Diff'] = reversed_df['Score'].diff().fillna(reversed_df['Score'].iloc[0])
 
-        # The 'Start' column represents where each bar starts on the y-axis
-        reversed_df['Start'] = reversed_df['Score'] - reversed_df['Score_Diff']
+        # Calculate the 'Start' column representing where each bar starts on the y-axis
+        reversed_df['Start'] = reversed_df['Score_Diff'].cumsum() - reversed_df['Score_Diff']
 
         # Initialize a waterfall chart
         fig = go.Figure()
 
+        # Define your color map for each category
+        category_color_map = {
+            'Heat' : '#d89000',
+            'Electricity' : '#4287f5',
+            'Chemicals' : '#4f9d69',
+            'Rest' : '#a8887f'
+            }
+
         # Add bars to the chart
         for index,row in reversed_df.iterrows() :
-            # The base for the bar is the score of the previous process
             base = row['Start'] if index > 0 else 0
 
-            fig.add_trace(go.Bar(
-                name=row['Activity'],
-                x=[row['Activity']],
-                y=[row['Score_Diff']],  # Height of the bar is the score difference
-                base=[base],  # Starting point for the bar
-                hoverinfo="name+y+text",
-                textposition="outside"
-                ))
+            # Iterate over each category within a process to create segments
+            for category,score in row['Category_Scores'].items() :
+                color = category_color_map.get(category,'#000000')  # Default to black if category not found
+                fig.add_trace(go.Bar(
+                    name=f"{row['Activity']} - {category}",
+                    x=[row['Activity']],
+                    y=[score],
+                    base=[base],
+                    marker_color=color,  # Use the color mapping
+                    hoverinfo="name+y+text",
+                    textposition="outside"
+                    ))
 
+                # Update base for the next category
+                base += score
+
+        # Customize layout
         fig.update_layout(
-            title="Process Contributions to Total Score (Reversed)",
-            barmode='stack',  # Bars are stacked, but with the correct base they will appear to float
+            title=f"Process Contributions to Total Score {impact_type} - {location}",
+            barmode='stack',
             showlegend=False,
-            plot_bgcolor='white',  # Set background to white
+            plot_bgcolor='white',
             xaxis=dict(
                 showline=True,
                 linewidth=1,
@@ -1199,8 +1214,8 @@ class Visualization :
                 mirror=True,
                 tickmode='linear',
                 tickfont=dict(family='Arial',color='black',size=12),
-                ticklen=10,  # Set tick length to extend ticks outside the plot area
-                tickwidth=2  # Set tick width as desired
+                ticklen=10,
+                tickwidth=2
                 ),
             yaxis=dict(
                 showline=True,
@@ -1211,20 +1226,59 @@ class Visualization :
                 tickmode='array',
                 tickfont=dict(family='Arial',color='black',size=15),
                 tickvals=[i * 10 for i in range(int(reversed_df['Score'].max() / 10) + 1)],
-                dtick=10,  # Set the interval between ticks
-                ticklen=10,  # Set tick length to extend ticks outside the plot area
-                tickwidth=2  # Set tick width as desired
+                dtick=10,
+                ticklen=10,
+                tickwidth=2
                 ),
-            font=dict(size=12),  # Adjust the global font size
-            bargap=0  # Bars are touching each other
+            font=dict(size=12),
+            bargap=0
             )
 
-        # Customize axis ticks to be outside
         fig.update_xaxes(ticks="outside")
         fig.update_yaxes(ticks="outside",tickvals=[i * 10 for i in range(int(reversed_df['Score'].max() / 10) + 1)])
 
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # Save the plot as a PNG file
-        fig.write_image("your_chart.png")
+        # Check if save directory exists, if not, create it
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
 
-        fig.write_html("your_chart.html")
+        # Save the figure to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_html = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.html')
+        fig.write_html(save_path_html)
+
+        print(f"Figure saved as png and html files.")
+
+    def process_data_based_on_excel(excel_path,base_directory, save_directory) :
+        excel_data = pd.read_excel(excel_path)
+        # Transpose the data for easier processing
+
+        transposed_data = excel_data.transpose()
+
+        # Set the first row as the header
+
+        transposed_data.columns = transposed_data.iloc[0]
+
+        # Drop the first row since it's now the header
+
+        excel_data = transposed_data.drop(transposed_data.index[0])
+        print("Column names:",excel_data.columns)
+
+        for index,row in excel_data.iterrows() :
+            abbrev_loc = row['abbreviation']
+            li_conc = row['ini_Li']
+            eff = row['Li_efficiency']
+            location = index
+
+            target_directory = os.path.join(base_directory,f'results_{abbrev_loc}')
+
+            for impact_type in ['climatechange','waterscarcity'] :
+                latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
+                if latest_file_path :
+                    print(f"Processing file: {latest_file_path}")
+                    Visualization.create_waterfall_plots(latest_file_path,save_directory, abbrev_loc, li_conc, eff, impact_type, location)
+                else :
+                    print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
