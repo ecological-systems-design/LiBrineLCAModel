@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import xarray as xr
+import os
 
 #Default values for non-critical values of a specific site
 standard_values = {
@@ -207,6 +208,9 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
 
     # Retrieve the deposit type
     deposit_type = site_data.get("deposit_type")
+    info_assumption = {"vec_ini": None,
+                        "evaporation_rate": None
+                        }
 
     #Calculate the mean annual temperature
     site_data["annual_airtemp"] = mean_annual_temperature(site_data["latitude"], site_data["longitude"],
@@ -247,11 +251,13 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     if any(pd.isna(vec_ini[i]) for i in nan_indices_ini) :
         closest_site_data = find_closest_valid_site_brinechemistry(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 10)
         if closest_site_data is not None :
+
             for i in nan_indices_ini :
                 offset_index = i + 10  # Apply the offset here
                 if pd.isna(vec_ini[i]) :
                     vec_ini[i] = closest_site_data.iloc[
                         offset_index]  # Use the offset index to access data in closest_site_data
+                    info_assumption = {"vec_ini": closest_site_data.name}
 
     # Convert all elements in vec_ini to floats, replace non-numeric values with 0 or NaN
     vec_ini_float = []
@@ -278,8 +284,6 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
             if value and not pd.isna(value) :
                 process_sequence.append(value)
 
-
-
     # Update vec_end if there are nan values using the function from above
     vec_end, process_update_status = update_required_concentrations(process_sequence, vec_end,
                                                                     vec_ini)
@@ -289,6 +293,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
             closest_site_data = find_closest_valid_site_evaporation(site_data['latitude'], site_data['longitude'], dat)
             if closest_site_data is not None:
                 site_data["evaporation_rate"] = closest_site_data["evaporation_rate"]
+                info_assumption["evaporation_rate"] = closest_site_data.name
     else:
         site_data["evaporation_rate"] = 0 # Set to 0 if the process is not in the sequence
 
@@ -297,6 +302,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     # Create a dictionary for the extracted data
     extracted_database = {
         abbrev_loc : {
+            "site_location": site_data.name,
             "deposit_type" : site_data["deposit_type"],
             "country_location" : site_data["country_location"],
             "elevation" : site_data["elevation"],
@@ -338,6 +344,28 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
 
     if np.isnan(extracted_database[abbrev_loc]['boilingpoint_process']):
         extracted_database[abbrev_loc]['boilingpoint_process'] = boiling_point_at_elevation(extracted_database[abbrev_loc]['elevation'])
+
+    #create a csv file if one does not already exist and save the extracted_database
+    # Path to the CSV file
+    csv_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\extracted_data_all_sites.csv'
+
+    # Convert the extracted_database dictionary to a DataFrame for easier manipulation
+    extracted_df = pd.DataFrame.from_dict(extracted_database,orient='index')
+
+    # Check if the CSV file exists
+    if os.path.exists(csv_file_path) :
+        # Read the existing CSV file
+        existing_df = pd.read_csv(csv_file_path,index_col=0)
+
+        # Concatenate the new data with the existing data
+        # Assuming you want to add a new row for each site
+        updated_df = pd.concat([existing_df,extracted_df],ignore_index=True)
+
+        # Save the updated DataFrame back to the CSV file
+        updated_df.to_csv(csv_file_path)
+    else :
+        # If the file does not exist, save the extracted data as a new CSV file
+        extracted_df.to_csv(csv_file_path)
 
 
     return extracted_database
