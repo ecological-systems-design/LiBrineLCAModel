@@ -131,10 +131,10 @@ class evaporation_ponds :
             freshwater_vol = water_evaporationponds / (dens_frw * 1000) / operating_time
 
         m_Li = (m_in_initial * vec_ini[0] )/ 100  # mass of lithium in the annual pumped brine [kg]
-        print('m_in ', m_in_initial)
-        print('m_Li ', m_Li)
-        print('vec_ini[0] ', vec_ini[0])
-        print('vec_end[0] ', vec_end[0])
+        #print('m_in ', m_in_initial)
+        #print('m_Li ', m_Li)
+        #print('vec_ini[0] ', vec_ini[0])
+        #print('vec_end[0] ', vec_end[0])
 
         # Well field system
         power_well = gravity_constant * (
@@ -604,14 +604,13 @@ class Li_adsorption :
 
         if deposit_type == 'salar' :
             water_adsorbent = (((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O)
-            #water_adsorbent = 10259525960.338968
-            #print('Ratio ', ratio)
+            test = 10259525960.338968
+            print('Ratio ', water_adsorbent/test)
             #water_adsorbent = 4.346526e+09
-            #water_adsorbent = ((dens_pulp/(Li_out_adsorb/10e-6 * dens_pulp)) * (prod * ((2 * Li) / (2 * Li + C + 3 * O)))) #TODO check if numbers are correct
+            #water_adsorbent = ((dens_pulp/(Li_out_adsorb/10e-6 * dens_pulp)) * (prod * ((2 * Li) / (2 * Li + C + 3 * O))))
             E_adsorp = (
                             ((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
                         ) / heat_loss
-            #print(f'Energy first: {E_adsorp}')
 
         else :
             water_adsorbent = 100 * adsorbent_invest #TODO check if this is correct
@@ -2248,8 +2247,8 @@ class ProcessManager :
         return energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass
 
     def run_simulation(self, op_location, abbrev_loc, process_sequence, max_eff,
-                       min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min) : #TODO let the simulation run only with literature values instead of ranges
-
+                       min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min) :
+        #print(f"run simulation: {abbrev_loc}")
         eff_range = np.arange(max_eff, min_eff - eff_steps + 0.001, -eff_steps)
 
         Li_conc_range = [Li_conc_max]

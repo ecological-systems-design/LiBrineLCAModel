@@ -4,6 +4,7 @@ import bw2data as bd
 import os
 from rsc.Brightway2.iterating_LCIs import change_exchanges_in_database
 import datetime
+import csv
 
 
 def calculate_impacts(activity, methods) :
@@ -30,7 +31,7 @@ def calculate_impacts(activity, methods) :
 
 # function to iterate over inventories and calculate impacts
 def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, site_name, ei_name, abbrev_loc, eff_range=None, Li_conc_range=None, literature_eff=None, literature_Li_conc=None):
-    print('beginning of function', abbrev_loc)
+
     site_db = bd.Database(site_name)
     ei_reg = bd.Database(ei_name)
 
@@ -209,7 +210,10 @@ def saving_LCA_results_brinechemistry(results, abbrev_loc) :
 def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca_obj=None, results_df=None,
                                 total_score=None, amount=1, level=0, max_level=30, cutoff=0.01) :
     base_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/recursive_calculation"
-    results_folder = os.path.join(base_path, f"results_{abbrev_loc}")
+    if activity['name'] != "df_rotary_dryer":
+        results_folder = os.path.join(base_path, f"battery/results_{abbrev_loc}")
+    else:
+        results_folder = os.path.join(base_path, f"results_{abbrev_loc}")
     ensure_folder_exists(results_folder)
 
     # Initialize DataFrame at the top level
@@ -265,3 +269,64 @@ def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca
 
     # Return the DataFrame
     return results_df
+
+
+def calculate_battery_impacts(battery_act, methods, site_db, ei_reg, country):
+
+    lithium_act = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+    market_lithium_act = [act for act in ei_reg if "market for lithium carbonate" in act['name']][0]
+    market_lithium_act = market_lithium_act.copy()
+    market_lithium_act.save()
+
+    exc = [exc for exc in market_lithium_act.exchanges()]
+
+    for exc in exc :
+        exc.delete()
+
+    market_lithium_act.new_exchange(input=lithium_act.key, amount=1, type='technosphere', unit='kilogram', formula=1, location=country).save()
+    market_lithium_act.save()
+
+    dict_impacts = {}
+
+    for method in methods:
+        lca = bc.LCA({battery_act: 1}, method=method)
+        lca.lci()
+        lca.lcia()
+        dict_impacts[method] = lca.score
+
+    return dict_impacts
+
+def save_battery_results_to_csv(directory, results, abbrev_loc, battery_act):
+    # Mapping of battery names to filenames
+    battery_files = {
+        "NMC811": "NMC811_results.csv",
+        "LFP": "LFP_results.csv"
+    }
+
+    # Extract battery type from the activity name
+    battery_type = None
+    for key in battery_files.keys():
+        if key in battery_act['name']:
+            battery_type = key
+            break
+
+    # Check if the battery type was found and get the filename
+    if battery_type:
+        filename = os.path.join(directory, battery_files[battery_type])
+    else:
+        print('Battery type not recognized')
+        return  # Exit the function early if battery type is not recognized
+
+    # Check if the directory exists; if not, create it
+    os.makedirs(directory, exist_ok=True)
+
+    # Prepare to write results to CSV
+    headers = ['Method', f'Impact Score {abbrev_loc}']
+    new_file = not os.path.exists(filename)
+
+    with open(filename, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        if new_file:
+            writer.writerow(headers)  # Write headers if it's a new file
+        for method, score in results.items():
+            writer.writerow([method, score])

@@ -1,7 +1,11 @@
 import bw2data as bd
 from pathlib import Path
-
+from rsc.lithium_production.licarbonate_processes import *
 import os
+from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+from rsc.Brightway2.lci_method_aware import import_aware
+from rsc.Brightway2.setting_up_db_env import *
+from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -18,11 +22,11 @@ site_location = "Hom"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_14'
+    project = f'Site_{site_name}_15'
     bd.projects.set_current(project)
     print(project)
 
-    del bd.databases[site_name]
+    #del bd.databases[site_name]
     # del bd.databases[ei_name]
 
     country_location = "AR"
@@ -36,15 +40,14 @@ if __name__ == '__main__' :
     op_location = "Salar del Hombre Muerto North"
 
     # initialize the processing sequence
-    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+
 
     process_sequence = [
         evaporation_ponds(),
         B_removal_organicsolvent(),
-        Centrifuge_general(),
+        Centrifuge_general(custom_name=None),
         Mg_removal_sodaash(),
         CentrifugeSoda(),
         Mg_removal_quicklime(),
@@ -61,6 +64,8 @@ if __name__ == '__main__' :
         ]
 
     # 1. Define your initial parameters
+    print(f'before setting up site: {abbrev_loc}')
+
     prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
@@ -86,18 +91,17 @@ if __name__ == '__main__' :
 
     print(results)
 
-    from rsc.Brightway2.setting_up_db_env import *
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
-    from rsc.Brightway2.lci_method_aware import import_aware
+
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    from rsc.Brightway2.lci_method_pm import import_PM
+    #from rsc.Brightway2.lci_method_pm import import_PM
 
-    import_PM(ei_reg, bio, site_name, site_db)
+    #import_PM(ei_reg, bio, site_name, site_db)
 
     # Filter methods based on your criteria
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
@@ -105,28 +109,63 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
     # print(method_PM)
 
-    method_list = [method_cc, method_water, method_PM]
+    method_list = [method_cc, method_water]
 
     from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, eff_range, Li_conc_range,
-                                                       abbrev_loc)
+                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range)
     #print(impacts)
 
     # saving results
-    from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
 
     saving_LCA_results(impacts, abbrev_loc)
 
-    from rsc.Postprocessing_results.visualization_functions import Visualization
+    # Battery assessment
+    act_nmc_battery = \
+    [act for act in ei_reg if "battery production, Li-ion, NMC811, rechargeable, prismatic" in act['name']
+     and "CN" in act['location']][0]
+    act_lfp_battery = \
+    [act for act in ei_reg if "battery production, Li-ion, LFP, rechargeable, prismatic" in act['name']
+     and "CN" in act['location']][0]
+    act_battery_list = [act_nmc_battery,act_lfp_battery]
+    directory = f"results/test"
+
+    from rsc.Brightway2.impact_assessment import calculate_battery_impacts, save_battery_results_to_csv
+
+    for battery in act_battery_list :
+        battery_impacts = calculate_battery_impacts(battery,method_list,site_db,ei_reg,country_location)
+        save_battery_results_to_csv(directory,battery_impacts,abbrev_loc,battery)
+
+        battery_files = {
+            "NMC811" : "NMC811_recursive_calculation.csv",
+            "LFP" : "LFP_recursive_calculation.csv"
+            }
+
+        # Extract battery type from the activity name
+        battery_type = None
+        for key in battery_files.keys() :
+            if key in battery['name'] :
+                battery_type = key
+                break
+
+        # Check if the battery type was found and get the filename
+        if battery_type :
+            filename = battery_files[battery_type]
+            print_recursive_calculation(activity,method_cc,abbrev_loc,filename,max_level=30,cutoff=0.01)
+            print(f'Using {filename} as filename')
+        else :
+            print('Battery type not recognized')
+
+
+
 
     # Plot the results
-    Visualization.plot_impact_categories(impacts, abbrev_loc)
+    #Visualization.plot_impact_categories(impacts, abbrev_loc)
 
 

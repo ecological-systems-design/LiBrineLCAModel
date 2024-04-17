@@ -24,17 +24,19 @@ if __name__ == '__main__' :
 
     run_analysis_for_all_sites(file_path, directory_path)
 
-    Visualization.process_data_based_on_excel(file_path,base_dir, save_dir)
-    #Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
-    #Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
+    #TODO check Chaerhan because the results do not overlap with the ones in the graph.
 
-    #Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
+    Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
+    Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
+    Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
 
-    #Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
+    Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
 
-    #Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
+    Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
 
-    #Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
+    Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
+
+    Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
 
     print('Finished the code')
 

@@ -7,7 +7,7 @@ from rsc.lithium_production.import_site_parameters import extract_data, update_c
 from rsc.lithium_production.licarbonate_processes import *
 from rsc.Brightway2.setting_up_db_env import *
 from rsc.Brightway2.lci_method_aware import import_aware
-from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry
+from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry, calculate_battery_impacts, save_battery_results_to_csv, print_recursive_calculation
 from rsc.Postprocessing_results.visualization_functions import Visualization
 
 def get_process_sequence(process_names):
@@ -96,6 +96,8 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, site_location, abbrev_loc, dataframes_dict, chemical_map)
 
+    # TODO export database for Robert
+
     # Importing impact assessment methods
     import_aware(ei_reg, bio, site_name, site_db)
 
@@ -109,10 +111,44 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results, site_name, ei_name, abbrev_loc,
                                                        None, None, literature_eff, literature_Li_conc)
-    Visualization.plot_impact_categories(impacts, abbrev_loc)
-
     # Saving results
-    saving_LCA_results(impacts, abbrev_loc)
+    saving_LCA_results(impacts,abbrev_loc)
+
+    #Battery assessment
+    act_nmc_battery = [act for act in ei_reg if "battery production, Li-ion, NMC811, rechargeable, prismatic" in act['name']
+                       and "CN" in act['location']][0]
+    act_lfp_battery = [act for act in ei_reg if "battery production, Li-ion, LFP, rechargeable, prismatic" in act['name']
+                       and "CN" in act['location']][0]
+    act_battery_list = [act_nmc_battery, act_lfp_battery]
+    directory = f"results/rawdata/battery_assessment"
+
+    for battery in act_battery_list:
+        battery_impacts = calculate_battery_impacts(battery, method_list, site_db, ei_reg, country_location)
+        save_battery_results_to_csv(directory, battery_impacts, abbrev_loc, battery)
+
+        battery_files = {
+            "NMC811" : "NMC811_recursive_calculation.csv",
+            "LFP" : "LFP_recursive_calculation.csv"
+            }
+
+        # Extract battery type from the activity name
+        battery_type = None
+        for key in battery_files.keys() :
+            if key in battery['name'] :
+                battery_type = key
+                break
+
+        # Check if the battery type was found and get the filename
+        if battery_type :
+            filename = battery_files[battery_type]
+            print_recursive_calculation(battery,method_cc,abbrev_loc,filename,max_level=30,cutoff=0.01)
+            print(f'Using {filename} as filename')
+        else :
+            print('Battery type not recognized')
+            return  # Exit the function early if battery type is not recognized
+
+
+
 
     return impacts
 
@@ -152,6 +188,7 @@ def run_operation_analysis_with_brine_chemistry(project, site_name, site_locatio
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, site_location, abbrev_loc, dataframes_dict, chemical_map)
 
+
     # Importing impact assessment methods
     import_aware(ei_reg, bio, site_name, site_db)
 
@@ -181,7 +218,7 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'Site_{site_name}_literature_final'
+        project = f'Site_{site_name}_literature_final_final_final_2'
         print(f"Currently assessing: {project}")
 
         # Initialize flags to check the existence of project and results

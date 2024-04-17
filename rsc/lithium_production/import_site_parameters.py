@@ -186,6 +186,7 @@ def update_required_concentrations( process_sequence, vec_end, vec_ini):
 
 
 def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
+    print(f'abbrev_loc: {abbrev_loc}')
     # Load the Excel file
     op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
                             sheet_name="Sheet1", index_col=0)
@@ -298,7 +299,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         site_data["evaporation_rate"] = 0 # Set to 0 if the process is not in the sequence
 
 
-
+    print(f'abbrev_loc before extracted database: {abbrev_loc}')
     # Create a dictionary for the extracted data
     extracted_database = {
         abbrev_loc : {
