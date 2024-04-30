@@ -120,15 +120,15 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     act_lfp_battery = [act for act in ei_reg if "battery production, Li-ion, LFP, rechargeable, prismatic" in act['name']
                        and "CN" in act['location']][0]
     act_battery_list = [act_nmc_battery, act_lfp_battery]
-    directory = f"results/rawdata/battery_assessment"
+    battery_directory = f"results/rawdata/battery_assessment"
 
     for battery in act_battery_list:
         battery_impacts = calculate_battery_impacts(battery, method_list, site_db, ei_reg, country_location)
-        save_battery_results_to_csv(directory, battery_impacts, abbrev_loc, battery)
+        save_battery_results_to_csv(battery_directory, battery_impacts, abbrev_loc, battery)
 
         battery_files = {
-            "NMC811" : "NMC811_recursive_calculation.csv",
-            "LFP" : "LFP_recursive_calculation.csv"
+            "NMC811" : "NMC811_recursive_calculation",
+            "LFP" : "LFP_recursive_calculation"
             }
 
         # Extract battery type from the activity name
@@ -138,9 +138,12 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
                 battery_type = key
                 break
 
+        print(f'Battery type: {battery_type}')
+
         # Check if the battery type was found and get the filename
         if battery_type :
             filename = battery_files[battery_type]
+            print(battery)
             print_recursive_calculation(battery,method_cc,abbrev_loc,filename,max_level=30,cutoff=0.01)
             print(f'Using {filename} as filename')
         else :
@@ -218,8 +221,13 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'Site_{site_name}_literature_final_final_final_2'
+        project_old = f'Site_{site_name}_literature_final_final_final_3'
+        project = f'Site_{site_name}_literature_final_final_final_4'
         print(f"Currently assessing: {project}")
+        old_project_exists = project_old in bd.projects
+        if old_project_exists:
+            bd.projects.delete_project(project_old, delete_dir=True)
+            bd.projects.set_current("Default")
 
         # Initialize flags to check the existence of project and results
         project_exists = project in bd.projects

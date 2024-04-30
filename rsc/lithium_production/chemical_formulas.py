@@ -64,7 +64,7 @@ T_motherliq = 80  # Temperature of mother liquor
 T_nano = 45  # Temperature of nanofiltration
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
-adsorb_capacity_salar = 0.004 / (1 / 1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin
+adsorb_capacity_salar = 0.02 / (1 / 1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin
 Li_out_adsorb = 10000 #1650 #198 TODO check where this number comes from  # Li concentration in Li-ion adsorption [mg/L]
 Li_out_RO = 5000  # Li concentration in RO permeate [mg/L]
 Li_in_RO = 2500  # Li concentration in RO feed [mg/L]

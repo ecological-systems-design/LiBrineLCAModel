@@ -20,11 +20,11 @@ site_location = "Fen"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_12'
+    project = f'Site_{site_name}_13'
     bd.projects.set_current(project)
     print(project)
 
-    del bd.databases[site_name]
+    #del bd.databases[site_name]
     #del bd.databases[ei_name]
 
     country_location = "AR"
@@ -44,6 +44,8 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
+        Mg_removal_sodaash(),
+        acidification(),
         Li_adsorption(),
         triple_evaporator(),
         ion_exchange_L(),

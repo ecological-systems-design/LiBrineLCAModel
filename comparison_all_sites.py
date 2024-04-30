@@ -1,7 +1,7 @@
 from pathlib import Path
 import pickle
 import os
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, process_data_based_on_excel
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, process_data_based_on_excel, process_battery_scores
 from rsc.Postprocessing_results.visualization_functions import *
 from rsc.global_analysis.site_LCI_and_LCA import *
 from rsc.lithium_production.licarbonate_processes import *
@@ -18,13 +18,15 @@ if __name__ == '__main__' :
     directory_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results'
     save_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\global_comparison'
     save_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\recursive_calculation'
-    #site_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\results_Chaer\Chaerhan_climatechange_0.022_0.77_20240328_185718_.csv'
     base_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation'
+    resources_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\ResourceCalculator'
+    battery_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\battery'
 
+    #run_analysis_for_all_sites(file_path, directory_path)
 
-    run_analysis_for_all_sites(file_path, directory_path)
+    #
 
-    #TODO check Chaerhan because the results do not overlap with the ones in the graph.
+    ResourceCalculator.compile_resources(resources_dir, filepath)
 
     Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
     Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
@@ -38,7 +40,48 @@ if __name__ == '__main__' :
 
     Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
 
-    print('Finished the code')
+    # site_name = "Salar de Atacama"
+    # #Go into file path and extract all the site_names from the excel file
+    # # get location-specific data by importing xlsx file
+    # excel_data = pd.read_excel(file_path)
+    # # Transpose the data for easier processing
+    # transposed_data = excel_data.transpose()
+    # # Set the first row as the header
+    # transposed_data.columns = transposed_data.iloc[0]
+    # # Drop the first row since it's now the header
+    # transposed_data = transposed_data.drop(transposed_data.index[0])
+    # sites_info = {}
+    #
+    # for site,row in transposed_data.iterrows() :
+    #
+    #     site_info = {
+    #         "site_name" : site,
+    #         }
+    #
+    #     sites_info[site] = site_info
+    #
+    # # Convert 'sites_info' to DataFrame for easier manipulation
+    # sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+    # print(sites_df)
+    #
+    # #list of projects with the site_name
+    # project_list = site_name in bd.projects
+    # print(project_list)
+    # #battery_df = process_battery_scores(file_path, battery_dir)
+    # print('Finished the code')
+    # project = "default"
+    # bd.projects.set_current(project)
+    #
+    # #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
+    # for i in range(1,26):
+    #     project_old = f'Site_{site_name}_{i}'
+    #     if project_old in bd.projects:
+    #         print(f'Project {project_old} exists')
+    #         bd.projects.delete_project(project_old,delete_dir=True)
+    #         bd.projects.set_current(project)
+    #     else:
+    #         print(f'Project {project_old} does not exist')
+
 
 
 

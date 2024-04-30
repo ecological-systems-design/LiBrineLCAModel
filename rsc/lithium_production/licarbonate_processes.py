@@ -41,10 +41,10 @@ class evaporation_ponds :
         depth_well_freshwater = site_parameters['well_depth_freshwater']  # depth of the well for freshwater
         life = site_parameters['lifetime']  # lifetime of the plant
 
-        print(site_parameters)
+        #print(site_parameters)
 
         operating_time = op_days * 24 * 60 * 60  # Operating time in seconds
-        print('Overall efficiency within function ',overall_efficiency)
+        #print('Overall efficiency within function ',overall_efficiency)
         m_in_initial = m_in
         # Volume and mass changes during evaporation
         if round(vec_end[0], 4) != round(vec_ini[0], 4):
@@ -54,8 +54,8 @@ class evaporation_ponds :
             m_in = m_in/overall_efficiency
         brinemass_proc = 1.00
         brinemass_evap = brinemass_req - brinemass_proc  # Required mass which needs to be evaporated and precipitated
-        print('brine req ',brinemass_req)
-        print('brine_proc ', brinemass_proc)
+        #print('brine req ',brinemass_req)
+        #print('brine_proc ', brinemass_proc)
 
         # Elemental losses during evaporation based on chemical composition
         vec_loss = [
@@ -175,7 +175,7 @@ class evaporation_ponds :
         df_process['per kg'] = df_process['Values'] / df_process.iloc[0][1]
 
         m_out = df_process.iloc[0]['Values']
-        print(df_process)
+        #print(df_process)
 
         return {
             'process_name' : process_name,
@@ -595,6 +595,9 @@ class Li_adsorption :
         life = site_parameters['lifetime']  # lifetime of the plant
         T_out = site_parameters['annual_airtemp']  # annual air temperature
         deposit_type = site_parameters['deposit_type']  # type of deposit
+        process_sequence = site_parameters['process_sequence']  # process sequence
+
+
         adsorbent_loss = prod * ((2 * Li) / (2 * Li + C + 3 * O)) * 1.25
         if deposit_type == 'salar' :
             adsorbent_invest = prod * ((2 * Li) / (2 * Li + C + 3 * O)) / adsorb_capacity_salar
@@ -603,14 +606,24 @@ class Li_adsorption :
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
 
         if deposit_type == 'salar' :
-            water_adsorbent = (((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O)
-            test = 10259525960.338968
-            print('Ratio ', water_adsorbent/test)
-            #water_adsorbent = 4.346526e+09
-            #water_adsorbent = ((dens_pulp/(Li_out_adsorb/10e-6 * dens_pulp)) * (prod * ((2 * Li) / (2 * Li + C + 3 * O))))
-            E_adsorp = (
-                            ((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
-                        ) / heat_loss
+            #water_adsorbent = (((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O)
+            water_adsorbent = 100 * adsorbent_invest
+
+            # Check processing sequence to properly estimate energy demand// brine is already heated up in processing sequence
+            mg_index = process_sequence.index('Mg_removal_sodaash') if 'Mg_removal_sodaash' in process_sequence else -1
+            li_index = process_sequence.index('Li_adsorption') if 'Li_adsorption' in process_sequence else -1
+
+            if mg_index != -1 and li_index != -1 and mg_index < li_index :
+                E_adsorp = (
+                                   ((T_desorp - T_out) * hCHH * water_adsorbent) + (
+                                       (T_adsorp - T_Mg_soda) * hCHH_bri * m_in) / 10 ** 6
+                           ) / heat_loss
+                print(f'Brine is already heated up in processing sequence: {T_Mg_soda} °C')
+
+            else:
+                E_adsorp = (
+                                ((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6
+                            ) / heat_loss
 
         else :
             water_adsorbent = 100 * adsorbent_invest #TODO check if this is correct
@@ -709,7 +722,6 @@ class Li_adsorption :
             E_adsorp_without_nano_water = (((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1]) / 10 ** 6) / heat_loss
             E_adsorp_adapted = E_adsorp_without_nano_water - E_water_nano
 
-
             if E_adsorp_adapted < 0:
                 E_adsorp_adapted = 0
 
@@ -719,7 +731,7 @@ class Li_adsorption :
                                 ((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1])) / 10 ** 6) / heat_loss
 
         df_adsorption.loc[5, 'Values'] = E_adsorp_adapted
-        print(f'Energy adapted: {E_adsorp_adapted}')
+        #print(f'Energy adapted: {E_adsorp_adapted}')
         df_adsorption.loc[5, 'per kg'] = E_adsorp_adapted / df_adsorption.iloc[0, 1]
 
         return df_adsorption, df_nanofiltration, df_reverse_osmosis
@@ -728,6 +740,7 @@ class Li_adsorption :
                              hCHH,
                              heat_loss, site_parameters) :
         water_evap_in = water_evap
+        process_sequence = site_parameters['process_sequence']
         T_out = site_parameters['annual_airtemp']  # annual air temperature
         deposit_type = site_parameters['deposit_type']  # type of deposit
         new_value = df_adsorption.iloc[3, 1] - water_evap
@@ -747,19 +760,33 @@ class Li_adsorption :
         df_triple_evaporator.loc[len(df_triple_evaporator.index)] = ['backflow_evap', water_evap, 0]
 
         if deposit_type == "salar":
+            # Check processing sequence to properly estimate energy demand// brine is already heated up in processing sequence
+            mg_index = process_sequence.index('Mg_removal_sodaash') if 'Mg_removal_sodaash' in process_sequence else -1
+            li_index = process_sequence.index('Li_adsorption') if 'Li_adsorption' in process_sequence else -1
             if T_evap > T_desorp:
                 E_water_evap = (((T_evap - T_desorp) * hCHH * water_evap_in) / 10 ** 6) * heat_loss
-                E_adsorp_without_evap_water = (((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1]) / 10 ** 6) / heat_loss
+
+                if mg_index != -1 and li_index != -1 and mg_index < li_index :
+                    E_adsorp_without_evap_water = (((T_adsorp - T_Mg_soda) * hCHH_bri * df_adsorption.iloc[1, 1]) / 10 ** 6) / heat_loss
+                else:
+                    E_adsorp_without_evap_water = (((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[
+                        1,1]) / 10 ** 6) / heat_loss
 
                 E_adsorp_adapted = E_adsorp_without_evap_water - E_water_evap
+                print('Adapted energy demand for Adsorption unit')
 
                 if E_adsorp_adapted < 0:
                     E_adsorp_adapted = 0
 
 
             else:
-                E_adsorp_adapted = ((((T_desorp - T_out) * hCHH * df_adsorption.iloc[3, 1]) +
-                                    ((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1])) / 10 ** 6) / heat_loss
+                if mg_index != -1 and li_index != -1 and mg_index < li_index :
+                    E_adsorp_adapted = ((((T_desorp - T_out) * hCHH * df_adsorption.iloc[3,1]) +
+                                         ((T_adsorp - T_Mg_soda) * hCHH_bri * df_adsorption.iloc[
+                                             1,1])) / 10 ** 6) / heat_loss
+                else:
+                    E_adsorp_adapted = ((((T_desorp - T_out) * hCHH * df_adsorption.iloc[3, 1]) +
+                                        ((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1])) / 10 ** 6) / heat_loss
 
             df_adsorption.loc[5, 'Values'] = E_adsorp_adapted
             df_adsorption.loc[5, 'per kg'] = E_adsorp_adapted / df_adsorption.iloc[0, 1]
@@ -1314,7 +1341,7 @@ class triple_evaporator :
 
         if deposit_type == 'salar' :
 
-            if motherliq is not None:
+            if motherliq != 0:
                 m_output = motherliq + 1.5 *(prod * (2 * Li / (2 * Li + C + O * 3)))
                 water_evap = m_in - m_output
                 steam = (water_evap/evaporator_gor)*0
@@ -1652,18 +1679,21 @@ class CentrifugeBase :
 
         # Check if motherliq is provided and use it instead of waste_liquid_factor
         if motherliq is not None :
-            waste_liquid = motherliq
+            recycled_waste = motherliq
+            self.recycle_factor = None
+            waste_liquid = -(m_in - motherliq - m_output)
+
         else :
-            # Use waste_liquid_factor and divide by 1000 if it's not None
+            # Use waste_liquid_factor
             if self.waste_liquid_factor is not None :
-                waste_liquid = (m_in - m_output) * self.waste_liquid_factor / 1000
+                waste_liquid = (m_in - m_output) * self.waste_liquid_factor #/ 1000
 
         if self.waste_solid_factor is not None :
             waste_solid = (m_in - m_output) * self.waste_solid_factor
 
         # Calculate recycled waste if applicable
         if self.recycle_factor is not None :
-            recycled_waste = (m_in - m_output) * self.recycle_factor
+            recycled_waste = waste_liquid * self.recycle_factor
 
         # Compile data for dataframe
         variables = ['m_output', 'm_in', 'elec']
@@ -1730,7 +1760,7 @@ class CentrifugeWash(CentrifugeBase) :
             process_name='df_centrifuge_wash',
             density_key='density_brine',
             prod_factor=1.5,
-            waste_liquid_factor=-1/1000
+            waste_liquid_factor=-1 #/1000
             )
 
 
@@ -1749,12 +1779,9 @@ class CentrifugePurification :
 
     def execute(self, waste, m_in) :
         process_name = self.process_name if self.process_name else f"df_centrifuge_purification_{waste.strip().lower()}"
-        print('m_in ', m_in)
-        print('waste ', waste)
+
         elec_centri = waste / 100
         m_output = m_in - waste
-        print('m_output ', m_output)
-        print(self.process_name)
 
         # Compile data for dataframe
         variables = ['m_output', 'm_in', 'elec', 'waste_solid']
@@ -2223,6 +2250,8 @@ class ProcessManager :
             self.data_frames['ion_exchange_H'] = ion_exchange_H.update_IX(self.data_frames['ion_exchange_H'],
                                                                              self.data_frames['triple_evaporator'])
 
+        print(results)
+
         return results
 
     def calculate_resource_per_prod_mass(self, result_df, prod) :
@@ -2236,6 +2265,7 @@ class ProcessManager :
             energy_sum += df[df['Variables'].str.startswith('E_')]['Values'].sum()
             elec_sum += df[df['Variables'].str.startswith('elec_')]['Values'].sum()
             water_sum += df[df['Variables'].str.startswith('water_')]['Values'].sum()
+
 
         if production_mass > 0 :
             energy_per_prod_mass = energy_sum / production_mass
@@ -2276,6 +2306,11 @@ class ProcessManager :
                 manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
 
                 result_df = manager.run(filename)
+
+                calculator = ResourceCalculator(result_df)
+                results = calculator.calculate_resource_per_prod_mass(production_mass=prod)  # example production mass
+                calculator.save_to_csv(results,
+                                       filename=f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\rawdata\\ResourceCalculator\\output_{abbrev_loc}.csv')
 
                 energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass = manager.calculate_resource_per_prod_mass(
                     result_df, prod)
@@ -2340,6 +2375,10 @@ class ProcessManager :
 
         result_df = manager.run(filename)
 
+        calculator = ResourceCalculator(result_df)
+        results = calculator.calculate_resource_per_prod_mass(production_mass=prod)  # example production mass
+        calculator.save_to_csv(results, filename = f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\rawdata\\ResourceCalculator\\output_{abbrev_loc}.csv')
+
         energy_per_prod_mass, elec_per_prod_mass, water_per_prod_mass = manager.calculate_resource_per_prod_mass(
             result_df, prod)
 
@@ -2371,10 +2410,156 @@ class ProcessManager :
         return results_dict, literature_eff, literature_Li_conc
 
 
+class ResourceCalculator :
+    def __init__(self,data_frames) :
+        self.data_frames = data_frames
+
+    def calculate_resource_per_prod_mass(self,production_mass) :
+        results = {
+            'Heat' : 0,
+            'Electricity' : 0,
+            'Water' : 0,
+            'Chemicals' : {},
+            'Waste' : {}
+            }
+
+        if production_mass <= 0 :
+            return results  # Return early if production_mass is not positive
+
+        energy_sum = elec_sum = water_sum = 0
+
+        for df in self.data_frames.values() :
+            energy_sum += df[df['Variables'].str.startswith('E_')]['Values'].sum()
+            elec_sum += df[df['Variables'].str.startswith('elec_')]['Values'].sum()
+            water_sum += df[df['Variables'].str.startswith('water_')]['Values'].sum()
+
+            # Process each chemical
+            for index,row in df[df['Variables'].str.startswith('chemical_')].iterrows() :
+                chemical_name = row['Variables'].split('_')[1]
+                if chemical_name not in results['Chemicals'] :
+                    results['Chemicals'][chemical_name] = 0
+                results['Chemicals'][chemical_name] += row['Values']
+
+            # Process each waste
+            for index,row in df[df['Variables'].str.startswith('waste_')].iterrows() :
+                waste_name = row['Variables'].split('_')[1]
+                if waste_name not in results['Waste'] :
+                    results['Waste'][waste_name] = 0
+                results['Waste'][waste_name] += row['Values']
+
+        # Calculating per production mass
+        results['Heat'] = energy_sum / production_mass
+        results['Electricity'] = elec_sum / production_mass
+        results['Water'] = water_sum / production_mass
+        results['Chemicals'] = {k : v / production_mass for k,v in
+                                              results['Chemicals'].items()}
+        results['Waste'] = {k : v / production_mass for k,v in results['Waste'].items()}
+
+        return results
+
+    def save_to_csv(self,results,filename="output.csv") :
+        os.makedirs(os.path.dirname(filename),exist_ok=True)
+
+        # Flatten the dictionary for CSV output
+        flattened_data = {
+            'Heat' : results['Heat'],
+            'Electricity' : results['Electricity'],
+            'Water' : results['Water']
+            }
+        for key,subdict in results.items() :
+            if isinstance(subdict,dict) :
+                for subkey,value in subdict.items() :
+                    flattened_data[f'{key} ({subkey})'] = value
+
+        # Convert to DataFrame and save to CSV
+        df = pd.DataFrame([flattened_data])
+        df.to_csv(filename,index=False)
+        print(f"Data saved to {filename}")
+
+    def compile_resources(directory, file_path) :
+        # Extract location_names for abbrev_loc
+        excel_data = pd.read_excel(file_path)
+        transposed_data = excel_data.transpose()
+        transposed_data.columns = transposed_data.iloc[0]
+        transposed_data = transposed_data.drop(transposed_data.index[0])
+
+        sites_info = {}
+
+        # The index now holds the site names
+        for site,row in transposed_data.iterrows() :
+            activity_status = row.get("activity_status",None)
+
+            production_value = row.get("production",standard_values.get("production"))
+            if pd.isna(production_value) :  # Check if the value is nan
+                production_value = standard_values.get("production",
+                                                       "Unknown")  # Replace with the default if it's nan
+
+            site_info = {
+                "site_name" : site,  # Add site name to site_info
+                "abbreviation" : row["abbreviation"],
+                "country_location" : row["country_location"],
+                "ini_Li" : row.get("ini_Li",None),
+                "Li_efficiency" : row.get("Li_efficiency",None),
+                "deposit_type" : row.get("deposit_type",None),
+                "technology_group" : row.get("technology_group",None),
+                "activity_status" : row.get("activity_status",None),
+                "activity_status_order" : activity_status_order.get(activity_status,'4 - Other'),
+                "production" : production_value,
+                }
+
+            # Add to the main dictionary
+            sites_info[site] = site_info
+
+        sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+
+        # List all files in the directory
+        files = os.listdir(directory)
+
+        # Filter files to only those that match the pattern "output_*.csv"
+        filtered_files = [file for file in files if file.startswith('output_') and file.endswith('.csv')]
+
+        # Dictionary to hold data from each site
+        all_data = []
+
+        for file in filtered_files :
+            # Construct the full file path
+            full_path = os.path.join(directory,file)
+            # Extract site name from the file name (assumes format "output_{abbrev_loc}.csv")
+            abbrev_loc_from_dir = os.path.splitext(file)[0].split('_')[1]
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv(full_path)
+
+            # Find the matching site name using abbreviation
+            match = sites_df.loc[sites_df['abbreviation'] == abbrev_loc_from_dir,'site_name'].values
+            site_name = match[0] if match.size > 0 else None
+
+            if site_name is None :
+                print(f"No site found for abbreviation: {abbrev_loc_from_dir}")
+                continue  # Skip this file if no matching site is found
 
 
+            # Add a column for the site name and make it as an index
+            df['location'] = site_name
+            df.set_index('location',inplace=True)
+            # Store DataFrame in dictionary
+            all_data.append(df)
 
+        # Combine all DataFrames into one, each as a column
+        combined_df = pd.concat(all_data,axis=0)
 
+        # Optional: rearrange multi-level columns if necessary
+        combined_df.columns = combined_df.columns.map(lambda x : f'{x[0]}_{x[1]}' if isinstance(x,tuple) else x)
+
+        ResourceCalculator.save_compiled_csv(combined_df,directory, filename = "compiled_resource_data")
+
+        return combined_df
+
+    @staticmethod
+    def save_compiled_csv(compiled_data, directory, filename):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_path = os.path.join(directory, filename + "_" + timestamp + ".csv")
+        compiled_data.to_csv(output_path)
+        print(f"Data from ResourceCalculator saved to '{output_path}'")
 
 process_function_map = {
     "evaporation_ponds": evaporation_ponds,

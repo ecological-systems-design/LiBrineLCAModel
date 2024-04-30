@@ -1,8 +1,14 @@
 import os
 from pathlib import Path
 import pickle
-
+from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+from rsc.lithium_production.licarbonate_processes import *
 import bw2data as bd
+from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+from rsc.Brightway2.setting_up_db_env import *
+from rsc.Brightway2.lci_method_aware import import_aware
+from rsc.Brightway2.lci_method_pm import import_PM
+from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -19,13 +25,13 @@ site_location = "Ata"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_21'
+    project = f'Site_{site_name}_2'
     bd.projects.set_current(project)
     print(project)
 
 
     #del bd.databases[site_name]
-    # del bd.databases[ei_name]
+    #del bd.databases[ei_name]
 
     country_location = "CL"
 
@@ -38,10 +44,10 @@ if __name__ == '__main__' :
     op_location = "Salar de Atacama"
 
     # initialize the processing sequence
-    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+
 
     process_sequence = [
         evaporation_ponds(),
@@ -76,12 +82,12 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 0.9
-    min_eff = 0.3
-    eff_steps = 0.3
-    Li_conc_steps = 0.05
-    Li_conc_max = 0.25
-    Li_conc_min = 0.05
+    max_eff = 0.45
+    min_eff = 0.43
+    eff_steps = 0.1
+    Li_conc_steps = 0.1
+    Li_conc_max = 0.15
+    Li_conc_min = 0.1
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
@@ -89,18 +95,16 @@ if __name__ == '__main__' :
 
     print(results)
 
-    from rsc.Brightway2.setting_up_db_env import *
+
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
-    from rsc.Brightway2.lci_method_aware import import_aware
+
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    from rsc.Brightway2.lci_method_pm import import_PM
-
-    import_PM(ei_reg, bio, site_name, site_db)
+    #import_PM(ei_reg, bio, site_name, site_db)
 
     # print(results)
 
@@ -110,21 +114,19 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
 
     method_list = [method_cc, method_water]
 
-    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
-
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
-    print('abbrev_loc:', abbrev_loc)
+
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
                                                        site_name, ei_name, abbrev_loc, eff_range, Li_conc_range
                                                        )
 
     # saving results
-    from rsc.Brightway2.impact_assessment import saving_LCA_results
+
 
     # Get efficiency and Li-conc ranges for filename
     efficiencies = [round(eff, 1) for (eff, _) in impacts.keys()]
@@ -137,10 +139,9 @@ if __name__ == '__main__' :
 
     saving_LCA_results(impacts, abbrev_loc)
 
-    from rsc.Postprocessing_results.visualization_functions import Visualization
 
-    # Plot the results
-    Visualization.plot_impact_categories(impacts, abbrev_loc)
+
+
 
 
 

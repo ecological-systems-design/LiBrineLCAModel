@@ -16,8 +16,12 @@ category_mapping = {
     'df_washing_TG' : 'df_Liprec_TG',
     'df_centrifuge_TG' : 'df_Liprec_TG',
     'df_Liprec_TG' : 'df_Liprec_TG',
-    "df_centrifuge_purification_quicklime" : "df_Mg_removal_quicklime",
-    "df_centrifuge_purification_sodaash" : "df_Mg_removal_sodaash",
+    'df_centrifuge_purification_quicklime' : 'df_Mg_removal_quicklime',
+    'df_Mg_removal_quicklime': 'df_Mg_removal_quicklime',
+    'df_Mg_removal_sodaash': 'df_Mg_removal_sodaash',
+    'df_centrifuge_purification_sodaash' : 'df_Mg_removal_sodaash',
+    'df_transport': 'df_evaporation_ponds',
+    'df_evaporation_ponds': 'df_evaporation_ponds',
     }
 
 
@@ -332,25 +336,6 @@ def prepare_data_for_waterfall_diagram(file_path):
     return grouped_process_df
 
 
-def find_latest_matching_file_old(directory,li_conc,eff,impact_type) :
-    latest_file = None
-    latest_time = None
-
-    for file in os.listdir(directory) :
-        if all(x in file for x in [str(li_conc),str(eff),impact_type,'.csv']) :
-            # Extract timestamp from the file name
-            try :
-                timestamp_str = file.split('_')[-1].split('.')[0]
-                timestamp = datetime.datetime.strptime(timestamp_str,'%Y%m%d_%H%M%S')
-                if latest_time is None or timestamp > latest_time :
-                    latest_time = timestamp
-                    latest_file = file
-            except ValueError as e :
-                print(f"Error parsing timestamp from {file}: {e}")
-
-    return os.path.join(directory,latest_file) if latest_file else None
-
-
 def find_latest_matching_file(directory, li_conc, eff, impact_type):
     if not os.path.exists(directory):
         print(f"Directory does not exist: {directory}")
@@ -406,4 +391,136 @@ def process_data_based_on_excel(excel_path, base_directory):
             else:
                 print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and Eff: {eff}")
 
+
+def process_battery_scores(file_path, directory) :
+    # get location-specific data by importing xlsx file
+    excel_data = pd.read_excel(file_path)
+
+    # Transpose the data for easier processing
+
+    transposed_data = excel_data.transpose()
+
+    # Set the first row as the header
+
+    transposed_data.columns = transposed_data.iloc[0]
+
+    # Drop the first row since it's now the header
+
+    transposed_data = transposed_data.drop(transposed_data.index[0])
+
+    # Dictionary to group activity status
+
+    activity_status_order = {
+        # Early stage
+        'Grassroots' : '3 - Exploration - Early stage',
+        'Exploration' : '3 - Exploration - Early stage',
+        'Target Outline' : '3 - Exploration - Early stage',
+        'Commissioning' : '3 - Exploration - Early stage',
+        'Prefeas/Scoping' : '3 - Exploration - Early stage',
+        'Advanced exploration' : '3 - Exploration - Early stage',
+        'Feasibility Started' : '3 - Exploration - Early stage',
+        # Late stage
+        'Reserves Development' : '2 - Exploration - Late stage',
+        'Feasibility' : '2 - Exploration - Late stage',
+        'Feasibility complete' : '2 - Exploration - Late stage',
+        'Construction started' : '2 - Exploration - Late stage',
+        'Construction planned' : '2 - Exploration - Late stage',
+        # Mine stage
+        'Preproduction' : '1 - Mine stage',
+        'Production' : '1 - Mine stage',
+        'Operating' : '1 - Mine stage',
+        'Satellite' : '1 - Mine stage',
+        'Expansion' : '1 - Mine stage',
+        'Limited production' : '1 - Mine stage',
+        'Residual production' : '1 - Mine stage'
+        }
+
+    sites_info = {}
+
+    for site,row in transposed_data.iterrows() :
+        activity_status = row.get("activity_status",None)
+
+        production_value = row.get("production",standard_values.get("production"))
+        if pd.isna(production_value) :  # Check if the value is nan
+            production_value = standard_values.get("production","Unknown")  # Replace with the default if it's nan
+
+        site_info = {
+            "site_name": site,
+            "abbreviation" : row["abbreviation"],
+            "country_location" : row["country_location"],
+            "ini_Li" : row.get("ini_Li",None),
+            "Li_efficiency" : row.get("Li_efficiency",None),
+            "deposit_type" : row.get("deposit_type",None),
+            "technology_group" : row.get("technology_group",None),
+            "activity_status" : row.get("activity_status",None),
+            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other'),
+            "production" : production_value,
+            }
+
+        # Add to the main dictionary
+
+        sites_info[site] = site_info
+
+    # Convert 'sites_info' to DataFrame for easier manipulation
+    sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+
+
+
+    # Initialize an empty DataFrame to store the results
+    results_df = pd.DataFrame(columns=['Location','NMC811','LFP'])
+
+    # Loop through each file in the directory
+    for filename in os.listdir(directory) :
+        if 'recursive_calculation' in filename and filename.endswith('.csv') :
+            parts = filename.split('_')
+            battery_type = 'NMC811' if 'NMC811' in filename else 'LFP'
+            location_abbreviation = parts[3]
+            print(f'print abbrev from file name: {location_abbreviation}')
+
+            # Check for matching site using abbreviation
+            if location_abbreviation in sites_df['abbreviation'].values :
+                site_details = sites_df[sites_df['abbreviation'] == location_abbreviation].iloc[0]
+                site_name = site_details['site_name']
+                country = site_details['country_location']
+                activity_status_order = site_details['activity_status_order']
+                li_conc = site_details['ini_Li']
+
+                print(f'Processing {site_name} for {battery_type}...')
+
+
+                # Construct the full path to the file
+                file_path = os.path.join(directory,filename)
+
+                # Load the CSV file
+                data = pd.read_csv(file_path)
+
+                # Get and round the score from Level 0
+                score_level_0 = np.round(data[data['Level'] == 0]['Score'].iloc[0],1)
+
+                # Check if the location is already in the DataFrame
+                if site_name in results_df['Location'].values :
+                    results_df.loc[results_df['Location'] == site_name,battery_type] = score_level_0
+                else :
+                    # Initialize scores for both types to zero
+                    new_scores = {'NMC811' : 0,'LFP' : 0,battery_type : score_level_0}
+                    new_row = pd.DataFrame({
+                                               'Location' : [site_name],'Country' : [country],
+                                               'Activity Status' : [activity_status_order],
+                                                'Li-conc.': [li_conc], **new_scores})
+                    results_df = pd.concat([results_df,new_row],ignore_index=True)
+            else :
+                print(f"No site found for abbreviation: {location_abbreviation}")
+                continue  # Skip this file if no matching site is found
+
+    # Sort results based on country and activity
+    sorted_results_df = results_df.sort_values(by=['Country','Activity Status', 'Li-conc'],ascending=[True,True,False])
+
+    # Save the updated DataFrame
+    time_stamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    results_filename = f'battery_scores_{time_stamp}.csv'
+
+    sorted_results_df.to_csv(os.path.join(directory,results_filename),index=False)
+    print(f"Saved new file {results_filename} to {directory}")
+
+    return results_df
 

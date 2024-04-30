@@ -305,6 +305,9 @@ class Visualization :
         save_path_png = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.png')
         fig.write_image(save_path_png)
 
+        save_path_svg = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.svg')
+        fig.write_image(save_path_svg)
+
         save_path_html = os.path.join(save_dir, f'LCA_Comparison_Plot_{timestamp}.html')
         fig.write_html(save_path_html)
 
@@ -400,6 +403,9 @@ class Visualization :
         # Save the figure to the specified directory
         save_path_png = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.png')
         fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.svg')
+        fig.write_image(save_path_svg)
 
         save_path_html = os.path.join(save_dir, f'LCA_Comparison_technology_{timestamp}.html')
         fig.write_html(save_path_html)
@@ -533,6 +539,9 @@ class Visualization :
         # Save the figure to the specified directory
         save_path_png = os.path.join(save_dir,f'LCA_Comparison_exploration_Li_conc_{timestamp}.png')
         fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_dir,f'LCA_Comparison_exploration_Li_conc_{timestamp}.svg')
+        fig.write_image(save_path_svg)
 
         save_path_html = os.path.join(save_dir,f'LCA_Comparison_exploration_Li_conc_{timestamp}.html')
         fig.write_html(save_path_html)
@@ -715,10 +724,13 @@ class Visualization :
         save_path_png = os.path.join(save_dir,f'LCA_Comparison_production_Li_conc_{timestamp}.png')
         fig.write_image(save_path_png)
 
+        save_path_svg = os.path.join(save_dir,f'LCA_Comparison_production_Li_conc_{timestamp}.svg')
+        fig.write_image(save_path_svg)
+
         save_path_html = os.path.join(save_dir,f'LCA_Comparison_production_Li_conc_{timestamp}.html')
         fig.write_html(save_path_html)
 
-        print(f"Figure saved to {save_path_png} and {save_path_html}")
+        print(f"Figure saved to {save_path_png}, {save_path_svg} and {save_path_html}")
 
     def plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_dir) :
         matched_results,sites_info = preparing_data_for_LCA_results_comparison(file_path,directory_path)
@@ -798,6 +810,8 @@ class Visualization :
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
         fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.png'))
+
+        fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.svg'))
 
         fig.write_html(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.html'))
 
@@ -883,6 +897,8 @@ class Visualization :
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
         fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.png'))
+
+        fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.svg'))
 
         fig.write_html(os.path.join(save_dir,f'LCA_Results_Scatter_{timestamp}.html'))
 
@@ -985,108 +1001,13 @@ class Visualization :
 
         fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_Liconc_{timestamp}.png'))
 
+        fig.write_image(os.path.join(save_dir,f'LCA_Results_Scatter_Liconc_{timestamp}.svg'))
+
         fig.write_html(os.path.join(save_dir,f'LCA_Results_Scatter_Liconc_{timestamp}.html'))
 
         print(f"Scatter plot saved in {save_dir}")
 
 
-
-    def create_global_map(save_dir, data,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
-        """
-        Creates a global map of sites using Plotly.
-
-        Parameters:
-        - data: DataFrame containing the site data.
-        - longitude_col: Name of the column containing longitude values.
-        - latitude_col: Name of the column containing latitude values.
-        - name_col: Name of the column containing site names.
-        """
-
-        global_map = go.Figure(go.Scattergeo(
-            lon=data[longitude_col],
-            lat=data[latitude_col],
-            mode='markers',
-            marker=dict(size=8,color='blue',line=dict(width=1,color='white')),
-            text=data[name_col]  # Display site name on hover
-            ))
-
-        global_map.update_layout(
-            title='Global Distribution of Operations',
-            geo=dict(
-                projection_type='natural earth',
-                showland=True,
-                landcolor='lightgrey',
-                countrycolor='black'
-                )
-            )
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Check if save directory exists, if not, create it
-        if not os.path.exists(save_dir) :
-            os.makedirs(save_dir)
-
-        # Save the figure to the specified directory
-        save_path_png = os.path.join(save_dir,f'LCA_globalmap_{timestamp}.png')
-        global_map.write_image(save_path_png)
-
-        save_path_html = os.path.join(save_dir,f'LCA_globalmap_{timestamp}.html')
-        global_map.write_html(save_path_html)
-
-        print(f"Figure saved to {save_path_png} and {save_path_html}")
-
-        return global_map
-
-
-
-    def create_submap(save_dir, data,region_bounds,longitude_col='longitude',latitude_col='latitude',name_col='Site name') :
-        """
-        Creates a submap for a specific region using Plotly.
-
-        Parameters:
-        - data: DataFrame containing the site data.
-        - region_bounds: Dictionary with keys 'lon_min', 'lon_max', 'lat_min', 'lat_max' defining the region's bounds.
-        - longitude_col: Name of the column containing longitude values.
-        - latitude_col: Name of the column containing latitude values.
-        - name_col: Name of the column containing site names.
-        """
-
-        submap = go.Figure(go.Scattergeo(
-            lon=data[longitude_col],
-            lat=data[latitude_col],
-            mode='markers',
-            marker=dict(size=8,color='red',line=dict(width=1,color='white')),
-            text=data[name_col]  # Display site name on hover
-            ))
-
-        submap.update_layout(
-            title='Detailed View of Specific Region',
-            geo=dict(
-                projection_type='natural earth',
-                showland=True,
-                landcolor='lightgrey',
-                countrycolor='black',
-                lonaxis=dict(range=[region_bounds['lon_min'],region_bounds['lon_max']]),
-                lataxis=dict(range=[region_bounds['lat_min'],region_bounds['lat_max']])
-                )
-            )
-
-        # Check if save directory exists, if not, create it
-        if not os.path.exists(save_dir) :
-            os.makedirs(save_dir)
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Save the figure to the specified directory
-        save_path_png = os.path.join(save_dir,f'LCA_submap_{timestamp}.png')
-        submap.write_image(save_path_png)
-
-        save_path_html = os.path.join(save_dir,f'LCA_submap_{timestamp}.html')
-        submap.write_html(save_path_html)
-
-        print(f"Figure saved to {save_path_png} and {save_path_html}")
-
-        return submap
 
     def create_plots_from_brinechemistry(directory_path, save_dir) :
         # Dictionary to hold the aggregated data for each site
@@ -1148,6 +1069,9 @@ class Visualization :
         # Save the figure to the specified directory
         save_path_png = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.png')
         fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.svg')
+        fig.write_image(save_path_svg)
 
         save_path_html = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.html')
         fig.write_html(save_path_html)
@@ -1228,7 +1152,9 @@ class Visualization :
                 tickvals=[i * 10 for i in range(int(reversed_df['Score'].max() / 10) + 1)],
                 dtick=10,
                 ticklen=10,
-                tickwidth=2
+                tickwidth=2,
+                range = [0, reversed_df['Start'].max() + reversed_df['Score_Diff'].max()]
+
                 ),
             font=dict(size=12),
             bargap=0
@@ -1247,10 +1173,13 @@ class Visualization :
         save_path_png = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.png')
         fig.write_image(save_path_png)
 
-        save_path_html = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.html')
-        fig.write_html(save_path_html)
+        save_path_svg = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.svg')
+        fig.write_image(save_path_svg)
 
-        print(f"Figure saved as png and html files.")
+        #save_path_html = os.path.join(save_dir,f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.html')
+        #fig.write_html(save_path_html)
+
+        print(f"Figure saved as png and svg files.")
 
     def process_data_based_on_excel(excel_path,base_directory, save_directory) :
         excel_data = pd.read_excel(excel_path)
@@ -1265,11 +1194,10 @@ class Visualization :
         # Drop the first row since it's now the header
 
         excel_data = transposed_data.drop(transposed_data.index[0])
-        print("Column names:",excel_data.columns)
 
         for index,row in excel_data.iterrows() :
             abbrev_loc = row['abbreviation']
-            li_conc = row['ini_Li']
+            li_conc = round(row['ini_Li'],3)
             eff = row['Li_efficiency']
             location = index
 
@@ -1282,3 +1210,90 @@ class Visualization :
                     Visualization.create_waterfall_plots(latest_file_path,save_directory, abbrev_loc, li_conc, eff, impact_type, location)
                 else :
                     print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+
+
+class GeneralGraphs:
+
+    @staticmethod
+    def create_global_map(save_dir, data, longitude_col='longitude', latitude_col='latitude', name_col='Site name'):
+        """
+        Creates a global map of sites using Plotly.
+        """
+        try:
+            global_map = go.Figure(go.Scattergeo(
+                lon=data[longitude_col],
+                lat=data[latitude_col],
+                mode='markers',
+                marker=dict(size=10, color='rgb(135,206,250)', line=dict(width=1, color='rgba(255,255,255,0.5)')),
+                text=data[name_col],  # Display site name on hover
+                hoverinfo='text'
+            ))
+
+            global_map.update_layout(
+                title=dict(text='Global Distribution of Operations', x=0.5, font=dict(size=20, color='black')),
+                geo=dict(
+                    projection_type='natural earth',
+                    showland=True,
+                    landcolor='rgb(243,243,243)',
+                    countrycolor='rgb(204,204,204)',
+                    showcountries=True,
+                    showcoastlines=True,
+                    coastlinecolor='rgb(180,180,180)'
+                )
+            )
+
+            GeneralGraphs._save_figure(global_map, save_dir, 'LCA_globalmap')
+
+            return global_map
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
+    @staticmethod
+    def create_submap(save_dir, data, region_bounds, longitude_col='longitude', latitude_col='latitude', name_col='Site name'):
+        """
+        Creates a submap for a specific region using Plotly.
+        """
+        try:
+            submap = go.Figure(go.Scattergeo(
+                lon=data[longitude_col],
+                lat=data[latitude_col],
+                mode='markers',
+                marker=dict(size=10, color='rgb(255,69,0)', line=dict(width=1, color='rgba(255,255,255,0.5)')),
+                text=data[name_col],  # Display site name on hover
+                hoverinfo='text'
+            ))
+
+            submap.update_layout(
+                title=dict(text='Detailed View of Specific Region', x=0.5, font=dict(size=20, color='black')),
+                geo=dict(
+                    projection_type='natural earth',
+                    showland=True,
+                    landcolor='rgb(243,243,243)',
+                    countrycolor='rgb(204,204,204)',
+                    lonaxis=dict(range=[region_bounds['lon_min'], region_bounds['lon_max']]),
+                    lataxis=dict(range=[region_bounds['lat_min'], region_bounds['lat_max']])
+                )
+            )
+
+            GeneralGraphs._save_figure(submap, save_dir, 'LCA_submap')
+
+            return submap
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
+    @staticmethod
+    def _save_figure(figure, save_dir, base_filename):
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            save_path_png = os.path.join(save_dir, f'{base_filename}_{timestamp}.png')
+            figure.write_image(save_path_png)
+
+            save_path_svg = os.path.join(save_dir, f'{base_filename}_{timestamp}.svg')
+            figure.write_image(save_path_svg)
+            #save_path_html = os.path.join(save_dir, f'{base_filename}_{timestamp}.html')
+            #figure.write_html(save_path_html)
+            print(f"Figure saved to {save_path_png} and {save_path_svg}")
+        except Exception as e:
+            print(f"Error saving figure: {e}")

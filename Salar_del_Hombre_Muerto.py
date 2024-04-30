@@ -22,7 +22,7 @@ site_location = "Hom"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_15'
+    project = f'Site_{site_name}_17'
     bd.projects.set_current(project)
     print(project)
 
@@ -78,12 +78,12 @@ if __name__ == '__main__' :
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
 
-    max_eff = 1.0
-    min_eff = 0.4
-    eff_steps = 0.3
+    max_eff = 0.46
+    min_eff = 0.45
+    eff_steps = 0.01
     Li_conc_steps = 0.02
     Li_conc_max = 0.066169154
-    Li_conc_min = 0.01
+    Li_conc_min = 0.05
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
@@ -157,7 +157,7 @@ if __name__ == '__main__' :
         # Check if the battery type was found and get the filename
         if battery_type :
             filename = battery_files[battery_type]
-            print_recursive_calculation(activity,method_cc,abbrev_loc,filename,max_level=30,cutoff=0.01)
+            print_recursive_calculation(battery,method_cc,abbrev_loc,filename,max_level=30,cutoff=0.01)
             print(f'Using {filename} as filename')
         else :
             print('Battery type not recognized')

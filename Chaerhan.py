@@ -19,14 +19,14 @@ site_location = "Chaer"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_4'
+    project = f'Site_{site_name}_5'
     bd.projects.set_current(project)
     print(project)
 
-    del bd.databases[site_name]
-    del bd.databases[ei_name]
+    #del bd.databases[site_name]
+    #del bd.databases[ei_name]
 
-    country_location = "AR"
+    country_location = "CN-NWG"
 
     # print all brightway2 databases
     print(bd.databases)
@@ -123,9 +123,7 @@ if __name__ == '__main__' :
 
     saving_LCA_results(impacts, abbrev_loc)
 
-    from rsc.Postprocessing_results.visualization_functions import Visualization
 
-    # Plot the results
-    Visualization.plot_impact_categories(impacts, abbrev_loc)
+
 
 

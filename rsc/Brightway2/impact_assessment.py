@@ -67,6 +67,7 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
                           f"{site_name}_waterscarcity_{rounded_Li}_{rounded_eff}",
                           f"{site_name}_PM_{rounded_Li}_{rounded_eff}"]
 
+
             for method, file_name in zip(methods, file_names):
                 print_recursive_calculation(activity, method, abbrev_loc, file_name, max_level=30, cutoff=0.01)
 
@@ -210,10 +211,12 @@ def saving_LCA_results_brinechemistry(results, abbrev_loc) :
 def print_recursive_calculation(activity, lcia_method, abbrev_loc, filename, lca_obj=None, results_df=None,
                                 total_score=None, amount=1, level=0, max_level=30, cutoff=0.01) :
     base_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/recursive_calculation"
-    if activity['name'] != "df_rotary_dryer":
-        results_folder = os.path.join(base_path, f"battery/results_{abbrev_loc}")
-    else:
+    if activity['name'] == "df_rotary_dryer":
         results_folder = os.path.join(base_path, f"results_{abbrev_loc}")
+    else:
+        results_folder = os.path.join(base_path, f"battery")
+        filename = filename + f'_{abbrev_loc}'
+
     ensure_folder_exists(results_folder)
 
     # Initialize DataFrame at the top level
@@ -275,8 +278,6 @@ def calculate_battery_impacts(battery_act, methods, site_db, ei_reg, country):
 
     lithium_act = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     market_lithium_act = [act for act in ei_reg if "market for lithium carbonate" in act['name']][0]
-    market_lithium_act = market_lithium_act.copy()
-    market_lithium_act.save()
 
     exc = [exc for exc in market_lithium_act.exchanges()]
 
