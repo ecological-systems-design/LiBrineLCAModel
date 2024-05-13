@@ -4,24 +4,74 @@ import pandas as pd
 import datetime
 from rsc.lithium_production.import_site_parameters import standard_values
 from rsc.Brightway2.lithium_site_db import chemical_map
+import ast
 
 
+def get_category_mapping(df):
+    # Check if 'df_Li_adsorption' is present in the DataFrame
+    is_li_adsorption_present = 'df_Li_adsorption' in df['Activity'].values
 
+    #Mapping of process names to categories
+    category_mapping = {
+        'df_ion_exchange_H': 'purification',
+        'df_ion_exchange_L': 'purification',
+        'df_ion_exchange_H_2': 'purification',
+        'df_rotary_dryer': 'Li2CO3 prec.',
+        'df_centrifuge_wash' : 'Li2CO3 prec.',
+        'df_washing_BG' : 'Li2CO3 prec.',
+        'df_centrifuge_BG' : 'Li2CO3 prec.',
+        'df_Liprec_BG' : 'Li2CO3 prec.',
+        'df_washing_TG' : 'Li2CO3 prec.',
+        'df_centrifuge_TG' : 'Li2CO3 prec.',
+        'df_Liprec_TG' : 'Li2CO3 prec.',
+        'df_dissolution': 'Li2CO3 prec.',
+        'df_centrifuge_purification_quicklime' : 'purification',
+        'df_B_removal_orgsolvent': 'purification',
+        'df_SiFe_removal_limestone': 'pre-treatment',
+        'df_MnZn_removal_lime': 'pre-treatment',
+        'df_acidification': 'pre-treatment',
+        'df_Mg_removal_quicklime': 'purification',
+        'df_Mg_removal_sodaash': 'pre-treatment' if is_li_adsorption_present else 'purification',
+        'df_sulfate_removal_calciumchloride': 'purification',
+        'df_centrifuge_purification_sodaash' : 'purification',
+        'df_transport': 'evaporation ponds',
+        'df_evaporation_ponds': 'evaporation ponds',
+        'df_DLE_evaporation_ponds': 'purification',
+        'df_Li_adsorption': 'DLE',
+        'df_reverse_osmosis': 'volume reduction',
+        'df_triple_evaporator': 'volume reduction',
+        'df_nanofiltration': 'volume reduction',
+        'df_centrifuge_purification_general': 'purification',
+        'df_centrifuge_purification_general_2': 'purification',
+        'df_centrifuge_general_2': 'purification',
+        'df_CaMg_removal_sodiumhydrox': 'purification'
+        }
 
-category_mapping = {
+    return category_mapping
+
+category_mapping_more_detailed = {
+    'df_ion_exchange_H': 'df_ion_exchange_H',
+    'df_ion_exchange_L': 'df_ion_exchange_H',
+    'df_ion_exchange_H_2': 'df_ion_exchange_H',
+    'df_rotary_dryer': 'df_Liprec_BG',
     'df_centrifuge_wash' : 'df_Liprec_BG',
     'df_washing_BG' : 'df_Liprec_BG',
     'df_centrifuge_BG' : 'df_Liprec_BG',
     'df_Liprec_BG' : 'df_Liprec_BG',
-    'df_washing_TG' : 'df_Liprec_TG',
-    'df_centrifuge_TG' : 'df_Liprec_TG',
-    'df_Liprec_TG' : 'df_Liprec_TG',
+    'df_washing_TG' : 'df_Liprec_BG',
+    'df_centrifuge_TG' : 'df_Liprec_BG',
+    'df_Liprec_TG' : 'df_Liprec_BG',
+    'df_dissolution': 'df_Liprec_BG',
     'df_centrifuge_purification_quicklime' : 'df_Mg_removal_quicklime',
     'df_Mg_removal_quicklime': 'df_Mg_removal_quicklime',
     'df_Mg_removal_sodaash': 'df_Mg_removal_sodaash',
     'df_centrifuge_purification_sodaash' : 'df_Mg_removal_sodaash',
     'df_transport': 'df_evaporation_ponds',
     'df_evaporation_ponds': 'df_evaporation_ponds',
+    'df_DLE_evaporation_ponds': 'df_Li_adsorption',
+    'df_Li_adsorption': 'df_Li_adsorption',
+    'df_centrifuge_purification_general': 'purification',
+    'df_centrifuge_purification_general_2': 'purification'
     }
 
 
@@ -225,6 +275,9 @@ def merge_details(details_list):
 
 def prepare_data_for_waterfall_diagram(file_path):
     df = pd.read_csv(file_path)
+
+    # Get the dynamic category mapping based on the DataFrame
+    category_mapping = get_category_mapping(df)
 
     # Label 'df_' activities as 'process' and others as 'Supplychain'
     df['Location_within_supplychain'] = df['Activity'].apply(lambda x : 'process' if 'df_' in x else 'Supplychain')
@@ -524,3 +577,20 @@ def process_battery_scores(file_path, directory) :
 
     return results_df
 
+
+def prepare_data_for_table_IPCC_and_AWARE(data_df):
+    # Rename columns based on existing DataFrame structure
+    # This step might be redundant if columns are already named correctly from DataFrame creation
+    data_df.rename(columns={'IPCC': 'Climate change impacts', 'AWARE': 'Water scarcity impacts'}, inplace=True)
+
+    # Add placeholders for 'Li-conc' and 'Efficiency' columns if not already present
+    if 'Li-conc' not in data_df.columns:
+        data_df['Li-conc'] = pd.NA
+    if 'Efficiency' not in data_df.columns:
+        data_df['Efficiency'] = pd.NA
+
+    # Save the updated dataframe to a new CSV file
+    updated_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\updated_data_for_Marimekko.csv'
+    data_df.to_csv(updated_file_path, index=False)
+
+    return print(f'Updated data saved to {updated_file_path}')

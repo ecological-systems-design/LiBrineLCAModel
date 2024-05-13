@@ -5,9 +5,7 @@ from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_res
 from rsc.Postprocessing_results.visualization_functions import *
 from rsc.global_analysis.site_LCI_and_LCA import *
 from rsc.lithium_production.licarbonate_processes import *
-from rsc.Brightway2.lithium_site_db import chemical_map
-
-
+import bw2data as bd
 if not os.path.exists("results") :
     os.mkdir("results")
 
@@ -24,23 +22,24 @@ if __name__ == '__main__' :
 
     #run_analysis_for_all_sites(file_path, directory_path)
 
+    #ResourceCalculator.compile_resources(resources_dir, file_path)
+
+    # Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
     #
-
-    ResourceCalculator.compile_resources(resources_dir, filepath)
-
-    Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
-    Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
-    Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
-
-    Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
-
-    Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
-
-    Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
-
+    # Visualization.plot_all_sites(file_path, base_dir, save_dir)
+    # Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
+    # Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
+    #
+    # Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
+    #
+    # Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
+    #
+    # Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
+    #
     Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
+    #
+    # Visualization.create_relative_horizontal_bars(file_path, base_dir, save_dir)
 
-    # site_name = "Salar de Atacama"
     # #Go into file path and extract all the site_names from the excel file
     # # get location-specific data by importing xlsx file
     # excel_data = pd.read_excel(file_path)
@@ -64,25 +63,21 @@ if __name__ == '__main__' :
     # sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
     # print(sites_df)
     #
-    # #list of projects with the site_name
-    # project_list = site_name in bd.projects
-    # print(project_list)
-    # #battery_df = process_battery_scores(file_path, battery_dir)
-    # print('Finished the code')
-    # project = "default"
-    # bd.projects.set_current(project)
-    #
     # #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
-    # for i in range(1,26):
-    #     project_old = f'Site_{site_name}_{i}'
-    #     if project_old in bd.projects:
-    #         print(f'Project {project_old} exists')
-    #         bd.projects.delete_project(project_old,delete_dir=True)
-    #         bd.projects.set_current(project)
-    #     else:
-    #         print(f'Project {project_old} does not exist')
-
-
-
-
-
+    # for site_name in sites_df['site_name']:
+    #
+    #     project = "default"
+    #     #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
+    #     for i in range(1,3):
+    #         project_old = f'Site_{site_name}_literature_values_test{i}'
+    #         if project_old in bd.projects:
+    #             print(f'Project {project_old} exists')
+    #             bd.projects.delete_project(project_old,delete_dir=True)
+    #             bd.projects.set_current(project)
+    #         else:
+    #             print(f'Project {project_old} does not exist')
+    #
+    #
+    #
+    #
+    #

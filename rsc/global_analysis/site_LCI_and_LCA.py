@@ -221,8 +221,8 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project_old = f'Site_{site_name}_literature_final_final_final_3'
-        project = f'Site_{site_name}_literature_final_final_final_4'
+        project_old = f'Site_{site_name}_literature_values_1'
+        project = f'Site_{site_name}_literature_values_2'
         print(f"Currently assessing: {project}")
         old_project_exists = project_old in bd.projects
         if old_project_exists:
@@ -256,6 +256,7 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
             # Check if results_exist is still False after checking all files
             if not results_exist :
                 print(f"No results found for site {site_name} with abbreviation {abbreviation}.")
+                bd.projects.set_current("Default")
                 # Delete the project as no results are found in any file
                 bd.projects.delete_project(project,delete_dir=True)
                 bd.projects.set_current(project)
@@ -313,7 +314,7 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
                 process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'])
                 site_location = site_name
                 country_location = site_data[abbreviation]['country_location']
-                project = f'Site_{site_location}_brinechemistry_values_test'
+                project = f'Site_{site_location}_brinechemistry_final'
                 project_exist = project in bd.projects
 
                 # Check for existing result files for the site

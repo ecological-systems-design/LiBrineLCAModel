@@ -1,5 +1,16 @@
 import bw2data as bd
 from pathlib import Path
+import os
+from pathlib import Path
+import pickle
+from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+from rsc.lithium_production.licarbonate_processes import *
+import bw2data as bd
+from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+from rsc.Brightway2.setting_up_db_env import *
+from rsc.Brightway2.lci_method_aware import import_aware
+from rsc.Brightway2.lci_method_pm import import_PM
+from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
 
 import os
 
@@ -18,12 +29,13 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_5'
+    project = f'Site_{site_name}_8_withsteam'
     bd.projects.set_current(project)
     print(project)
 
     #del bd.databases[site_name]
-    # del bd.databases[ei_name]
+
+    #del bd.databases[ei_name]
 
     country_location = "AR"
 
@@ -35,11 +47,8 @@ if __name__ == '__main__' :
     abbrev_loc = "Cau"
     op_location = "Salar de Cauchari-Olaroz"
 
-    # initialize the processing sequence
-    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
 
     process_sequence = [
         evaporation_ponds(),
@@ -55,7 +64,7 @@ if __name__ == '__main__' :
         washing_TG(),
         CentrifugeTG(),
         dissolution(),
-        Centrifuge_general(),
+        Centrifuge_general(custom_name=None),
         Liprec_BG(),
         CentrifugeBG(),
         washing_BG(),
@@ -77,29 +86,24 @@ if __name__ == '__main__' :
     dataframes_dict = manager.run(filename)
 
     max_eff = 0.53
-    min_eff = 0.53
+    min_eff = 0.42
     eff_steps = 0.01
-    Li_conc_steps = 0.05
+    Li_conc_steps = 0.02
     Li_conc_max = 0.05
-    Li_conc_min = 0.05
+    Li_conc_min = 0.03
 
-    results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
-                                                               min_eff, eff_steps, Li_conc_steps, Li_conc_max,
-                                                               Li_conc_min)
+    results,eff_range,Li_conc_range = manager.run_simulation(op_location,abbrev_loc,process_sequence,max_eff,
+                                                             min_eff,eff_steps,Li_conc_steps,Li_conc_max,
+                                                             Li_conc_min)
 
     print(results)
 
-    from rsc.Brightway2.setting_up_db_env import *
+    ei_reg,site_db,bio = database_environment(biosphere,ei_path,ei_name,site_name,deposit_type,country_location,
+                                              eff,Li_conc,op_location,abbrev_loc,dataframes_dict,chemical_map)
 
-    ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
-                                                eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
+    import_aware(ei_reg,bio,site_name,site_db)
 
-    from rsc.Brightway2.lci_method_aware import import_aware
-
-    import_aware(ei_reg, bio, site_name, site_db)
-
-    # from rsc.Brightway2.lci_method_pm import import_PM
-    # import_PM(ei_reg, bio)
+    # import_PM(ei_reg, bio, site_name, site_db)
 
     # print(results)
 
@@ -109,17 +113,27 @@ if __name__ == '__main__' :
 
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
 
-    method_list = [method_cc, method_water]
+    # method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
 
-    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+    method_list = [method_cc,method_water]
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
-    impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, eff_range, Li_conc_range,
-                                                       abbrev_loc)
 
-    print(impacts)
+    impacts = calculate_impacts_for_selected_scenarios(activity,method_list,results,
+                                                       site_name,ei_name,abbrev_loc,eff_range,Li_conc_range
+                                                       )
 
+    # saving results
+    # Get efficiency and Li-conc ranges for filename
+    efficiencies = [round(eff, 1) for (eff, _) in impacts.keys()]
+    Li_concs = [Li_conc for (_, Li_conc) in impacts.keys()]
+
+    min_eff, max_eff = min(efficiencies), max(efficiencies)
+    min_Li_conc, max_Li_conc = min(Li_concs), max(Li_concs)
+
+    filename = f"eff_{min_eff}_to_{max_eff}_LiConc_{min_Li_conc}_to_{max_Li_conc}"
+
+    saving_LCA_results(impacts, abbrev_loc)
 
 

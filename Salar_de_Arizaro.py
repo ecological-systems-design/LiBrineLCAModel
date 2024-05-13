@@ -43,6 +43,8 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
+        Mg_removal_sodaash(),
+        acidification(),
         Li_adsorption(),
         triple_evaporator(),
         ion_exchange_L(),

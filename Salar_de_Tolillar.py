@@ -18,7 +18,7 @@ site_location = "Tol"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_3'
+    project = f'Site_{site_name}_6'
     bd.projects.set_current(project)
     print(project)
 
@@ -43,6 +43,8 @@ if __name__ == '__main__' :
 
     process_sequence = [
         evaporation_ponds(),
+        Mg_removal_sodaash(),
+        acidification(),
         Li_adsorption(),
         triple_evaporator(),
         ion_exchange_L(),
@@ -72,7 +74,7 @@ if __name__ == '__main__' :
     dataframes_dict = manager.run(filename)
 
     max_eff = 0.77
-    min_eff = 0.5
+    min_eff = 0.7
     eff_steps = 0.3
     Li_conc_steps = 0.02
     Li_conc_max = 0.03

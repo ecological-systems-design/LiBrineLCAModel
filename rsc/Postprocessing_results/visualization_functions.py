@@ -1,12 +1,12 @@
 import pandas as pd
 import plotly.express as px
 import os
-import numpy as np
-import plotly.io as pio
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file, get_category_mapping, prepare_data_for_table_IPCC_and_AWARE
+from rsc.lithium_production.import_site_parameters import standard_values
+import ast
 
 
 class Visualization :
@@ -585,8 +585,8 @@ class Visualization :
         li_conc_values = [data['Li_conc'] for _,data in sorted_data]
         max_li_conc_value = max(li_conc_values)
         max_production_value = max(data['production'] for _,data in sorted_data if data['production'] > 0)
-        max_y_value_ipcc = max(ipcc_values) * 1.3  # For example, 20% higher than the max value
-        max_y_value_aware = max(aware_values) * 1.3  # Same for AWARE
+        max_y_value_ipcc = max(ipcc_values) * 1.1  # For example, 20% higher than the max value
+        max_y_value_aware = max(aware_values) * 1.1  # Same for AWARE
 
         # Define a mapping of technology groups to patterns
         technology_patterns = {
@@ -608,6 +608,17 @@ class Visualization :
 
         # Store the midpoint x-positions for the diamonds here
         midpoint_x_positions = []
+
+        # Convert the sorted_df to a DataFrame
+
+        sorted_data_df = dict(sorted_data)  # Convert list of tuples to a dictionary
+
+        sorted_data_df = pd.DataFrame.from_dict(sorted_data_df,orient='index')  # Convert dictionary to DataFrame
+        sorted_data_df.reset_index(inplace=True)  # Reset index to get the site names as a separate column
+        sorted_data_df.rename(columns={'index' : 'Site'},inplace=True)  # Rename the index column to 'Site'
+
+        # Now call the function to process this DataFrame
+        prepare_data_for_table_IPCC_and_AWARE(sorted_data_df)
 
 
         for site,data in sorted_data :
@@ -1181,6 +1192,222 @@ class Visualization :
 
         print(f"Figure saved as png and svg files.")
 
+
+    def create_incremental_stacked_bar_plots(file_path,save_dir,abbrev_loc,li_conc,eff,impact_type,location) :
+        df = prepare_data_for_waterfall_diagram(file_path)
+
+        # Calculate differences for the score
+        df['Score_Diff'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1])
+
+        # Reverse the DataFrame for bottom-up stacking in visualization
+        reversed_df = df.iloc[: :-1].reset_index(drop=True)
+
+        # Clean up 'Activity' names by removing text in brackets
+        reversed_df['Activity'] = reversed_df['Activity'].str.replace(r"\(.*\)","",regex=True).str.strip()
+
+        # Define color map for each process
+        colors = px.colors.qualitative.Plotly  # Use a predefined color palette
+        process_color_map = {process : colors[i % len(colors)] for i,process in
+                             enumerate(reversed_df['Activity'].unique())}
+
+        # Initialize a figure
+        fig = go.Figure()
+
+        cumulative_base = 0  # Initialize the base for the first bar
+        # Add bars to the chart
+        for index,row in reversed_df.iterrows() :
+            fig.add_trace(go.Bar(
+                name=row['Activity'],
+                x=[abbrev_loc],
+                y=[row['Score_Diff']],
+                base=cumulative_base,
+                marker_color=process_color_map[row['Activity']],
+                hoverinfo="name+y+text",
+                textposition="outside"
+                ))
+            cumulative_base += row['Score_Diff']
+
+            # Customize layout, including the legend
+            fig.update_layout(
+                title=f"Process Contributions to Total Score {impact_type} - {location}",
+                barmode='stack',
+                showlegend=True,
+                legend=dict(
+                    title="Process",
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                    ),
+                plot_bgcolor='white',
+                xaxis=dict(
+                    showline=True,
+                    showgrid=False,
+                    showticklabels=True,
+                    linecolor='rgb(204, 204, 204)',
+                    linewidth=2,
+                    ticks='outside',
+                    tickfont=dict(
+                        family='Arial',
+                        size=12,
+                        color='rgb(82, 82, 82)',
+                        ),
+                    ),
+                yaxis=dict(
+                    showgrid=True,
+                    zeroline=False,
+                    showline=True,
+                    showticklabels=True,
+                    linecolor='rgb(204, 204, 204)',
+                    linewidth=2,
+                    ticks='outside',
+                    tickfont=dict(
+                        family='Arial',
+                        size =
+            12,
+            color = 'rgb(82, 82, 82)',
+            ),
+            ),
+            autosize = False,
+            margin = dict(
+                autoexpand=False,
+                l=100,
+                r=20,
+                t=110,
+                ),
+            )
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_path_png = os.path.join(save_dir,
+                                     f'LCA_contributional_analysis_{impact_type}_{abbrev_loc}_{li_conc}_{eff}_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        print(f"Figure saved as png file.")
+
+        return fig  # Returning the figure could be useful for testing or direct viewing in notebooks
+
+
+    def plot_all_sites(excel_path,base_directory,save_directory) :
+        excel_data = pd.read_excel(excel_path)
+        transposed_data = excel_data.transpose()
+        transposed_data.columns = transposed_data.iloc[0]
+        excel_data = transposed_data.drop(transposed_data.index[0])
+
+
+        # Create subplots: One row for each impact type
+        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,subplot_titles=('Climate Change','Water Scarcity'))
+
+        colors = px.colors.qualitative.Plotly
+
+        for index,row in excel_data.iterrows() :
+            abbrev_loc = row['abbreviation']
+            li_conc = round(row['ini_Li'],3)
+            eff = row['Li_efficiency']
+            target_directory = os.path.join(base_directory,f'results_{abbrev_loc}')
+
+            for i,impact_type in enumerate(['climatechange','waterscarcity']) :
+                latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
+                if latest_file_path :
+                    print(f"Processing file: {latest_file_path}")
+                    df = prepare_data_for_waterfall_diagram(latest_file_path)
+                    df['Score_Diff'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1])
+                    reversed_df = df.iloc[: :-1].reset_index(drop=True)
+                    cumulative_base = 0
+
+                    for _,row in reversed_df.iterrows() :
+
+                        fig.add_trace(go.Bar(
+                            name=row['Activity'],
+                            x=[f"{abbrev_loc}"],
+                            y=[row['Score_Diff']],
+                            base=cumulative_base,
+                            marker_color=colors[_ % len(colors)],
+                            hoverinfo="name+y+text",
+                            width = 0.5,
+                            marker_line_color='black',  # Set the color of the line to black
+                            marker_line_width=0.5,  # Set the width of the line
+                            ),row=i + 1,col=1)  # Add to the appropriate subplot
+                        cumulative_base += row['Score_Diff']
+                else :
+                    print(
+                        f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+
+        fig.update_layout(
+            title="Process Contributions to Total Score Across Sites",
+            title_font_size=20,
+            showlegend=False,
+            plot_bgcolor='rgba(255, 255, 255, 1)',
+            paper_bgcolor='rgba(255, 255, 255, 1)',  # White background for the entire figure
+            xaxis=dict(
+                title="Sites",
+                title_font={"size" : 16},
+                tickangle=-45,
+                tickfont=dict(size=14,color='rgb(107, 107, 107)'),  # Darker font color for better readability
+                showline=True,
+                showgrid=False,
+                showticklabels=True,
+                linecolor='rgb(204, 204, 204)',
+                linewidth=2,
+                ticks='outside',
+                ),
+            xaxis2=dict(
+                title="Sites",
+                title_font={"size" : 16},
+                tickangle=-45,
+                tickfont=dict(size=14,color='rgb(107, 107, 107)'),
+                showline=True,
+                showgrid=False,
+                showticklabels=True,
+                linecolor='rgb(204, 204, 204)',
+                linewidth=2,
+                ticks='outside',
+                ),
+            yaxis=dict(
+                title="Score",
+                title_font={"size" : 16},
+                tickfont=dict(size=14,color='rgb(107, 107, 107)'),
+                showgrid=True,
+                gridcolor='rgb(204, 204, 204)',
+                zeroline=False,
+                showline=True,
+                showticklabels=True,
+                linecolor='rgb(204, 204, 204)',
+                linewidth=2,
+                ticks='outside',
+                range=[0,None]  # Start y-axis at 0
+                ),
+            yaxis2=dict(
+                title="Score",
+                title_font={"size" : 16},
+                tickfont=dict(size=14,color='rgb(107,107,107)'),
+            showgrid = True,
+            gridcolor = 'rgb(204, 204, 204)',
+            zeroline = False,
+            showline = True,
+            showticklabels = True,
+            linecolor = 'rgb(204, 204, 204)',
+            linewidth = 2,
+            ticks = 'outside',
+                range=[0,None]  # Start y-axis at 0
+            ),
+            bargap = 0.25,  # Adjust the gap between bars to 15% of the bar width
+            autosize = True,
+            margin = dict(
+                autoexpand=True,
+                l=100,  # Left margin
+                r=20,  # Right margin
+                t=110,  # Top margin
+                b=100  # Bottom margin
+                ),
+            )
+
+        save_path_png = os.path.join(save_directory,'LCA_contributional_analysis_across_sites.png')
+        fig.write_image(save_path_png)
+        print("Composite figure saved.")
+
+        return fig
+
     def process_data_based_on_excel(excel_path,base_directory, save_directory) :
         excel_data = pd.read_excel(excel_path)
         # Transpose the data for easier processing
@@ -1207,78 +1434,303 @@ class Visualization :
                 latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
                 if latest_file_path :
                     print(f"Processing file: {latest_file_path}")
-                    Visualization.create_waterfall_plots(latest_file_path,save_directory, abbrev_loc, li_conc, eff, impact_type, location)
+                    Visualization.create_incremental_stacked_bar_plots(latest_file_path,save_directory, abbrev_loc, li_conc, eff, impact_type, location)
                 else :
                     print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+
+    def get_color_mapping() :
+        return {
+            'purification' : 'rgb(0, 101, 99)',  # Example RGB color
+            'Li2CO3 prec.' : 'rgb(79, 60, 137)',  # Example RGB color
+            'pre-treatment' : 'rgb(149, 69, 42)',  # Example RGB color
+            'evaporation ponds' : 'rgb(191, 157, 103)',  # Example RGB color
+            'DLE' : 'rgb(220, 77, 11)',  # Example RGB color
+            'volume reduction' : 'rgb(234, 194, 39)' #'rgb(0, 50, 90)'  # Example RGB color
+            }
+
+    def create_relative_horizontal_bars(excel_path, base_directory, save_directory) : #TODO work here!!!!!
+        # Load and process the Excel data
+        excel_data = pd.read_excel(excel_path)
+        transposed_data = excel_data.transpose()
+        transposed_data.columns = transposed_data.iloc[0]
+        excel_data = transposed_data.drop(transposed_data.index[0])
+
+        activity_status_order = {
+            # Early stage
+            'Grassroots' : '3 - Exploration - Early stage',
+            'Exploration' : '3 - Exploration - Early stage',
+            'Target Outline' : '3 - Exploration - Early stage',
+            'Commissioning' : '3 - Exploration - Early stage',
+            'Prefeas/Scoping' : '3 - Exploration - Early stage',
+            'Advanced exploration' : '3 - Exploration - Early stage',
+            'Feasibility Started' : '3 - Exploration - Early stage',
+            # Late stage
+            'Reserves Development' : '2 - Exploration - Late stage',
+            'Feasibility' : '2 - Exploration - Late stage',
+            'Feasibility complete' : '2 - Exploration - Late stage',
+            'Construction started' : '2 - Exploration - Late stage',
+            'Construction planned' : '2 - Exploration - Late stage',
+            # Mine stage
+            'Preproduction' : '1 - Mine stage',
+            'Production' : '1 - Mine stage',
+            'Operating' : '1 - Mine stage',
+            'Satellite' : '1 - Mine stage',
+            'Expansion' : '1 - Mine stage',
+            'Limited production' : '1 - Mine stage',
+            'Residual production' : '1 - Mine stage'
+            }
+
+        # Mapping activity_status to its corresponding order directly in excel_data
+        excel_data['activity_status_order'] = excel_data['activity_status'].map(activity_status_order).fillna(
+            '4 - Other')
+        # Set a default value for NaN in production
+        default_production_value = standard_values['production']  # or any other suitable default value
+        excel_data['production'] = pd.to_numeric(excel_data['production'],errors='coerce').fillna(
+            default_production_value)
+
+        # Sorting by 'activity_status_order' and then by 'production'
+        excel_data.sort_values(by=['activity_status_order','production'],inplace=True,ascending=[False,True])
+
+        # Print to verify the result
+        print(excel_data[['abbreviation','activity_status','activity_status_order','production']].head())
+
+        # Initialize subplots
+        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,subplot_titles=('Climate Change impacts','Water Scarcity impacts'), vertical_spacing=0.05 )
+        colors = Visualization.get_color_mapping()
+
+        for index,row in excel_data.iterrows() :
+            print(index)
+            abbrev_loc = row['abbreviation']
+            site_location = index
+            li_conc = round(row['ini_Li'],3)
+            eff = row['Li_efficiency']
+            target_directory = os.path.join(base_directory,f'results_{abbrev_loc}')
+
+            for i,impact_type in enumerate(['climatechange','waterscarcity']) :
+                latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
+                if latest_file_path :
+                    print(f"Processing file: {latest_file_path}")
+                    df = prepare_data_for_waterfall_diagram(latest_file_path)
+
+                    # Calculate the relative contribution
+                    total_score = df.iloc[0]['Score']
+                    df['Relative_Score'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1]) / total_score * 100
+
+                    # Iterate over rows to plot
+                    cumulative_base = 0
+                    for _,bar_row in reversed(list(df.iterrows())) :
+                        current_activity = bar_row['Activity']
+                        color = colors.get(current_activity,'rgb(0,0,0)')  # Default to black if not found
+                        fig.add_trace(go.Bar(
+                            name=bar_row['Activity'],
+                            x=[bar_row['Relative_Score']],
+                            y=[f"{index}"],
+                            orientation='h',
+                            marker_color=color,
+                            base=cumulative_base,
+                            hoverinfo="name+y+text",
+                            width=0.8,
+                            marker_line_color='black',
+                            marker_line_width=0.5,
+                            opacity=0.8
+                            ),row=i + 1,col=1)
+                        cumulative_base += bar_row['Relative_Score']
+                else :
+                    print(
+                        f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor='rgba(255, 255, 255, 1)',
+            paper_bgcolor='rgba(255, 255, 255, 1)',
+            barmode='stack',
+            bargap=0.2,
+            height=1400,  # Adjust this value based on your specific needs
+            width=1000,  # Adjust this value based on your specific needs
+            margin=dict(
+                autoexpand=True,
+                l=100,  # Left margin
+                r=20,  # Right margin
+                t=110,  # Top margin
+                b=100  # Bottom margin
+                ),
+            font=dict(
+                family="Arial, sans-serif",  # Set font family to Arial
+                size=14,  # Set font size
+                color="black"  # Set font color to black
+                ),
+            xaxis=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=10,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=10,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                ),
+            xaxis2=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=10,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=10,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                )
+            )
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_path_png = os.path.join(save_directory,f'LCA_contributional_analysis_across_sites_horizontalbarplot_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_directory,f'LCA_contributional_analysis_across_sites_horizontalbarplot_{timestamp}.svg')
+        fig.write_image(save_path_svg)
+        print("Composite figure saved.")
 
 
 class GeneralGraphs:
 
     @staticmethod
-    def create_global_map(save_dir, data, longitude_col='longitude', latitude_col='latitude', name_col='Site name'):
+    def create_global_map(save_dir,data,longitude_col='longitude',latitude_col='latitude',name_col='Site name',
+                          deposit_type_col='deposit_type') :
         """
-        Creates a global map of sites using Plotly.
+        Creates a global map of sites using Plotly, with different symbols for deposit types, with enhanced error handling.
         """
-        try:
-            global_map = go.Figure(go.Scattergeo(
-                lon=data[longitude_col],
-                lat=data[latitude_col],
-                mode='markers',
-                marker=dict(size=10, color='rgb(135,206,250)', line=dict(width=1, color='rgba(255,255,255,0.5)')),
-                text=data[name_col],  # Display site name on hover
-                hoverinfo='text'
-            ))
+        # Initialize figure outside try block to ensure it's always defined
+        global_map = go.Figure()
 
+        try :
+            # Different marker styles based on deposit type
+            marker_styles = {
+                'geothermal' : {
+                    'symbol' : 'square','size' : 6,'color' : 'darkgreen','line' : {'width' : 0.3,'color' : 'black'}},
+                'salar' : {
+                    'symbol' : 'circle','size' : 6,'color' : 'darkgreen','line' : {'width' : 0.3,'color' : 'black'}}
+                }
+
+            # Ensure data contains expected columns
+            if deposit_type_col not in data.columns :
+                raise ValueError(f"Column '{deposit_type_col}' not found in data.")
+
+            # Create traces for each deposit type
+            for deposit_type,marker_style in marker_styles.items() :
+                filtered_data = data[data[deposit_type_col] == deposit_type]
+                if not filtered_data.empty :
+                    global_map.add_trace(go.Scattergeo(
+                        lon=filtered_data[longitude_col],
+                        lat=filtered_data[latitude_col],
+                        mode='markers',
+                        marker=marker_style,
+                        text=filtered_data[name_col],
+                        hoverinfo='text',
+                        name=deposit_type  # Name will appear in the legend
+                        ))
+                else :
+                    print(f"No data for deposit type: {deposit_type}")
+
+            # Update layout
             global_map.update_layout(
-                title=dict(text='Global Distribution of Operations', x=0.5, font=dict(size=20, color='black')),
+                title=dict(text='Global Distribution of Operations',x=0.5,
+                           font=dict(size=18,family='Arial, sans-serif')),
                 geo=dict(
                     projection_type='natural earth',
                     showland=True,
-                    landcolor='rgb(243,243,243)',
-                    countrycolor='rgb(204,204,204)',
+                    landcolor='rgb(245,245,245)',
+                    countrycolor='rgb(200,200,200)',
                     showcountries=True,
-                    showcoastlines=True,
-                    coastlinecolor='rgb(180,180,180)'
+                    showcoastlines=False,
+                    coastlinecolor='rgb(150,150,150)'
+                    ),
+                font=dict(family="Arial, sans-serif",size=12,color="#000")
                 )
-            )
 
-            GeneralGraphs._save_figure(global_map, save_dir, 'LCA_globalmap')
+            # Assuming GeneralGraphs._save_figure is defined elsewhere
+            GeneralGraphs._save_figure(global_map,save_dir,'LCA_globalmap')
 
-            return global_map
-        except Exception as e:
+        except Exception as e :
             print(f"Error occurred: {e}")
 
-    @staticmethod
-    def create_submap(save_dir, data, region_bounds, longitude_col='longitude', latitude_col='latitude', name_col='Site name'):
-        """
-        Creates a submap for a specific region using Plotly.
-        """
-        try:
-            submap = go.Figure(go.Scattergeo(
-                lon=data[longitude_col],
-                lat=data[latitude_col],
-                mode='markers',
-                marker=dict(size=10, color='rgb(255,69,0)', line=dict(width=1, color='rgba(255,255,255,0.5)')),
-                text=data[name_col],  # Display site name on hover
-                hoverinfo='text'
-            ))
+        global_map.show()
 
+        return global_map  # Always return a map, even if empty
+
+    @staticmethod
+    def create_submap(save_dir,data,region_bounds,longitude_col='longitude',latitude_col='latitude',
+                      name_col='Site name',abbrev_col = 'abbreviation', deposit_type_col='deposit_type') :
+        """
+        Creates a submap for a specific region using Plotly, focusing on South American sites,
+        with enhanced text annotations for better readability.
+        """
+        try :
+            # Initialize figure
+            submap = go.Figure()
+
+            # Different marker styles based on deposit type
+            marker_styles = {
+                'geothermal' : {
+                    'symbol' : 'square','size' : 8,'color' : 'darkgreen','line' : {'width' : 0.5,'color' : 'black'}},
+                'salar' : {
+                    'symbol' : 'circle','size' : 8,'color' : 'darkgreen','line' : {'width' : 0.5,'color' : 'black'}}
+                }
+
+            # Filter data based on region bounds
+            filtered_data = data[
+                (data[longitude_col] >= region_bounds['lon_min']) &
+                (data[longitude_col] <= region_bounds['lon_max']) &
+                (data[latitude_col] >= region_bounds['lat_min']) &
+                (data[latitude_col] <= region_bounds['lat_max'])
+                ]
+
+            # Create traces for each deposit type
+            for deposit_type,marker_style in marker_styles.items() :
+                type_data = filtered_data[filtered_data[deposit_type_col] == deposit_type]
+                if not type_data.empty :
+                    submap.add_trace(go.Scattergeo(
+                        lon=type_data[longitude_col],
+                        lat=type_data[latitude_col],
+                        mode='markers+text',
+                        marker=marker_style,
+                        text=type_data[abbrev_col],
+                        textposition="top center",
+                        hoverinfo='text',
+                        name=deposit_type,  # Name will appear in the legend
+                        textfont=dict(
+                            family="Arial, sans-serif",
+                            size=11,
+                            color="black"
+                            )
+                        ))
+
+            # Update layout to focus on the specified region
             submap.update_layout(
-                title=dict(text='Detailed View of Specific Region', x=0.5, font=dict(size=20, color='black')),
+                title=dict(text='Detailed View of Specific Region',x=0.5,font=dict(size=20,family='Arial, sans-serif')),
                 geo=dict(
                     projection_type='natural earth',
                     showland=True,
-                    landcolor='rgb(243,243,243)',
-                    countrycolor='rgb(204,204,204)',
-                    lonaxis=dict(range=[region_bounds['lon_min'], region_bounds['lon_max']]),
-                    lataxis=dict(range=[region_bounds['lat_min'], region_bounds['lat_max']])
+                    landcolor='rgb(245,245,245)',
+                    countrycolor='rgb(200,200,200)',
+                    showcountries=True,
+                    showcoastlines=True,
+                    coastlinecolor='rgb(150,150,150)',
+                    lonaxis=dict(range=[region_bounds['lon_min'],region_bounds['lon_max']]),
+                    lataxis=dict(range=[region_bounds['lat_min'],region_bounds['lat_max']])
+                    ),
+                font=dict(family="Arial, sans-serif",size=12,color="#000"),
+                margin=dict(l=0,r=0,t=50,b=0)  # Adjust margins to fit titles
                 )
-            )
 
-            GeneralGraphs._save_figure(submap, save_dir, 'LCA_submap')
+            GeneralGraphs._save_figure(submap,save_dir,'LCA_submap')
+
+            submap.show()
 
             return submap
-        except Exception as e:
+        except Exception as e :
             print(f"Error occurred: {e}")
 
     @staticmethod

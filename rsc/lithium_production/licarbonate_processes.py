@@ -121,7 +121,7 @@ class evaporation_ponds :
             transf = 0
             m_saltbrine_removed = 0
             m_saltbrine2 = 0
-            water_evaporationponds = 0.1 * m_in  # 10 % of m_in is required to wash the pumps and pipes, rough assumption
+            water_evaporationponds = 0.05 * m_in  # 5 % of m_in is required to wash the pumps and pipes, rough assumption
             chemical_quicklime = 0
             sulfuric_acid = sulfuricacid_solution * water_evaporationponds
             water_pipewashing = water_evaporationponds
@@ -152,7 +152,6 @@ class evaporation_ponds :
 
 
         m_output = m_in - m_saltbrine2 + water_quicklime
-        #m_salt = 0 #TODO revert this - just check how the system responds
 
         df_data = {
             'Variables' : [f'm_output_{process_name}',
@@ -251,7 +250,7 @@ class evaporation_ponds :
         return hrs_excav
 
 
-class DLE_evaporation_ponds: #TODO work on process
+class DLE_evaporation_ponds:
     def execute(self, site_parameters, m_in):
         process_name = 'df_DLE_evaporation_ponds'
         life = site_parameters['lifetime']  # lifetime of the plant
@@ -556,7 +555,7 @@ class acidification :
         HCl_borate = ((vec_end[7] * 10 * m_in / B) * 1 * (
                 H * Cl) / 1000) / 0.32  # Required mass of HCl to overcome the buffering effect of borate [kg]
         HCl_sulfate = ((vec_end[6] * 10 * m_in / (S + O * 4)) * 0.56 * (
-                H * Cl) / 1000) / 0.32  # Required mass of HCl to overcome the buffering effect of sulfate [kg]
+                H * Cl) / 1000) / 0.32  # Required mass of HCl to overcome the buffering effect of sulfate [kg] #TODO NEED TO WORK ON THIS
 
         HCl_mass32 = (HCl_pH + HCl_borate + HCl_sulfate) * 0.32  # Total required mass of 32 wt. % HCl solution [kg]
         m_output = m_in + HCl_mass32
@@ -1341,15 +1340,15 @@ class triple_evaporator :
 
         if deposit_type == 'salar' :
 
-            if motherliq != 0:
+            if motherliq is not None and motherliq != 0 :
                 m_output = motherliq + 1.5 *(prod * (2 * Li / (2 * Li + C + O * 3)))
                 water_evap = m_in - m_output
-                steam = (water_evap/evaporator_gor)*0
+                steam = (water_evap/evaporator_gor)
 
             else:
                 Li_in_evaporator = (Li_out_adsorb * 10e-4)/dens_frw * 100 #1650 mg/L in weight percent
                 Li_out_evaporator = 0.9 * Li_out_EP_DLE
-                steam = ((Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor)*0
+                steam = ((Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor)
                 water_evap = (1 - (Li_in_evaporator / Li_out_evaporator)) * m_in
                 m_output = m_in / (Li_out_evaporator/Li_in_evaporator) #(Li_in_evaporator * m_in) / Li_out_evaporator #(Li_in_evaporator / Li_out_evaporator * m_in)
 
@@ -2483,22 +2482,55 @@ class ResourceCalculator :
         transposed_data.columns = transposed_data.iloc[0]
         transposed_data = transposed_data.drop(transposed_data.index[0])
 
+        # Just for ordering in the table
+
+        activity_status_order = {
+            # Early stage
+            'Grassroots' : '3 - Exploration - Early stage',
+            'Exploration' : '3 - Exploration - Early stage',
+            'Target Outline' : '3 - Exploration - Early stage',
+            'Commissioning' : '3 - Exploration - Early stage',
+            'Prefeas/Scoping' : '3 - Exploration - Early stage',
+            'Advanced exploration' : '3 - Exploration - Early stage',
+            'Feasibility Started' : '3 - Exploration - Early stage',
+            # Late stage
+            'Reserves Development' : '2 - Exploration - Late stage',
+            'Feasibility' : '2 - Exploration - Late stage',
+            'Feasibility complete' : '2 - Exploration - Late stage',
+            'Construction started' : '2 - Exploration - Late stage',
+            'Construction planned' : '2 - Exploration - Late stage',
+            # Mine stage
+            'Preproduction' : '1 - Mine stage',
+            'Production' : '1 - Mine stage',
+            'Operating' : '1 - Mine stage',
+            'Satellite' : '1 - Mine stage',
+            'Expansion' : '1 - Mine stage',
+            'Limited production' : '1 - Mine stage',
+            'Residual production' : '1 - Mine stage'
+            }
+
         sites_info = {}
 
-        # The index now holds the site names
         for site,row in transposed_data.iterrows() :
             activity_status = row.get("activity_status",None)
 
             production_value = row.get("production",standard_values.get("production"))
             if pd.isna(production_value) :  # Check if the value is nan
-                production_value = standard_values.get("production",
-                                                       "Unknown")  # Replace with the default if it's nan
+                production_value = standard_values.get("production","Unknown")  # Replace with the default if it's nan
 
             site_info = {
-                "site_name" : site,  # Add site name to site_info
+                "site_name" : site,
                 "abbreviation" : row["abbreviation"],
                 "country_location" : row["country_location"],
-                "ini_Li" : row.get("ini_Li",None),
+                "ini_Li" : row.get("ini_Li",0),
+                "ini_Ca": row.get("ini_Ca", 0),
+                "ini_Mg": row.get("ini_Mg", 0),
+                "ini_SO4": row.get("ini_SO4", 0),
+                "ini_B": row.get("ini_B", 0),
+                "ini_Si": row.get("ini_Si", 0),
+                "ini_Fe": row.get("ini_Fe", 0),
+                "ini_Mn": row.get("ini_Mn", 0),
+                "ini_Zn": row.get("ini_Zn", 0),
                 "Li_efficiency" : row.get("Li_efficiency",None),
                 "deposit_type" : row.get("deposit_type",None),
                 "technology_group" : row.get("technology_group",None),
@@ -2507,7 +2539,18 @@ class ResourceCalculator :
                 "production" : production_value,
                 }
 
+            # Using a list comprehension to sum the impurities, handling NaN explicitly
+            sum_impurities = sum([0 if np.isnan(site_info.get(key,0)) else site_info.get(key,0)
+                                  for key in ["ini_Ca","ini_Mg","ini_SO4","ini_B","ini_Si","ini_Fe","ini_Mn","ini_Zn"]])
+
+            print(site_info)
+
+            print(sum_impurities)
+
+            site_info["sum_impurities"] = sum_impurities
+
             # Add to the main dictionary
+
             sites_info[site] = site_info
 
         sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
@@ -2537,18 +2580,43 @@ class ResourceCalculator :
                 print(f"No site found for abbreviation: {abbrev_loc_from_dir}")
                 continue  # Skip this file if no matching site is found
 
+            # Add columns for site name and 'technology_group'
+            df['Site'] = site_name
+            df['Production'] = sites_df.loc[sites_df['site_name'] == site_name,'production'].values[0]
+            df['Technology'] = sites_df.loc[sites_df['site_name'] == site_name,'technology_group'].values[0]
+            df['Country'] = sites_df.loc[sites_df['site_name'] == site_name,'country_location'].values[0]
+            #df['Activity status'] = sites_df.loc[sites_df['site_name'] == site_name,'activity_status_order'].values[0]
+            df['Li wt. %'] = sites_df.loc[sites_df['site_name'] == site_name,'ini_Li'].values[0]
+            df['Sum impurities'] = sites_df.loc[sites_df['site_name'] == site_name,'sum_impurities'].values[0]
 
-            # Add a column for the site name and make it as an index
-            df['location'] = site_name
-            df.set_index('location',inplace=True)
-            # Store DataFrame in dictionary
+            # Set 'location' as the index
+            df.set_index('Site',inplace=True)
+
+            # Reorder columns to make 'technology_group', 'country_location', and 'activity_status' appear first in the DataFrame body
+            first_cols = ['Country', 'Technology', 'Production', 'Li wt. %', 'Sum impurities']
+            other_cols = [col for col in df.columns if col not in first_cols]
+            columns_order = first_cols + other_cols
+            df = df[columns_order]
+
+            print(f"Adding DataFrame for site: {site_name}")  # Debugging statement
             all_data.append(df)
+
+            if not all_data :
+                print("No DataFrames to concatenate.")  # Final check before attempting to concatenate
+                return None
 
         # Combine all DataFrames into one, each as a column
         combined_df = pd.concat(all_data,axis=0)
 
         # Optional: rearrange multi-level columns if necessary
         combined_df.columns = combined_df.columns.map(lambda x : f'{x[0]}_{x[1]}' if isinstance(x,tuple) else x)
+
+        # Sort the DataFrame by 'technology_group'
+        combined_df = combined_df.sort_values(by=['Technology', 'Li wt. %'])
+
+        # Round the numbers in the DataFrame
+        # specify the number of decimal places you want to round to
+        combined_df = combined_df.round(decimals=2)  # for example, rounding to 2 decimal places
 
         ResourceCalculator.save_compiled_csv(combined_df,directory, filename = "compiled_resource_data")
 

@@ -199,7 +199,6 @@ def create_fu(activity_list, site_name, db_name, site_location) :
     lithium_carb = [act for act in site_db if act['name'] == "Geothermal Li" and act['location'] == site_location]
 
     if len(lithium_carb) == 0:
-        print("Creating 'Geothermal Li' activity.")
         lithium_carb = site_db.new_activity(amount=1, code="Geothermal Li", name="Geothermal Li", unit="kilogram",
                                             location=site_location, type="process")
         lithium_carb.save()

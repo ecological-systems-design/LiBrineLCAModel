@@ -169,6 +169,13 @@ def mean_annual_temperature(lat, lon, dataset):
 def update_required_concentrations( process_sequence, vec_end, vec_ini):
 
     process_update_status = {}
+    li_index = process_sequence.index('Li_adsorption') if 'Li_adsorption' in process_sequence else -1
+
+    if li_index != -1:
+        # vec_ini == vec_end because the model assumes no concentration in the evaporation ponds
+        vec_end = vec_ini
+        process_update_status['Li_adsorption'] = 'Updated'
+
 
     for process in process_sequence :
         if process in process_required_concentrations_dict :
@@ -186,7 +193,6 @@ def update_required_concentrations( process_sequence, vec_end, vec_ini):
 
 
 def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
-    print(f'abbrev_loc: {abbrev_loc}')
     # Load the Excel file
     op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
                             sheet_name="Sheet1", index_col=0)
@@ -250,15 +256,19 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         vec_ini[0] = Li_conc
 
     if any(pd.isna(vec_ini[i]) for i in nan_indices_ini) :
-        closest_site_data = find_closest_valid_site_brinechemistry(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 10)
+        print('yes')
+        closest_site_data = find_closest_valid_site_brinechemistry(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 13)
         if closest_site_data is not None :
 
             for i in nan_indices_ini :
-                offset_index = i + 10  # Apply the offset here
+                offset_index = i + 13  # Apply the offset here
                 if pd.isna(vec_ini[i]) :
                     vec_ini[i] = closest_site_data.iloc[
                         offset_index]  # Use the offset index to access data in closest_site_data
+                    print(f"Updated vec_ini value at index {i} with value from closest site: {vec_ini[i]}")
                     info_assumption = {"vec_ini": closest_site_data.name}
+
+    print(vec_ini)
 
     # Convert all elements in vec_ini to floats, replace non-numeric values with 0 or NaN
     vec_ini_float = []
@@ -288,6 +298,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     # Update vec_end if there are nan values using the function from above
     vec_end, process_update_status = update_required_concentrations(process_sequence, vec_end,
                                                                     vec_ini)
+    print(vec_end)
 
     if "evaporation_ponds" in process_sequence:
         if pd.isna(site_data["evaporation_rate"]):
@@ -298,8 +309,6 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     else:
         site_data["evaporation_rate"] = 0 # Set to 0 if the process is not in the sequence
 
-
-    print(f'abbrev_loc before extracted database: {abbrev_loc}')
     # Create a dictionary for the extracted data
     extracted_database = {
         abbrev_loc : {

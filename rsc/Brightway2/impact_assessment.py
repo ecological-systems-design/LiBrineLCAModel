@@ -325,9 +325,14 @@ def save_battery_results_to_csv(directory, results, abbrev_loc, battery_act):
     headers = ['Method', f'Impact Score {abbrev_loc}']
     new_file = not os.path.exists(filename)
 
+    method_dict = {"('IPCC 2021', 'climate change', 'global warming potential (GWP100)')": 'IPCC 2021',
+                    "('AWARE regionalized', 'Annual', 'All')": "AWARE"}
+
     with open(filename, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         if new_file:
             writer.writerow(headers)  # Write headers if it's a new file
         for method, score in results.items():
-            writer.writerow([method, score])
+            # Check if method is in method_dict and use the corresponding value if it is
+            method_name = method_dict.get(method,method)
+            writer.writerow([f'{method_name} {abbrev_loc}',score])
