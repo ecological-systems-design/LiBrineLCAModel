@@ -212,45 +212,61 @@ def categorize_activities(row, chemical_map):
 
 
 # Function to categorize details
-def categorize_details(details_list,chemical_map) :
+def categorize_details(details_list, chemical_map, abbrev_loc):
     # Initialize a dictionary to hold categorized details and their summed scores
     categorized = {
-        'Heat' : [],
-        'Electricity' : [],
-        'Chemicals' : [],
-        'Rest' : []
-        }
+        'Heat': [],
+        'Electricity': [],
+        'Chemicals': [],
+        'Water': [],
+        'Liquid waste': [],
+        'Spent solvent': [],
+        'Rest': []
+    }
 
     # Initialize a dictionary to hold the sum of scores for each category
     category_scores = {
-        'Heat' : 0,
-        'Electricity' : 0,
-        'Chemicals' : 0,
-        'Rest' : 0
-        }
+        'Heat': 0,
+        'Electricity': 0,
+        'Chemicals': 0,
+        'Water': 0,
+        'Liquid waste': 0,
+        'Spent solvent': 0,
+        'Rest': 0
+    }
 
     # Check each detail and categorize it, summing the scores as well
-    for detail in details_list :
-        activity,score = detail
+    for detail in details_list:
+        activity, score = detail
 
         # Check for heat-related activities
-        if 'natural gas' in activity.lower() :
+        if 'natural gas' in activity.lower():
             categorized['Heat'].append(detail)
             category_scores['Heat'] += score
         # Check for electricity-related activities
-        elif 'electricity' in activity.lower() :
+        elif 'electricity' in activity.lower():
             categorized['Electricity'].append(detail)
             category_scores['Electricity'] += score
         # Check for chemical-related activities
-        elif any(chem in activity for chem in chemical_map) :
+        elif any(chemical_map[chem]['activity_name'] in activity for chem in chemical_map):
             categorized['Chemicals'].append(detail)
             category_scores['Chemicals'] += score
+        elif f'Water_{abbrev_loc}' in activity:
+            categorized['Water'].append(detail)
+            category_scores['Water'] += score
+        elif f'waste_liquid_{abbrev_loc}' in activity:
+            categorized['Liquid waste'].append(detail)
+            category_scores['Liquid waste'] += score
+        elif 'treatment of spent solvent mixture, hazardous waste incineration' in activity:
+            categorized['Spent solvent'].append(detail)
+            category_scores['Spent solvent'] += score
         # Everything else is classified as 'Rest'
-        else :
+        else:
             categorized['Rest'].append(detail)
             category_scores['Rest'] += score
 
-    return categorized,category_scores
+    return categorized, category_scores
+
 
 def merge_details(details_list):
     # Create a dictionary to hold the sum of scores for each activity
@@ -273,7 +289,7 @@ def merge_details(details_list):
 
 
 
-def prepare_data_for_waterfall_diagram(file_path):
+def prepare_data_for_waterfall_diagram(file_path, abbrev_loc):
     df = pd.read_csv(file_path)
 
     # Get the dynamic category mapping based on the DataFrame
@@ -372,21 +388,68 @@ def prepare_data_for_waterfall_diagram(file_path):
 
     # Categorize details and calculate category scores for the new grouped data
     for item in new_process_data :
-        categorized_details,category_scores = categorize_details(item['Details'],chemical_map)
+        categorized_details,category_scores = categorize_details(item['Details'],chemical_map, abbrev_loc)
         item['Categorized_Details'] = categorized_details
         item['Category_Scores'] = category_scores
 
 
     for data in new_process_data :
         if 'Details' in data :
-            categorized_details,category_scores = categorize_details(data['Details'],chemical_map)
+            categorized_details,category_scores = categorize_details(data['Details'],chemical_map, abbrev_loc)
             data['Categorized_Details'] = categorized_details
             data['Category_Scores'] = category_scores  # Store the summed scores for each category
 
 
     # Convert to DataFrame
     grouped_process_df = pd.DataFrame(new_process_data)
+
     return grouped_process_df
+
+
+def verify_total_category_sums(df):
+    # Use the first row for the total score
+    total_score_row = df.iloc[0]
+    total_score = total_score_row['Score']
+
+    # Initialize the sums for each category
+    total_heat = 0
+    total_electricity = 0
+    total_chemicals = 0
+    total_water = 0
+    total_waste = 0
+    total_solvent = 0
+    total_rest = 0
+
+    # Sum the scores for each category
+    for index, row in df.iterrows():
+        category_scores = row['Category_Scores']
+        total_heat += category_scores.get('Heat', 0)
+        total_electricity += category_scores.get('Electricity', 0)
+        total_chemicals += category_scores.get('Chemicals', 0)
+        total_water += category_scores.get('Water', 0)
+        total_waste += category_scores.get('Liquid waste', 0)
+        total_solvent += category_scores.get('Spent solvent', 0)
+        total_rest += category_scores.get('Rest', 0)
+
+    # Calculate the total sum of all categories
+    sum_of_all_categories = total_heat + total_electricity + total_chemicals + total_water + total_waste + total_solvent + total_rest
+
+    # Verify if the total sum of all categories matches the total score of the first row
+    is_match = abs(total_score - sum_of_all_categories) < 1e-2  # Using a tolerance for floating point comparison
+
+    # Return the results
+    return {
+        'Total_Score': total_score,
+        'Sum_of_All_Categories': sum_of_all_categories,
+        'Is_Match': is_match,
+        'Total_Heat': total_heat,
+        'Total_Electricity': total_electricity,
+        'Total_Chemicals': total_chemicals,
+        'Total_Water': total_water,
+        'Total_Waste': total_waste,
+        'Total_Spent solvent': total_solvent,
+        'Total_Rest': total_rest
+    }
 
 
 def find_latest_matching_file(directory, li_conc, eff, impact_type):

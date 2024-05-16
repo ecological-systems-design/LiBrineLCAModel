@@ -4,7 +4,7 @@ import os
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file, get_category_mapping, prepare_data_for_table_IPCC_and_AWARE
+from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file, get_category_mapping, prepare_data_for_table_IPCC_and_AWARE, verify_total_category_sums
 from rsc.lithium_production.import_site_parameters import standard_values
 import ast
 
@@ -556,14 +556,14 @@ class Visualization :
 
         # Sort the sites first by country, then by Li concentration within each country
         combined_data = {site : {
-            'IPCC' : matched_results[site]['IPCC'],
-            'AWARE' : matched_results[site]['AWARE'],
-            'Li_conc' : sites_info[site]['ini_Li'],
             'country' : sites_info[site]['country_location'],
-            'technology_group' : sites_info[site]['technology_group'],
             'activity_status' : sites_info[site]['activity_status'],
             'activity_status_order' : sites_info[site]['activity_status_order'],
-            'production' : sites_info[site]['production']
+            'technology_group' : sites_info[site]['technology_group'],
+            'Li_conc' : sites_info[site]['ini_Li'],
+            'production' : sites_info[site]['production'],
+            'IPCC' : matched_results[site]['IPCC'],
+            'AWARE' : matched_results[site]['AWARE']
             }
                          for site in matched_results}
 
@@ -593,7 +593,8 @@ class Visualization :
             'geo_DLE' : 'rgb(197, 182, 120)',
             'salar_conv' : 'rgb(140, 124, 68)',
             'salar_IX' : 'rgb(126, 169, 158)',
-            'salar_DLE' : 'rgb(185, 113, 54)'
+            'salar_DLE' : 'rgb(185, 113, 54)',
+            'salar_DLE_spec': 'rgb(198, 200, 178)'
             }
 
         # Creating subplots
@@ -1288,15 +1289,20 @@ class Visualization :
         return fig  # Returning the figure could be useful for testing or direct viewing in notebooks
 
 
+
     def plot_all_sites(excel_path,base_directory,save_directory) :
         excel_data = pd.read_excel(excel_path)
         transposed_data = excel_data.transpose()
         transposed_data.columns = transposed_data.iloc[0]
         excel_data = transposed_data.drop(transposed_data.index[0])
 
-
-        # Create subplots: One row for each impact type
-        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,subplot_titles=('Climate Change','Water Scarcity'))
+        # Create subplots: One row for each impact type with two columns
+        fig = make_subplots(
+            rows=2,cols=2,
+            shared_xaxes=True,
+            subplot_titles=('Climate Change - Process Contributions','Climate Change - Category Contributions',
+                            'Water Scarcity - Process Contributions','Water Scarcity - Category Contributions')
+            )
 
         colors = px.colors.qualitative.Plotly
 
@@ -1316,7 +1322,6 @@ class Visualization :
                     cumulative_base = 0
 
                     for _,row in reversed_df.iterrows() :
-
                         fig.add_trace(go.Bar(
                             name=row['Activity'],
                             x=[f"{abbrev_loc}"],
@@ -1324,19 +1329,43 @@ class Visualization :
                             base=cumulative_base,
                             marker_color=colors[_ % len(colors)],
                             hoverinfo="name+y+text",
-                            width = 0.5,
+                            width=0.5,
                             marker_line_color='black',  # Set the color of the line to black
                             marker_line_width=0.5,  # Set the width of the line
                             ),row=i + 1,col=1)  # Add to the appropriate subplot
                         cumulative_base += row['Score_Diff']
+
+                    # Plot for Category Contributions (right subplot)
+                    category_totals = verify_total_category_sums(df)
+                    category_names = ['Heat','Electricity','Chemicals','Rest']
+                    category_colors = ['red','blue','green','grey']
+
+                    for category,color in zip(category_names,category_colors) :
+                        fig.add_trace(go.Bar(
+                            name=category,
+                            x=[abbrev_loc],
+                            y=[category_totals[f'Total_{category}']],
+                            marker_color=color,
+                            hoverinfo="name+y+text",
+                            textposition="outside"
+                            ),row=i + 1,col=2)
+
                 else :
                     print(
                         f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
 
         fig.update_layout(
-            title="Process Contributions to Total Score Across Sites",
+            title="Process and Category Contributions to Total Score Across Sites",
             title_font_size=20,
-            showlegend=False,
+            showlegend=True,
+            legend=dict(
+                title="Legend",
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+                ),
             plot_bgcolor='rgba(255, 255, 255, 1)',
             paper_bgcolor='rgba(255, 255, 255, 1)',  # White background for the entire figure
             xaxis=dict(
@@ -1381,19 +1410,19 @@ class Visualization :
                 title="Score",
                 title_font={"size" : 16},
                 tickfont=dict(size=14,color='rgb(107,107,107)'),
-            showgrid = True,
-            gridcolor = 'rgb(204, 204, 204)',
-            zeroline = False,
-            showline = True,
-            showticklabels = True,
-            linecolor = 'rgb(204, 204, 204)',
-            linewidth = 2,
-            ticks = 'outside',
+                showgrid=True,
+                gridcolor='rgb(204, 204, 204)',
+                zeroline=False,
+                showline=True,
+                showticklabels=True,
+                linecolor='rgb(204, 204, 204)',
+                linewidth=2,
+                ticks='outside',
                 range=[0,None]  # Start y-axis at 0
-            ),
-            bargap = 0.25,  # Adjust the gap between bars to 15% of the bar width
-            autosize = True,
-            margin = dict(
+                ),
+            bargap=0.25,  # Adjust the gap between bars to 15% of the bar width
+            autosize=True,
+            margin=dict(
                 autoexpand=True,
                 l=100,  # Left margin
                 r=20,  # Right margin
@@ -1402,8 +1431,14 @@ class Visualization :
                 ),
             )
 
-        save_path_png = os.path.join(save_directory,'LCA_contributional_analysis_across_sites.png')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_path_png = os.path.join(save_directory,
+                                     f'LCA_contributional_analysis_across_sites_process_input_{timestamp}.png')
         fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_directory,
+                                     f'LCA_contributional_analysis_across_sites_process_input_{timestamp}.svg')
+        fig.write_image(save_path_svg)
         print("Composite figure saved.")
 
         return fig
@@ -1448,7 +1483,242 @@ class Visualization :
             'volume reduction' : 'rgb(234, 194, 39)' #'rgb(0, 50, 90)'  # Example RGB color
             }
 
-    def create_relative_horizontal_bars(excel_path, base_directory, save_directory) : #TODO work here!!!!!
+
+    def create_relative_horizontal_bars(excel_path,base_directory,save_directory) :
+        # Load and process the Excel data
+        excel_data = pd.read_excel(excel_path)
+        transposed_data = excel_data.transpose()
+        transposed_data.columns = transposed_data.iloc[0]
+        excel_data = transposed_data.drop(transposed_data.index[0])
+
+        activity_status_order = {
+            # Early stage
+            'Grassroots' : '3 - Exploration - Early stage',
+            'Exploration' : '3 - Exploration - Early stage',
+            'Target Outline' : '3 - Exploration - Early stage',
+            'Commissioning' : '3 - Exploration - Early stage',
+            'Prefeas/Scoping' : '3 - Exploration - Early stage',
+            'Advanced exploration' : '3 - Exploration - Early stage',
+            'Feasibility Started' : '3 - Exploration - Early stage',
+            # Late stage
+            'Reserves Development' : '2 - Exploration - Late stage',
+            'Feasibility' : '2 - Exploration - Late stage',
+            'Feasibility complete' : '2 - Exploration - Late stage',
+            'Construction started' : '2 - Exploration - Late stage',
+            'Construction planned' : '2 - Exploration - Late stage',
+            # Mine stage
+            'Preproduction' : '1 - Mine stage',
+            'Production' : '1 - Mine stage',
+            'Operating' : '1 - Mine stage',
+            'Satellite' : '1 - Mine stage',
+            'Expansion' : '1 - Mine stage',
+            'Limited production' : '1 - Mine stage',
+            'Residual production' : '1 - Mine stage'
+            }
+
+        # Mapping activity_status to its corresponding order directly in excel_data
+        excel_data['activity_status_order'] = excel_data['activity_status'].map(activity_status_order).fillna(
+            '4 - Other')
+        # Set a default value for NaN in production
+        default_production_value = 0  # Assuming a default value for production
+        excel_data['production'] = pd.to_numeric(excel_data['production'],errors='coerce').fillna(
+            default_production_value)
+
+        # Sorting by 'activity_status_order' and then by 'production'
+        excel_data.sort_values(by=['technology_group', 'production'],inplace=True,ascending=[True,True])
+
+
+        # Initialize subplots
+        fig = make_subplots(rows=2,cols=2,shared_xaxes=True,
+                            vertical_spacing=0.05)
+
+        colors = Visualization.get_color_mapping()
+
+        for index,row in excel_data.iterrows() :
+            abbrev_loc = row['abbreviation']
+            site_location = index
+            li_conc = round(row['ini_Li'],3)
+            eff = row['Li_efficiency']
+            target_directory = os.path.join(base_directory,f'results_{abbrev_loc}')
+
+            for i,impact_type in enumerate(['climatechange','waterscarcity']) :
+                latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
+                if latest_file_path :
+                    print(f"Processing file: {latest_file_path}")
+                    df = prepare_data_for_waterfall_diagram(latest_file_path, abbrev_loc)
+
+                    # Calculate the relative contribution
+                    total_score = df.iloc[0]['Score']
+                    df['Relative_Score'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1]) / total_score * 100
+
+                    # Plot Process Contributions (left subplots)
+                    cumulative_base = 0
+                    for _,bar_row in reversed(list(df.iterrows())) :
+                        current_activity = bar_row['Activity']
+                        color = colors.get(current_activity,'rgb(0,0,0)')  # Default to black if not found
+                        fig.add_trace(go.Bar(
+                            name=bar_row['Activity'],
+                            x=[bar_row['Relative_Score']],
+                            y=[f"{index}"],
+                            orientation='h',
+                            marker_color=color,
+                            base=cumulative_base,
+                            hoverinfo="name+y+text",
+                            width=0.8,
+                            marker_line_color='black',
+                            marker_line_width=0.5,
+                            opacity=0.8
+                            ),row=i + 1,col=1)
+                        cumulative_base += bar_row['Relative_Score']
+
+                    # Plot Category Contributions (right subplots)
+                    category_totals = verify_total_category_sums(df)
+                    print(f"Category Totals for {index} ({abbrev_loc}): {category_totals}")
+
+                    category_names = ['Heat','Electricity','Chemicals','Water','Waste','Spent solvent','Rest']
+                    category_colors = ['rgb(153, 212, 217)','rgb(201,225,226)','rgb(231,243,227)','rgb(132,122,113)',
+                                       'rgb(219,235,196)','rgb(185,211,210)','rgb(207,205,206)']
+
+                    # Initialize positive and negative bases
+                    positive_base = 0
+                    negative_base = 0
+
+                    #check if negative values exist in category_totals
+                    if any(value < 0 for value in category_totals.values()) :
+                        print('Negative values exist in category_totals')
+                        # define variable with that negative value
+                        negative_value = min(category_totals.values())
+                        # add that negative value to total_score
+                        total_score = total_score - negative_value #so that it turns positive
+                        print(f"Total Score for {index} ({abbrev_loc}): {total_score}")
+
+                    print(f"Total Score for {index} ({abbrev_loc}): {total_score}")
+
+                    for category,color in zip(category_names,category_colors) :
+                        score = category_totals[f'Total_{category}'] / total_score * 100 if total_score != 0 else 0
+                        print(score)
+
+                        if score >= 0 :
+                            fig.add_trace(go.Bar(
+                                name=category,
+                                x=[score],
+                                y=[f"{index}"],
+                                orientation='h',
+                                marker_color=color,
+                                base=positive_base,
+                                hoverinfo="name+y+text",
+                                textposition="outside",
+                                width=0.8,
+                                marker_line_color='black',
+                                marker_line_width=0.5,
+                                opacity=0.9
+                                ),row=i + 1,col=2)
+                            positive_base += score
+                        else :
+                            fig.add_trace(go.Bar(
+                                name=category,
+                                x=[score],
+                                y=[f"{index}"],
+                                orientation='h',
+                                marker_color=color,
+                                base=negative_base,
+                                textposition="outside",
+                                width=0.8,
+                                marker_line_color='black',
+                                marker_line_width=0.5,
+                                opacity=0.9
+                                ),row=i + 1,col=2)
+                            negative_base += score
+
+                        print(
+                            f"Category: {category}, Score: {score}, Positive Base: {positive_base}, Negative Base: {negative_base}")
+
+
+                else :
+                    print(
+                        f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+
+        fig.update_layout(
+            showlegend=True,
+            plot_bgcolor='rgba(255, 255, 255, 1)',
+            paper_bgcolor='rgba(255, 255, 255, 1)',
+            barmode='stack',
+            bargap=0.2,
+            height=1400,  # Adjust this value based on your specific needs
+            width=1000,  # Adjust this value based on your specific needs
+            margin=dict(
+                autoexpand=True,
+                l=100,  # Left margin
+                r=20,  # Right margin
+                t=110,  # Top margin
+                b=100  # Bottom margin
+                ),
+            font=dict(
+                family="Arial, sans-serif",  # Set font family to Arial
+                size=14,  # Set font size
+                color="black"  # Set font color to black
+                ),
+            xaxis=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=10,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=5,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                ),
+            xaxis2=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=20,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=5,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                ),
+            xaxis3=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=20,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=5,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                ),
+            xaxis4=dict(
+                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
+                nticks=20,  # Number of ticks to be displayed along the axis
+                tick0=0,  # Starting tick
+                dtick=20,  # Tick spacing
+                tickangle=0,  # Tick angle (can adjust if labels overlap)
+                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
+                tickwidth=2,  # Width of the tick lines
+                tickcolor='black',  # Color of the ticks
+                ticklen=5,  # Length of the ticks
+                showticklabels=True,  # Whether or not to show tick labels
+                )
+            )
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_path_png = os.path.join(save_directory,
+                                     f'LCA_contributional_analysis_across_sites_process_inputs_{timestamp}.png')
+        fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_directory,
+                                     f'LCA_contributional_analysis_across_sites_process_inputs_{timestamp}.svg')
+        fig.write_image(save_path_svg)
+        print("Composite figure saved.")
+
+    def create_relative_horizontal_bars_old(excel_path, base_directory, save_directory) : #TODO work here!!!!!
         # Load and process the Excel data
         excel_data = pd.read_excel(excel_path)
         transposed_data = excel_data.transpose()

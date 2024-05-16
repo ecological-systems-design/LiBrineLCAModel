@@ -1,6 +1,8 @@
 import bw2data as bd
 from pathlib import Path
 import os
+import shutil
+import bw2io as bw2io
 
 # Import necessary modules from your script
 from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
@@ -62,6 +64,41 @@ def extract_sites_and_abbreviations(excel_file_path):
 
     return site_abbreviations
 
+def create_dbs_without_water_regionalization(project, site_name, site_location, country_location, process_sequence, abbrev_loc):
+
+    # Set up project and databases
+    bd.projects.set_current(project)
+
+    # Initialize the processing sequence
+    initial_data = extract_data(site_name, abbrev_loc)
+    eff = initial_data[abbrev_loc]['Li_efficiency']
+    Li_conc = initial_data[abbrev_loc]['vec_ini'][0]
+
+    # Define initial parameters and setup site
+    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
+
+    # Initialize the ProcessManager with the given process sequence
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+
+    # Run the processes and simulations
+    dataframes_dict = manager.run(filename)
+    results, literature_eff, literature_Li_conc = manager.run_simulation_with_literature_data(site_location, abbrev_loc,
+                                                                                              process_sequence,
+                                                                                              site_parameters=
+                                                                                              initial_data[abbrev_loc])
+
+    # Setting up databases for environmental impact calculation
+    biosphere = "biosphere3"
+    ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
+    ei_name = "ecoinvent 3.9.1 cutoff"
+    deposit_type = initial_data[abbrev_loc]['deposit_type']
+    ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
+                                                eff, Li_conc, site_location, abbrev_loc, dataframes_dict, chemical_map)
+
+
+    return print(f'Created databases for {site_name} without water regionalization')
+
 def run_operation_analysis_with_literature_data(project, site_name, site_location, country_location, process_sequence, abbrev_loc):
 
 
@@ -95,8 +132,6 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     deposit_type = initial_data[abbrev_loc]['deposit_type']
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, site_location, abbrev_loc, dataframes_dict, chemical_map)
-
-    # TODO export database for Robert
 
     # Importing impact assessment methods
     import_aware(ei_reg, bio, site_name, site_db)
@@ -280,6 +315,48 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
             # Handle 'impacts' as needed
         else:
             print(f"Skipping analysis for site {site_name}.")
+
+def run_analysis_for_all_sites_to_extract_dbs(excel_file_path, directory_path):
+    # Extract site names and their abbreviations
+    site_abbreviations = extract_sites_and_abbreviations(excel_file_path)
+
+    # Iterate over each site and its abbreviation
+    for site_name, abbreviation in site_abbreviations.items():
+        site_data = extract_data(site_name, abbreviation)
+        target_ini_Li = site_data[abbreviation]['ini_Li']
+        target_eff = site_data[abbreviation]['Li_efficiency']
+        project = f'{site_name}_databases'
+        print(f"Currently assessing: {project}")
+
+        # Initialize flags to check the existence of project and results
+        project_exists = project in bd.projects
+
+        if not project_exists :
+            bd.projects.set_current(project)
+            process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'])
+            country_location = site_data[abbreviation]['country_location']
+            site_location = site_name
+            create_dbs_without_water_regionalization(project, site_name, site_location, country_location, process_sequence, abbreviation)
+        else:
+            bd.projects.set_current(project)
+
+        dbs_for_export = [site_name]
+        for db in dbs_for_export :
+            # This will export the LCI database as an Excel file and save it in the BW2 project directory.
+            # The exact directory is printed
+            export_path = bw2io.export.excel.write_lci_excel(db)
+            print(export_path)
+
+            # This will copy the Excel files to the current directory:
+            current_path = os.getcwd()
+            shutil.copy(export_path,current_path)
+
+        print(f"Project '{project}' already exists. Databases are exported.")
+
+
+
+
+
 
 def run_analysis_for_brinechemistry(excel_file_path, directory_path):
     # Extract site names and their abbreviations
