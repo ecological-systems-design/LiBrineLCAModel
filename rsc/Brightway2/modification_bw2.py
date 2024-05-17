@@ -334,7 +334,52 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
 
     return ei_reg, site_db
 
+def change_energy_provision(ei_name, copy_db_name, country, abbrev_loc):
+    copy_db = bd.Database(copy_db_name)
+    ei_reg = bd.Database(ei_name)
 
+    if abbrev_loc == "Ola":
+        electricity_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
+        heat_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
+    elif abbrev_loc == "Chaer" or abbrev_loc == "Yilip":
+        electricity_list = "electricity, high voltage, production mix"
+        heat_list = "heat production, natural gas, at industrial furnace >100kW"
+    else:
+        electricity_list = "market for electricity, high voltage"
+        heat_list = "heat production, natural gas, at industrial furnace >100kW"
 
+    if country == "BOL" or country == "CL":
+        country = "AR"
 
+    if country == "CN-NWG":
+        country = "CN-QH"
 
+    photovoltaic_act = [act for act in ei_reg if act['name'] == "electricity production, photovoltaic, 570kWp open ground installation, multi-Si" and
+                        act['location'] == country][0]
+
+    cu_plate_act = [act for act in ei_reg if act['name'] == "operation, solar collector system, Cu flat plate collector, multiple dwelling, for hot water"
+                    and act['location'] == "RoW"][0]
+
+    act_list = [act for act in copy_db]
+
+    for act in act_list :
+        for exc in act.exchanges():
+            name = exc.input['name']
+            if electricity_list in name:
+                exc['name'] = photovoltaic_act['name']
+                exc['input'] = photovoltaic_act.key
+                exc['type'] = "technosphere"
+                exc.save()
+                act.save()
+                print('Electricity act was adapted in new database')
+
+            elif heat_list in name:
+                exc['name'] = cu_plate_act['name']
+                exc['input'] = cu_plate_act.key
+                exc['type'] = "technosphere"
+                exc.save()
+                act.save()
+                print('Heat act was adapted in new database')
+
+            else:
+                print('No need to adapt activity')

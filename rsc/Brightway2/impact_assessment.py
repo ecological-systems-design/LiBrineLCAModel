@@ -30,7 +30,7 @@ def calculate_impacts(activity, methods) :
 
 
 # function to iterate over inventories and calculate impacts
-def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, site_name, ei_name, abbrev_loc, eff_range=None, Li_conc_range=None, literature_eff=None, literature_Li_conc=None):
+def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, site_name, ei_name, abbrev_loc, eff_range=None, Li_conc_range=None, literature_eff=None, literature_Li_conc=None,renewables = None):
 
     site_db = bd.Database(site_name)
     ei_reg = bd.Database(ei_name)
@@ -63,10 +63,16 @@ def calculate_impacts_for_selected_scenarios(activity, methods, dict_results, si
             rounded_Li = round(Li, 3)
             rounded_eff = round(eff, 2)
 
-            file_names = [f"{site_name}_climatechange_{rounded_Li}_{rounded_eff}",
-                          f"{site_name}_waterscarcity_{rounded_Li}_{rounded_eff}",
-                          f"{site_name}_PM_{rounded_Li}_{rounded_eff}"]
+            if renewables is None:
+                file_names = [f"{site_name}_climatechange_{rounded_Li}_{rounded_eff}",
+                              f"{site_name}_waterscarcity_{rounded_Li}_{rounded_eff}",
+                              f"{site_name}_PM_{rounded_Li}_{rounded_eff}"]
+            else:
+                file_names = [f"{site_name}_climatechange_{rounded_Li}_{rounded_eff}_renewables",
+                              f"{site_name}_waterscarcity_{rounded_Li}_{rounded_eff}_renewables",
+                              f"{site_name}_PM_{rounded_Li}_{rounded_eff}_renewables"]
 
+            #TODO work on the recursive calculation to avoid overwriting of the recursive calculation of the same site renewables and non-renewables
 
             for method, file_name in zip(methods, file_names):
                 print_recursive_calculation(activity, method, abbrev_loc, file_name, max_level=30, cutoff=0.01)
@@ -125,7 +131,7 @@ def ensure_folder_exists(folder_path) :
         os.makedirs(folder_path)
 
 
-def saving_LCA_results(results, abbrev_loc) :
+def saving_LCA_results(results, abbrev_loc, renewable = None) :
     if isinstance(results, dict) :
 
         # Get efficiency and Li-conc ranges for filename
@@ -153,15 +159,19 @@ def saving_LCA_results(results, abbrev_loc) :
     else :
         results_df = results
 
-    print(results_df)
-
-    # Ensure the results folder exists
     results_path = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/results/rawdata"
-    results_folder = os.path.join(results_path, f"LCA_results")
-    ensure_folder_exists(results_folder)
+
+    if renewable is None :
+        # Ensure the results folder exists
+        results_folder = os.path.join(results_path, f"LCA_results")
+        csv_file_path = os.path.join(results_folder,f"{filename}.csv")
+        ensure_folder_exists(results_folder)
+    else:
+        results_folder = os.path.join(results_path, f"Renewable_assessment")
+        csv_file_path = os.path.join(results_folder,f"renewables_{filename}.csv")
+        ensure_folder_exists(results_folder)
 
     # Save the DataFrame as a CSV
-    csv_file_path = os.path.join(results_folder, f"{filename}.csv")
     results_df.to_csv(csv_file_path, index=False)  # Add index=False if you don't want to save the index
 
     print(f"Saved {filename} as CSV file")

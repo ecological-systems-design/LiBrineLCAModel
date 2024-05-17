@@ -657,3 +657,102 @@ def prepare_data_for_table_IPCC_and_AWARE(data_df):
     data_df.to_csv(updated_file_path, index=False)
 
     return print(f'Updated data saved to {updated_file_path}')
+
+
+def prepare_table_for_energy_provision_comparison(excel_path,results_path,output_file_path) :
+    # Load and process the Excel data
+    excel_data = pd.read_excel(excel_path)
+    transposed_data = excel_data.transpose()
+    transposed_data.columns = transposed_data.iloc[0]
+    excel_data = transposed_data.drop(transposed_data.index[0])
+
+    # Extract relevant rows in the transposed data
+    sites_info = {}
+
+    for site,row in transposed_data.iterrows() :
+        activity_status = row.get("activity_status",None)
+
+        # Standard values and activity_status_order should be defined somewhere in your script
+        production_value = row.get("production",standard_values.get("production"))
+        if pd.isna(production_value) :  # Check if the value is nan
+            production_value = standard_values.get("production","Unknown")  # Replace with the default if it's nan
+
+        site_info = {
+            "site_name" : site,
+            "abbreviation" : row["abbreviation"],
+            "country_location" : row["country_location"],
+            "ini_Li" : row.get("ini_Li",None),
+            "Li_efficiency" : row.get("Li_efficiency",None),
+            "deposit_type" : row.get("deposit_type",None),
+            "technology_group" : row.get("technology_group",None),
+            "activity_status" : row.get("activity_status",None),
+            "production" : production_value,
+            }
+
+        # Add to the main dictionary
+        sites_info[site] = site_info
+
+    # Convert 'sites_info' to DataFrame for easier manipulation
+    sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+
+    # Extract relevant columns
+    site_names = sites_df['site_name']
+    abbreviations = sites_df['abbreviation']
+    technology_groups = sites_df['technology_group']
+    ini_Li = sites_df['ini_Li']
+    Li_efficiency = sites_df['Li_efficiency']
+
+    # Initialize an empty DataFrame for the final results
+    final_results = pd.DataFrame(
+        columns=["Site name","Technology group","Li-conc","eff","Change - IPCC","Change - AWARE"])
+
+    # Iterate through each site abbreviation
+    for site_name,abbreviation,technology_group,li_conc,li_eff in zip(site_names,abbreviations,technology_groups,ini_Li,
+                                                                      Li_efficiency) :
+        if pd.isna(abbreviation) or abbreviation == 'abbreviation' :
+            continue
+
+        # Define file paths for original and renewable data dynamically
+        original_file_path = os.path.join(results_path,'LCA_results',
+                                          f"{abbreviation}_eff_{li_eff}_to_{li_eff}_LiConc_{li_conc}_to_{li_conc}.csv")
+        renewable_file_path = os.path.join(results_path,'Renewable_assessment',
+                                           f"renewables_{abbreviation}_eff_{li_eff}_to_{li_eff}_LiConc_{li_conc}_to_{li_conc}.csv")
+
+        # Debug: Print the file paths being checked
+        print(f"Checking files for site: {site_name}, abbreviation: {abbreviation}")
+        print(f"Original file path: {original_file_path}")
+        print(f"Renewable file path: {renewable_file_path}")
+
+        # Check if both files exist
+        if os.path.exists(original_file_path) and os.path.exists(renewable_file_path) :
+            original_data = pd.read_csv(original_file_path)
+            renewable_data = pd.read_csv(renewable_file_path)
+
+            # Merge datasets and calculate percentages
+            merged_data = pd.merge(original_data,renewable_data,on=['Li-conc','eff'],
+                                   suffixes=('_original','_renewable'))
+            merged_data['IPCC_percentage'] = -(100 - ((merged_data['IPCC_renewable'] / merged_data['IPCC_original']) * 100))
+            merged_data['AWARE_percentage'] = -(100 - ((merged_data['AWARE_renewable'] / merged_data['AWARE_original']) * 100))
+
+            # Add site information to the final results
+            for _,row in merged_data.iterrows() :
+                final_results = final_results.append({
+                    "Site name" : site_name,
+                    "Technology group" : technology_group,
+                    "Li-conc" : row['Li-conc'],
+                    "eff" : row['eff'],
+                    "Change - IPCC": f"{round(row['IPCC_percentage'], 1)} %",
+                    "Change - AWARE": f"{round(row['AWARE_percentage'], 1)} %"
+                    },ignore_index=True)
+
+        else :
+            print(f"Files for {site_name} with abbreviation {abbreviation} not found.")
+
+    new_file_name = f"energy_provision_comparison_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+
+    new_output_file_dir = os.path.join(output_file_path,new_file_name)
+
+    final_results.to_csv(new_output_file_dir,index=False)
+
+    print(f'New file saved to {new_output_file_dir}')
+    return final_results

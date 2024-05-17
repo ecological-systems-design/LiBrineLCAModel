@@ -12,7 +12,7 @@ import tabulate
 
 
 
-def import_aware(ei, bio_f,site_name, site_db):
+def import_aware(ei, bio_f,site_name, site_db, copy_site_db):
     new_bio_name = "biosphere water regionalized"
 
     bio_acts = [act for act in bio_f if "water" in act['name'].lower() and
@@ -106,6 +106,11 @@ def import_aware(ei, bio_f,site_name, site_db):
                     act_contain_water_list.append(act)
 
         for act in site_db :
+            for exc in act.exchanges() :
+                if exc.input in bio_acts :
+                    act_contain_water_list.append(act)
+
+        for act in copy_site_db :
             for exc in act.exchanges() :
                 if exc.input in bio_acts :
                     act_contain_water_list.append(act)

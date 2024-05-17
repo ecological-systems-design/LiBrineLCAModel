@@ -5,12 +5,14 @@ import shutil
 import bw2io as bw2io
 
 # Import necessary modules from your script
+from rsc.Brightway2.lithium_site_db import copy_database
 from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
 from rsc.lithium_production.licarbonate_processes import *
 from rsc.Brightway2.setting_up_db_env import *
 from rsc.Brightway2.lci_method_aware import import_aware
 from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry, calculate_battery_impacts, save_battery_results_to_csv, print_recursive_calculation
 from rsc.Postprocessing_results.visualization_functions import Visualization
+from rsc.Brightway2.modification_bw2 import change_energy_provision
 
 def get_process_sequence(process_names):
     sequence = []
@@ -133,8 +135,14 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, site_location, abbrev_loc, dataframes_dict, chemical_map)
 
+    copy_site_db = copy_database(site_name, f'copy_{site_name}')
+
+    change_energy_provision(ei_name, f'copy_{site_name}', country_location, abbrev_loc)
+
+    print(f'Copied database for {site_name}')
+
     # Importing impact assessment methods
-    import_aware(ei_reg, bio, site_name, site_db)
+    import_aware(ei_reg, bio, site_name, site_db, copy_site_db)
 
     # Select impact assessment methods
     method_cc = [m for m in bd.methods if
@@ -145,9 +153,16 @@ def run_operation_analysis_with_literature_data(project, site_name, site_locatio
     # Calculate and plot impacts
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results, site_name, ei_name, abbrev_loc,
-                                                       None, None, literature_eff, literature_Li_conc)
+                                                       None, None, literature_eff, literature_Li_conc, None)
     # Saving results
     saving_LCA_results(impacts,abbrev_loc)
+
+    #Assessment of renewable energies as an energy supply for brines
+    new_activity = [act for act in copy_site_db if "df_rotary_dryer" in act['name']][0]
+    new_impacts = calculate_impacts_for_selected_scenarios(new_activity, method_list, results, f'copy_{site_name}', ei_name, abbrev_loc,
+                                                       None, None, literature_eff, literature_Li_conc, renewables=True)
+    # Saving results
+    saving_LCA_results(new_impacts,abbrev_loc, renewable=True)
 
     #Battery assessment
     act_nmc_battery = [act for act in ei_reg if "battery production, Li-ion, NMC811, rechargeable, prismatic" in act['name']
