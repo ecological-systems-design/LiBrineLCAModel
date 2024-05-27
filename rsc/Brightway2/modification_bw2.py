@@ -348,7 +348,7 @@ def change_energy_provision(ei_name, copy_db_name, country, abbrev_loc):
         electricity_list = "market for electricity, high voltage"
         heat_list = "heat production, natural gas, at industrial furnace >100kW"
 
-    if country == "BOL" or country == "CL":
+    if country == "BO" or country == "CL":
         country = "AR"
 
     if country == "CN-NWG":

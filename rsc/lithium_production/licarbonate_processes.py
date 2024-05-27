@@ -88,7 +88,7 @@ class evaporation_ponds :
 
             # Quicklime demand if reported
             if quicklime_reported == 1 :
-                water_quicklime, chemical_quicklime, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_end, m_saltbrine_removed, m_in,
+                water_quicklime, chemical_quicklime, m_saltbrine2 = self.quicklime_usage(vec_loss, vec_ini, vec_end, m_saltbrine_removed, m_in,
                                                                                    brinemass_evap, second_Li_enrichment, prod, m_in_initial)
 
 
@@ -101,11 +101,11 @@ class evaporation_ponds :
             # Freshwater demand if reported
             if freshwater_reported == 1 :
                 water_pipewashing = (freshwater_vol / 1000) * dens_frw * operating_time # mass of fresh water pumped per year [kg/year], in evaporation ponds
-                sulfuric_acid = sulfuricacid_solution * water_pipewashing
+                sulfuric_acid = sulfuricacid_solution * water_pipewashing * 0.01
 
             else:
                 water_pipewashing = self.freshwater_usage_proxy(proxy_freshwater_EP, m_saltbrine_removed, m_saltbrine2)
-                sulfuric_acid = sulfuricacid_solution * water_pipewashing
+                sulfuric_acid = sulfuricacid_solution * water_pipewashing * 0.01
                 depth_well_freshwater = 0.1 * depth_well_brine  # depth of the well for freshwater, assuming 10 % of the depth of the brine well
                 freshwater_vol = (water_pipewashing/(dens_frw*1000))/operating_time
                 pass
@@ -191,7 +191,7 @@ class evaporation_ponds :
             'motherliq' : None,
             'water_NF': None
             }
-    def quicklime_usage(self, vec_loss, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment, prod, m_in_initial) :
+    def quicklime_usage(self, vec_loss,vec_ini, vec_end, m_saltbri, m_bri_proc, bri_evap, second_Li_enrichment, prod, m_in_initial) :
         """
            Calculate quicklime usage and related parameters.
 
@@ -210,7 +210,7 @@ class evaporation_ponds :
         # Now, if you want to perform an action based on this
         if all(is_nan_vec_loss_except_first) :
             # Missing information on chemistry of brine when sent to processing plant
-            lime_low_quality = proxy_quicklime_OLAROZ * m_in_initial
+            lime_low_quality = proxy_quicklime_OLAROZ * m_in_initial * vec_ini[5]
             water_lime_low_quality = (lime_low_quality / (Ca + O)) * (
                     H * 2 + O)
 

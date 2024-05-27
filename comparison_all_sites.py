@@ -22,29 +22,29 @@ if __name__ == '__main__' :
     resources_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\ResourceCalculator'
     battery_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\battery'
 
-    #run_analysis_for_all_sites(file_path, directory_path)
+    run_analysis_for_all_sites(file_path, directory_path)
 
     prepare_table_for_energy_provision_comparison(file_path, renewable_directory_path, renewable_save_dir)
 
-    # #run_analysis_for_all_sites_to_extract_dbs(file_path,directory_path)
+    #run_analysis_for_all_sites_to_extract_dbs(file_path,directory_path)
+
+    ResourceCalculator.compile_resources(resources_dir, file_path)
+
+    #Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
     #
-    # ResourceCalculator.compile_resources(resources_dir, file_path)
+    #Visualization.plot_all_sites(file_path, base_dir, save_dir)
+    Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
+    Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
     #
-    # #Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
+    Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
+    #
+    Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
     # #
-    # #Visualization.plot_all_sites(file_path, base_dir, save_dir)
-    # Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
-    # Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
+    Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
     # #
-    # Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
+    Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
     # #
-    # Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
-    # # #
-    # Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
-    # # #
-    # Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
-    # # #
-    # Visualization.create_relative_horizontal_bars(file_path, base_dir, save_dir)
+    Visualization.create_relative_horizontal_bars(file_path, base_dir, save_dir)
 
     # #Go into file path and extract all the site_names from the excel file
     # # get location-specific data by importing xlsx file

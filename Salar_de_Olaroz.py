@@ -18,7 +18,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_8'
+    project = f'Site_{site_name}_10'
     bd.projects.set_current(project)
     print(project)
 
@@ -92,7 +92,7 @@ if __name__ == '__main__' :
 
     from rsc.Brightway2.lci_method_aware import import_aware
 
-    import_aware(ei_reg, bio, site_name, site_db)
+    import_aware(ei_reg, bio, site_name, site_db, copy_site_db=None)
 
     # from rsc.Brightway2.lci_method_pm import import_PM
 

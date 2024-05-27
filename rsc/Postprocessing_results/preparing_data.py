@@ -461,7 +461,7 @@ def find_latest_matching_file(directory, li_conc, eff, impact_type):
     latest_time = None
 
     for file in os.listdir(directory):
-        if all(x in file for x in [str(li_conc), str(eff), impact_type, '.csv']):
+        if 'copy' not in file and all(x in file for x in [str(li_conc), str(eff), impact_type, '.csv']):
             # Extract timestamp from the file name
             try:
                 parts = file.split('_')

@@ -271,8 +271,8 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project_old = f'Site_{site_name}_literature_values_1'
-        project = f'Site_{site_name}_literature_values_2'
+        project_old = f'Site_{site_name}_literature_values_3'
+        project = f'Site_{site_name}_literature_values_4'
         print(f"Currently assessing: {project}")
         old_project_exists = project_old in bd.projects
         if old_project_exists:
@@ -340,7 +340,7 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'{site_name}_databases'
+        project = f'{site_name}_databases_24052024'
         print(f"Currently assessing: {project}")
 
         # Initialize flags to check the existence of project and results

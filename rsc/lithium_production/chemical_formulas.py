@@ -65,7 +65,7 @@ T_nano = 45  # Temperature of nanofiltration
 
 adsorp_capacity = 0.008  # Adsorption capacity of Li-ion adsorption [kg/kg]
 adsorb_capacity_salar = 0.02 / (1 / 1.2)  # Adsorption capacity of Li-ion adsorption [kg/kg]; 1.2 density of resin
-Li_out_adsorb = 10000 #1650 #198 TODO check where this number comes from  # Li concentration in Li-ion adsorption [mg/L]
+Li_out_adsorb = 10000  #1650 #198 TODO check where this number comes from  # Li concentration in Li-ion adsorption [mg/L]
 Li_out_RO = 5000  # Li concentration in RO permeate [mg/L]
 Li_in_RO = 2500  # Li concentration in RO feed [mg/L]
 Li_out_evaporator_geothermal = 30000  # Li concentration in evaporator brine [mg/L]
@@ -77,9 +77,11 @@ heat_loss = 0.85
 # Proxy values
 proxy_freshwater_EP = 0.002726891764265545  # mass of pumped fresh water per kg m_saltbri
 proxy_harvest = 8.565755621167364e-05
-proxy_saltremoval = (6.0/0.15)  # ratio between initial and enriched Li-concentration from Salar de Atacama to calculate salt removal step if enriched brine chemistry is not given
+proxy_saltremoval = (
+            6.0 / 0.15)  # ratio between initial and enriched Li-concentration from Salar de Atacama to calculate salt removal step if enriched brine chemistry is not given
 proxy_salt_ATACAMA = 1058549010
-proxy_quicklime_OLAROZ = 0.006124048801987559 # reported mass of quicklime per kg of pumped brine from 2019 sustainability report
+proxy_quicklime_OLAROZ = 51005000 / (
+            0.0017 * 180 * 60 * 60 * 24 * 365 * 1.3)  # reported mass of quicklime per kg of pumped brine from 2019 sustainability report
 
 # Boron removal - specific constants
 pH_ini = 11  # Initial pH of concentrated brine
