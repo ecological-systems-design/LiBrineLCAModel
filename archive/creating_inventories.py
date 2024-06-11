@@ -1,5 +1,5 @@
 
-from rsc.lithium_production.licarbonate_processes import *
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import pandas as pd
 import os
 

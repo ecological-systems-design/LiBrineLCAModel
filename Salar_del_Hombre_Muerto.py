@@ -1,11 +1,11 @@
 import bw2data as bd
 from pathlib import Path
-from rsc.lithium_production.licarbonate_processes import *
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import os
-from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
-from rsc.Brightway2.lci_method_aware import import_aware
-from rsc.Brightway2.setting_up_db_env import *
-from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
+from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
+from src.BW2_calculations.lci_method_aware import import_aware
+from src.BW2_calculations.setting_up_db_env import *
+from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -99,7 +99,7 @@ if __name__ == '__main__' :
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    #from rsc.Brightway2.lci_method_pm import import_PM
+    #from src.BW2_calculations.lci_method_pm import import_PM
 
     #import_PM(ei_reg, bio, site_name, site_db)
 
@@ -114,7 +114,7 @@ if __name__ == '__main__' :
 
     method_list = [method_cc, method_water]
 
-    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
@@ -136,7 +136,7 @@ if __name__ == '__main__' :
     act_battery_list = [act_nmc_battery,act_lfp_battery]
     directory = f"results/test"
 
-    from rsc.Brightway2.impact_assessment import calculate_battery_impacts, save_battery_results_to_csv
+    from src.BW2_calculations.impact_assessment import calculate_battery_impacts, save_battery_results_to_csv
 
     for battery in act_battery_list :
         battery_impacts = calculate_battery_impacts(battery,method_list,site_db,ei_reg,country_location)

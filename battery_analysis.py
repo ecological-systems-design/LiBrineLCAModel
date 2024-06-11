@@ -3,13 +3,13 @@ import pandas as pd
 import bw2calc as bc
 import bw2data as bd
 import os
-from rsc.Brightway2.iterating_LCIs import change_exchanges_in_database
-from rsc.Brightway2.impact_assessment import calculate_impacts
-from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere,import_ecoinvent
+from src.BW2_calculations.iterating_LCIs import change_exchanges_in_database
+from src.BW2_calculations.impact_assessment import calculate_impacts
+from src.BW2_calculations.setting_up_bio_and_ei import import_biosphere,import_ecoinvent
 import datetime
 from bw2io.utils import activity_hash
 from copy import deepcopy
-from rsc.Brightway2.impact_assessment import calculate_impacts
+from src.BW2_calculations.impact_assessment import calculate_impacts
 
 
 

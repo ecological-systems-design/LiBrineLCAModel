@@ -81,7 +81,7 @@ proxy_saltremoval = (
             6.0 / 0.15)  # ratio between initial and enriched Li-concentration from Salar de Atacama to calculate salt removal step if enriched brine chemistry is not given
 proxy_salt_ATACAMA = 1058549010
 proxy_quicklime_OLAROZ = 51005000 / (
-            0.0017 * 180 * 60 * 60 * 24 * 365 * 1.3)  # reported mass of quicklime per kg of pumped brine from 2019 sustainability report
+            0.17 * 0.180 * 60 * 60 * 24 * 365 * 1300)  # reported mass of quicklime per kg of pumped brine from 2019 sustainability report
 
 # Boron removal - specific constants
 pH_ini = 11  # Initial pH of concentrated brine

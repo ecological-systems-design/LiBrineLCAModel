@@ -1,8 +1,8 @@
 import bw2data as bd
 import bw2io as bi
-from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
-from rsc.Brightway2.lithium_site_db import *
-from rsc.Brightway2.modification_bw2 import *
+from src.BW2_calculations.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
+from src.BW2_calculations.lithium_site_db import *
+from src.BW2_calculations.modification_bw2 import *
 
 
 # create database environment for operational site

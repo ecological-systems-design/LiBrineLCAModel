@@ -5,14 +5,14 @@ import shutil
 import bw2io as bw2io
 
 # Import necessary modules from your script
-from rsc.Brightway2.lithium_site_db import copy_database
-from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
-from rsc.lithium_production.licarbonate_processes import *
-from rsc.Brightway2.setting_up_db_env import *
-from rsc.Brightway2.lci_method_aware import import_aware
-from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry, calculate_battery_impacts, save_battery_results_to_csv, print_recursive_calculation
-from rsc.Postprocessing_results.visualization_functions import Visualization
-from rsc.Brightway2.modification_bw2 import change_energy_provision
+from src.BW2_calculations.lithium_site_db import copy_database
+from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
+from src.BW2_calculations.setting_up_db_env import *
+from src.BW2_calculations.lci_method_aware import import_aware
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry, calculate_battery_impacts, save_battery_results_to_csv, print_recursive_calculation
+from src.Postprocessing_results.visualization_functions import Visualization
+from src.BW2_calculations.modification_bw2 import change_energy_provision
 
 def get_process_sequence(process_names):
     sequence = []
@@ -271,8 +271,8 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project_old = f'Site_{site_name}_literature_values_3'
-        project = f'Site_{site_name}_literature_values_4'
+        project_old = f'Site_{site_name}_literature_values_7'
+        project = f'Site_{site_name}_literature_values_8'
         print(f"Currently assessing: {project}")
         old_project_exists = project_old in bd.projects
         if old_project_exists:
@@ -282,7 +282,6 @@ def run_analysis_for_all_sites(excel_file_path, directory_path):
         # Initialize flags to check the existence of project and results
         project_exists = project in bd.projects
         results_exist = False
-        print(project_exists)
         # Check for existing result files for the site
 
         if project_exists :
@@ -340,7 +339,7 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'{site_name}_databases_24052024'
+        project = f'{site_name}_databases_08062024'
         print(f"Currently assessing: {project}")
 
         # Initialize flags to check the existence of project and results

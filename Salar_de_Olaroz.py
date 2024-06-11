@@ -18,7 +18,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_10'
+    project = f'Site_{site_name}_11'
     bd.projects.set_current(project)
     print(project)
 
@@ -36,10 +36,10 @@ if __name__ == '__main__' :
     op_location = "Salar de Olaroz"
 
     # initialize the processing sequence
-    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+    from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+    from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 
     process_sequence = [
         evaporation_ponds(),
@@ -85,16 +85,16 @@ if __name__ == '__main__' :
 
     print(results)
 
-    from rsc.Brightway2.setting_up_db_env import *
+    from src.BW2_calculations.setting_up_db_env import *
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
-    from rsc.Brightway2.lci_method_aware import import_aware
+    from src.BW2_calculations.lci_method_aware import import_aware
 
     import_aware(ei_reg, bio, site_name, site_db, copy_site_db=None)
 
-    # from rsc.Brightway2.lci_method_pm import import_PM
+    # from src.BW2_calculations.lci_method_pm import import_PM
 
     # import_PM(ei_reg, bio, site_name, site_db)
 
@@ -109,7 +109,7 @@ if __name__ == '__main__' :
 
     method_list = [method_cc, method_water]
 
-    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
@@ -119,11 +119,11 @@ if __name__ == '__main__' :
     # print(impacts)
 
     # saving results
-    from rsc.Brightway2.impact_assessment import saving_LCA_results, print_recursive_calculation
+    from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation
 
     saving_LCA_results(impacts, abbrev_loc)
 
-    from rsc.Postprocessing_results.visualization_functions import Visualization
+    from src.Postprocessing_results.visualization_functions import Visualization
 
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)

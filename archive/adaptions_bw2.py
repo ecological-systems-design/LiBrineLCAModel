@@ -1,5 +1,5 @@
 import bw2data as bd
-from rsc.Brightway2.lithium_site_db import create_database
+from src.BW2_calculations.lithium_site_db import create_database
 
 
 def find_closest_valid_site(current_site_lat, current_site_lon, op_data, vec_ini_indices):

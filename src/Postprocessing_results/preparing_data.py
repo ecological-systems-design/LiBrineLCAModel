@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 import datetime
-from rsc.lithium_production.import_site_parameters import standard_values
-from rsc.Brightway2.lithium_site_db import chemical_map
+from src.LifeCycleInventoryModel_Li.import_site_parameters import standard_values
+from src.BW2_calculations.lithium_site_db import chemical_map
 import ast
 
 
@@ -123,8 +123,9 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
         'Feasibility complete' : '2 - Exploration - Late stage',
         'Construction started' : '2 - Exploration - Late stage',
         'Construction planned' : '2 - Exploration - Late stage',
+        'Preproduction' : '2 - Exploration - Late stage',
         # Mine stage
-        'Preproduction' : '1 - Mine stage',
+        #'Preproduction' : '1 - Mine stage',
         'Production' : '1 - Mine stage',
         'Operating' : '1 - Mine stage',
         'Satellite' : '1 - Mine stage',
@@ -542,7 +543,7 @@ def process_battery_scores(file_path, directory) :
         'Construction started' : '2 - Exploration - Late stage',
         'Construction planned' : '2 - Exploration - Late stage',
         # Mine stage
-        'Preproduction' : '1 - Mine stage',
+        'Preproduction' : '2 - Exploration - Late stage',
         'Production' : '1 - Mine stage',
         'Operating' : '1 - Mine stage',
         'Satellite' : '1 - Mine stage',
@@ -641,22 +642,64 @@ def process_battery_scores(file_path, directory) :
     return results_df
 
 
+def analyze_and_save_technology_group_stats(input_df):
+    # Calculate average, min, and max for 'Climate change impacts' and 'Water scarcity impacts' by 'technology_group'
+    technology_group_stats = input_df.groupby('technology_group').agg(
+        climate_change_avg=('Climate change impacts', 'mean'),
+        climate_change_min=('Climate change impacts', 'min'),
+        climate_change_max=('Climate change impacts', 'max'),
+        water_scarcity_avg=('Water scarcity impacts', 'mean'),
+        water_scarcity_min=('Water scarcity impacts', 'min'),
+        water_scarcity_max=('Water scarcity impacts', 'max')
+    ).reset_index()
+
+    # Round the numbers to two decimal places
+    technology_group_stats = technology_group_stats.round(1)
+
+    return technology_group_stats
+
+def analyze_and_save_activity_status_order_stats(input_df):
+    # Calculate average, min, and max for 'Climate change impacts' and 'Water scarcity impacts' by 'activity_status_order'
+    activity_status_order_stats = input_df.groupby('activity_status_order').agg(
+        climate_change_avg=('Climate change impacts', 'mean'),
+        climate_change_min=('Climate change impacts', 'min'),
+        climate_change_max=('Climate change impacts', 'max'),
+        water_scarcity_avg=('Water scarcity impacts', 'mean'),
+        water_scarcity_min=('Water scarcity impacts', 'min'),
+        water_scarcity_max=('Water scarcity impacts', 'max')
+    ).reset_index()
+
+    # Round the numbers to two decimal places
+    activity_status_order_stats = activity_status_order_stats.round(1)
+
+    return activity_status_order_stats
+
+def save_stats_to_excel(tech_stats_df, activity_stats_df, file_path):
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
+        # Write each dataframe to a different worksheet.
+        tech_stats_df.to_excel(writer, sheet_name='Technology Group Stats', index=False)
+        activity_stats_df.to_excel(writer, sheet_name='Activity Status Order Stats', index=False)
+
 def prepare_data_for_table_IPCC_and_AWARE(data_df):
     # Rename columns based on existing DataFrame structure
-    # This step might be redundant if columns are already named correctly from DataFrame creation
     data_df.rename(columns={'IPCC': 'Climate change impacts', 'AWARE': 'Water scarcity impacts'}, inplace=True)
-
-    # Add placeholders for 'Li-conc' and 'Efficiency' columns if not already present
-    if 'Li-conc' not in data_df.columns:
-        data_df['Li-conc'] = pd.NA
-    if 'Efficiency' not in data_df.columns:
-        data_df['Efficiency'] = pd.NA
 
     # Save the updated dataframe to a new CSV file
     updated_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\updated_data_for_Marimekko.csv'
-    data_df.to_csv(updated_file_path, index=False)
+    stats_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\stats_data.xlsx'
 
-    return print(f'Updated data saved to {updated_file_path}')
+    data_df_round = data_df.round(1)
+    data_df_round.to_csv(updated_file_path, index=False)
+
+    # Generate statistics
+    technology_group_stats = analyze_and_save_technology_group_stats(data_df)
+    activity_status_order_stats = analyze_and_save_activity_status_order_stats(data_df)
+
+    # Save statistics to Excel file
+    save_stats_to_excel(technology_group_stats, activity_status_order_stats, stats_file_path)
+
+    return print(f'Updated data saved to {updated_file_path} and statistics saved to {stats_file_path}')
 
 
 def prepare_table_for_energy_provision_comparison(excel_path,results_path,output_file_path) :

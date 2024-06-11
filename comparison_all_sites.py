@@ -1,10 +1,10 @@
 from pathlib import Path
 import pickle
 import os
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, process_data_based_on_excel, process_battery_scores, prepare_table_for_energy_provision_comparison
-from rsc.Postprocessing_results.visualization_functions import *
-from rsc.global_analysis.site_LCI_and_LCA import *
-from rsc.lithium_production.licarbonate_processes import *
+from src.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, process_data_based_on_excel, process_battery_scores, prepare_table_for_energy_provision_comparison
+from src.Postprocessing_results.visualization_functions import *
+from src.Model_Setup_Options.site_LCI_and_LCA import *
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import bw2data as bd
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -23,27 +23,27 @@ if __name__ == '__main__' :
     battery_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\battery'
 
     run_analysis_for_all_sites(file_path, directory_path)
-
+    # #
     prepare_table_for_energy_provision_comparison(file_path, renewable_directory_path, renewable_save_dir)
-
-    #run_analysis_for_all_sites_to_extract_dbs(file_path,directory_path)
-
+    # #
+    run_analysis_for_all_sites_to_extract_dbs(file_path,directory_path)
+    # #
     ResourceCalculator.compile_resources(resources_dir, file_path)
-
+    # #
     #Visualization.process_data_based_on_excel(file_path, base_dir, save_dir)
-    #
-    #Visualization.plot_all_sites(file_path, base_dir, save_dir)
+    # # #
+    # # #Visualization.plot_all_sites(file_path, base_dir, save_dir)
     Visualization.plot_LCA_results_comparison(file_path, directory_path, save_path)
     Visualization.plot_LCA_results_comparison_based_on_technology(file_path, directory_path, save_path)
-    #
+    # # # #
     Visualization.plot_LCA_results_comparison_based_on_exploration_and_Liconc(file_path,directory_path,save_path)
-    #
+    # # # #
     Visualization.plot_LCA_results_bubble_IPCC_AWARE(file_path,directory_path,save_path)
-    # #
+    # # # # #
     Visualization.plot_LCA_results_scatter_Li_conc(file_path,directory_path,save_path)
-    # #
+    # # # # #
     Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
-    # #
+    # # # # #
     Visualization.create_relative_horizontal_bars(file_path, base_dir, save_dir)
 
     # #Go into file path and extract all the site_names from the excel file

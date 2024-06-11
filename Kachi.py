@@ -1,12 +1,12 @@
 import bw2data as bd
 from pathlib import Path
-from rsc.Brightway2.setting_up_db_env import *
-from rsc.lithium_production.import_site_parameters import extract_data,update_config_value
-from rsc.lithium_production.licarbonate_processes import *
-from rsc.Brightway2.lci_method_aware import import_aware
-from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
-from rsc.Brightway2.impact_assessment import saving_LCA_results,print_recursive_calculation
-from rsc.Postprocessing_results.visualization_functions import Visualization
+from src.BW2_calculations.setting_up_db_env import *
+from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data,update_config_value
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
+from src.BW2_calculations.lci_method_aware import import_aware
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
+from src.BW2_calculations.impact_assessment import saving_LCA_results,print_recursive_calculation
+from src.Postprocessing_results.visualization_functions import Visualization
 
 import os
 
@@ -100,7 +100,7 @@ if __name__ == '__main__' :
 
     import_aware(ei_reg, bio, site_name, site_db)
 
-    # from rsc.Brightway2.lci_method_pm import import_PM
+    # from src.BW2_calculations.lci_method_pm import import_PM
 
     # import_PM(ei_reg, bio, site_name, site_db)
 

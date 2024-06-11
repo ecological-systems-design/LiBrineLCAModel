@@ -1,7 +1,7 @@
 import pandas as pd
-from rsc.lithium_production.licarbonate_processes import *
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import bw2data as bd
-from rsc.Brightway2.setting_up_db_env import database_environment
+from src.BW2_calculations.setting_up_db_env import database_environment
 
 def create_inventory_map(abbrev_loc) :
     print(abbrev_loc)
@@ -51,7 +51,7 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
     # Selecting the specific dataframe based on Li_conc and eff
     selected_dataframe = dict_results[eff][Li_conc]['data_frames']
 
-    # Assessing Brightway2 database
+    # Assessing BW2_calculations database
     site_db = bd.Database(site_name)
 
     for act in site_db :

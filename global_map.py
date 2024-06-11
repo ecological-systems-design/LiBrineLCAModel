@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
-from rsc.Postprocessing_results.visualization_functions import *
+from src.Postprocessing_results.visualization_functions import *
 
 if __name__ == '__main__' :
     file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\Brinesites_model.csv'

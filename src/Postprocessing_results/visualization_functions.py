@@ -4,8 +4,8 @@ import os
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import datetime
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file, get_category_mapping, prepare_data_for_table_IPCC_and_AWARE, verify_total_category_sums
-from rsc.lithium_production.import_site_parameters import standard_values
+from src.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, prepare_data_for_waterfall_diagram, find_latest_matching_file, get_category_mapping, prepare_data_for_table_IPCC_and_AWARE, verify_total_category_sums
+from src.LifeCycleInventoryModel_Li.import_site_parameters import standard_values
 import ast
 
 
@@ -571,10 +571,10 @@ class Visualization :
             combined_data.items(),
             key=lambda x : (
                 x[1]['activity_status_order'],
+                -x[1]['Li_conc'],
                 # x[1]['technology_group'],
                 -x[1]['production'],
                 #x[1]['country'],
-                -x[1]['Li_conc']
                 )
             )
 
@@ -620,6 +620,8 @@ class Visualization :
 
         # Now call the function to process this DataFrame
         prepare_data_for_table_IPCC_and_AWARE(sorted_data_df)
+
+
 
 
         for site,data in sorted_data :
@@ -1195,7 +1197,7 @@ class Visualization :
 
 
     def create_incremental_stacked_bar_plots(file_path,save_dir,abbrev_loc,li_conc,eff,impact_type,location) :
-        df = prepare_data_for_waterfall_diagram(file_path)
+        df = prepare_data_for_waterfall_diagram(file_path, abbrev_loc)
 
         # Calculate differences for the score
         df['Score_Diff'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1])
@@ -1507,7 +1509,7 @@ class Visualization :
             'Construction started' : '2 - Exploration - Late stage',
             'Construction planned' : '2 - Exploration - Late stage',
             # Mine stage
-            'Preproduction' : '1 - Mine stage',
+            'Preproduction' : '2 - Exploration - Late stage',
             'Production' : '1 - Mine stage',
             'Operating' : '1 - Mine stage',
             'Satellite' : '1 - Mine stage',
@@ -1741,7 +1743,7 @@ class Visualization :
             'Construction started' : '2 - Exploration - Late stage',
             'Construction planned' : '2 - Exploration - Late stage',
             # Mine stage
-            'Preproduction' : '1 - Mine stage',
+            'Preproduction' : '2 - Exploration - Late stage',
             'Production' : '1 - Mine stage',
             'Operating' : '1 - Mine stage',
             'Satellite' : '1 - Mine stage',

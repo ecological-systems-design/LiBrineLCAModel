@@ -1,5 +1,5 @@
 import bw2data as bd
-#from rsc.lithium_production.licarbonate_processes import calculate_processingsequence
+#from src.LifeCycleInventoryModel_Li.licarbonate_processes import calculate_processingsequence
 
 
 

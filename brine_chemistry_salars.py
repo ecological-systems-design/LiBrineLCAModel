@@ -1,10 +1,10 @@
 from pathlib import Path
 import pickle
 import os
-from rsc.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison
-from rsc.Postprocessing_results.visualization_functions import *
-from rsc.global_analysis.site_LCI_and_LCA import *
-from rsc.lithium_production.licarbonate_processes import *
+from src.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison
+from src.Postprocessing_results.visualization_functions import *
+from src.Model_Setup_Options.site_LCI_and_LCA import *
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 
 if not os.path.exists("results") :
     os.mkdir("results")

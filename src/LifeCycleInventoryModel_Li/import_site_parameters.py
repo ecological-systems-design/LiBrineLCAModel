@@ -314,6 +314,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         abbrev_loc : {
             "site_location": site_data.name,
             "deposit_type" : site_data["deposit_type"],
+            "technology_group": site_data["technology_group"],
             "country_location" : site_data["country_location"],
             "elevation" : site_data["elevation"],
             "longitude": site_data["longitude"],

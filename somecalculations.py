@@ -1,7 +1,7 @@
 from pathlib import Path
 import pickle
 import os
-from rsc.Postprocessing_results.visualization_functions import Visualization
+from src.Postprocessing_results.visualization_functions import Visualization
 
 if not os.path.exists("results") :
     os.mkdir("results")

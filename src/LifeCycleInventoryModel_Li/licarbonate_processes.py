@@ -1,8 +1,8 @@
-from rsc.lithium_production.chemical_formulas import *
+from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import *
 
-from rsc.lithium_production.import_site_parameters import *
+from src.LifeCycleInventoryModel_Li.import_site_parameters import *
 
-from rsc.Postprocessing_results.visualization_functions import Visualization
+from src.Postprocessing_results.visualization_functions import Visualization
 
 import pandas as pd
 import os
@@ -123,7 +123,7 @@ class evaporation_ponds :
             m_saltbrine2 = 0
             water_evaporationponds = 0.05 * m_in  # 5 % of m_in is required to wash the pumps and pipes, rough assumption
             chemical_quicklime = 0
-            sulfuric_acid = sulfuricacid_solution * water_evaporationponds
+            sulfuric_acid = sulfuricacid_solution * water_evaporationponds * 0.01
             water_pipewashing = water_evaporationponds
 
             water_quicklime = 0
@@ -362,18 +362,18 @@ class B_removal_organicsolvent:
                 1 - recycling_rate)) / life  # organic solvent which is required at the beginning of the processing activity, divided by the life time of the mine site
         water_SX_strip = ((organic / dens_organicsolvent) / 3) * 1000
         organic_sum = organic + organic_invest
-        waste_organic = organic_sum
+        waste_organic = (1 - recycling_rate) * organic_sum
 
         return organic_sum, waste_organic, water_SX_strip
 
     def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in):
         # Boron precipitates estimation
         boron_mass = ((vec_end[7]) / 100 * m_in)  # boron mass in brine [kg]
-        nat_boron = boron_mass / B * (1 / 4 * (Na * 2 + B * 4 + O * 7))  # Helene
+        nat_boron = -(boron_mass / B * (1 / 4 * (Na * 2 + B * 4 + O * 7)))  # Helene
         sodium_hydroxide = nat_boron / (Na * 2 + B * 4 + O * 7) * 2 * (
                 Na + O + H)  # Required mass of sodium hydroxide for the specific production volume [kg] TODO: Efficiency?
         water_sodium_hydroxide = sodium_hydroxide / sodiumhydroxide_solution  # Dissolved sodium hydroxide in aqueous solution [kg]
-        return (-nat_boron), sodium_hydroxide, water_sodium_hydroxide, boron_mass
+        return nat_boron, -sodium_hydroxide, water_sodium_hydroxide, boron_mass
 
 
     def execute(self, site_parameters, m_in):
@@ -605,7 +605,7 @@ class Li_adsorption :
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
 
         if deposit_type == 'salar' :
-            #water_adsorbent = (((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O)
+            #water_adsorbent = ((prod * ((2 * Li) / (2 * Li + C + 3 * O)))/(Li_out_adsorb * 10e-6))*dens_H2O
             water_adsorbent = 100 * adsorbent_invest
 
             # Check processing sequence to properly estimate energy demand// brine is already heated up in processing sequence
@@ -700,6 +700,7 @@ class Li_adsorption :
     def update_adsorption_nanofiltration_RO(df_adsorption, water_NF, water_RO, df_nanofiltration, df_reverse_osmosis,
                                             site_parameters):
         new_value = df_adsorption.iloc[3, 1] - water_NF - water_RO
+        print(f'Saving of water due to re-circulation: {(water_NF + water_RO)/df_adsorption.iloc[3,1]*100} %')
         df_adsorption.loc[3, 'Values'] = new_value
         T_out = site_parameters['annual_airtemp']  # annual air temperature
 
@@ -717,7 +718,9 @@ class Li_adsorption :
         #adapting energy demand based on T_nano and T_desorp
 
         if T_nano > T_desorp:
+
             E_water_nano = (((T_nano - T_desorp) * hCHH * (water_NF+water_RO)) / 10 ** 6) * heat_loss
+
             E_adsorp_without_nano_water = (((T_adsorp - T_out) * hCHH_bri * df_adsorption.iloc[1, 1]) / 10 ** 6) / heat_loss
             E_adsorp_adapted = E_adsorp_without_nano_water - E_water_nano
 
@@ -797,6 +800,54 @@ class Li_adsorption :
 
         return df_adsorption, df_triple_evaporator
 
+    def using_liquid_waste_for_adsorption_or_ion_exchanger(df_adsorption,df_centrifuge_TG,site_parameters) :
+        print('Using liquid waste from centrifuge_TG for adsorption or ion exchanger')
+        print(f'Water saved due to re-circulation: {-df_centrifuge_TG.iloc[3,1]/df_adsorption.iloc[3,1]*100} %')
+
+        try :
+            liquid_waste_centrifuge_TG = df_centrifuge_TG.iloc[3,1]
+            if liquid_waste_centrifuge_TG < 0 :
+                liquid_waste_centrifuge_TG = - liquid_waste_centrifuge_TG
+            print('Liquid waste from centrifuge_TG:',liquid_waste_centrifuge_TG)
+
+            # Define volume which is sent back to process sequence or liquid waste
+            waste_ratio = 0.1
+            new_value = df_adsorption.iloc[3,1] - (1 - waste_ratio) * liquid_waste_centrifuge_TG
+            print(new_value)
+
+            # Check value in df_adsorption and update if freshwater is still required
+            if new_value >= 0 :
+                new_value_kg = new_value / df_adsorption.iloc[0,1]
+                df_adsorption.loc[3,'Values'] = new_value
+                df_adsorption.loc[3,'per kg'] = new_value_kg
+                print('Liquid waste from centrifuge_TG used for Li-adsorption')
+
+                # Update liquid waste in centrifuge_TG with waste_ratio
+                df_centrifuge_TG.loc[3,'Values'] = -(waste_ratio * liquid_waste_centrifuge_TG)
+                df_centrifuge_TG.loc[3,'per kg'] = -((waste_ratio * liquid_waste_centrifuge_TG) / df_centrifuge_TG.iloc[
+                    0,1])
+
+                # Check if additional energy is needed to heat up liquid waste
+                if T_desorp > T_Liprec :
+                    E_liquid_waste = (((T_desorp - T_Liprec) * hCHH * new_value) / 10 ** 6) * heat_loss
+                    df_adsorption.loc[5,'Values'] = E_liquid_waste
+                    df_adsorption.loc[5,'per kg'] = E_liquid_waste / df_adsorption.iloc[0,1]
+                else :
+                    print("No additional energy needed to heat up liquid waste")
+
+            else :
+                df_adsorption.loc[3,'Values'] = 0
+                df_adsorption.loc[3,'per kg'] = 0
+                df_centrifuge_TG.loc[3,'Values'] = -((-new_value) + (waste_ratio * liquid_waste_centrifuge_TG))
+
+        except IndexError as e :
+            print("Error: Index out of range. Please check the input dataframes.",e)
+        except KeyError as e :
+            print("Error: Missing required column or index in the dataframe.",e)
+        except Exception as e :
+            print("An unexpected error occurred:",e)
+
+        return df_adsorption, df_centrifuge_TG
 
 
 class CaMg_removal_sodiumhydrox :
@@ -1334,7 +1385,7 @@ class triple_evaporator :
         if deposit_type == 'geothermal' :
             Li_in_evaporator = Li_out_RO
             Li_out_evaporator = Li_out_evaporator_geothermal
-            steam = (Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor
+            steam = ((Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor)*0.2
             water_evap = (1 - (Li_in_evaporator / Li_out_evaporator)) * m_in
             m_output = Li_in_evaporator / Li_out_evaporator * m_in
 
@@ -1343,12 +1394,12 @@ class triple_evaporator :
             if motherliq is not None and motherliq != 0 :
                 m_output = motherliq + 1.5 *(prod * (2 * Li / (2 * Li + C + O * 3)))
                 water_evap = m_in - m_output
-                steam = (water_evap/evaporator_gor)
+                steam = (water_evap/evaporator_gor)*0.2 #0.2 is there because we assume that the steam is recycled reducing the energy demand and so on
 
             else:
                 Li_in_evaporator = (Li_out_adsorb * 10e-4)/dens_frw * 100 #1650 mg/L in weight percent
                 Li_out_evaporator = 0.9 * Li_out_EP_DLE
-                steam = ((Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor)
+                steam = (((Li_in_evaporator / Li_out_evaporator * m_in) / evaporator_gor))*0.2
                 water_evap = (1 - (Li_in_evaporator / Li_out_evaporator)) * m_in
                 m_output = m_in / (Li_out_evaporator/Li_in_evaporator) #(Li_in_evaporator * m_in) / Li_out_evaporator #(Li_in_evaporator / Li_out_evaporator * m_in)
 
@@ -1515,6 +1566,7 @@ class dissolution :
 class Liprec_BG :
     def execute(self, mass_CO2, prod_libicarb, prod, site_parameters, m_in) :
         process_name = 'df_Liprec_BG'
+        technology_group = site_parameters['technology_group']
         boil_point = site_parameters['boilingpoint_process']  # boiling point
         T_out = site_parameters['annual_airtemp']  # annual air temperature
 
@@ -1526,9 +1578,16 @@ class Liprec_BG :
                                (H * 2 + O) / (2 * (Li + H + C + O * 3))
                        ) * prod_libicarb * latheat_H  # heat loss due to H2O release [J]
         waste_heat_sum = -(rel_heat_CO2 + rel_heat_H2O)/ 10 ** 6  # waste heat [MJ]
-        E_seclicarb = (((
+        if technology_group == "salar_IX":
+            T_IX = 70
+            E_seclicarb = (((
+                                    (boil_point - T_IX) * hCHH * m_in) + rel_heat_CO2 + rel_heat_H2O) /
+                           10 ** 6) / heat_loss  # Thermal energy demand [MJ]
+        else:
+            E_seclicarb = (((
                                 (boil_point - T_out) * hCHH * m_in) + rel_heat_CO2 + rel_heat_H2O) /
                        10 ** 6) / heat_loss  # Thermal energy demand [MJ]
+
         mass_h2o = -((
                              (H * 2 + O) / (2 * (Li + H + C + O * 3))
                      ) * prod_libicarb)  # Mass of H2O lost due to precipitation of Li2CO3 [kg]
@@ -2239,15 +2298,19 @@ class ProcessManager :
 
             print(f"Updated triple evaporator and Li_adsorption.")
 
-        if 'ion_exchange_L' in self.data_frames and 'triple_evaporator' in self.data_frames \
-                and not 'Li_adsorption' in self.data_frames:
-            self.data_frames['ion_exchange_L'] = ion_exchange_L.update_IX(self.data_frames['ion_exchange_L'],
-                                                                             self.data_frames['triple_evaporator'])
+        if 'ion_exchange_L_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames \
+                and not 'Li_adsorption_1' in self.data_frames:
+            self.data_frames['ion_exchange_L_1'] = ion_exchange_L.update_IX(self.data_frames['ion_exchange_L_1'],
+                                                                             self.data_frames['triple_evaporator_1'])
 
-        if 'ion_exchange_H' in self.data_frames and 'triple_evaporator' in self.data_frames\
-                and not 'Li_adsorption' in self.data_frames:
-            self.data_frames['ion_exchange_H'] = ion_exchange_H.update_IX(self.data_frames['ion_exchange_H'],
-                                                                             self.data_frames['triple_evaporator'])
+        if 'ion_exchange_H_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames\
+                and not 'Li_adsorption_1' in self.data_frames:
+            self.data_frames['ion_exchange_H_1'] = ion_exchange_H.update_IX(self.data_frames['ion_exchange_H_1'],
+                                                                             self.data_frames['triple_evaporator_1'])
+
+        if 'Li_adsorption_1' in self.data_frames and 'CentrifugeTG_1' in self.data_frames:
+            self.data_frames['Li_adsorption_1'], self.data_frames['CentrifugeTG_1'] = Li_adsorption.using_liquid_waste_for_adsorption_or_ion_exchanger(self.data_frames['Li_adsorption_1'],
+                                                                                                                                                       self.data_frames['CentrifugeTG_1'], self.site_parameters)
 
         print(results)
 
@@ -2500,7 +2563,7 @@ class ResourceCalculator :
             'Construction started' : '2 - Exploration - Late stage',
             'Construction planned' : '2 - Exploration - Late stage',
             # Mine stage
-            'Preproduction' : '1 - Mine stage',
+            'Preproduction' : '2 - Exploration - Late stage',
             'Production' : '1 - Mine stage',
             'Operating' : '1 - Mine stage',
             'Satellite' : '1 - Mine stage',
@@ -2543,10 +2606,6 @@ class ResourceCalculator :
             sum_impurities = sum([0 if np.isnan(site_info.get(key,0)) else site_info.get(key,0)
                                   for key in ["ini_Ca","ini_Mg","ini_SO4","ini_B","ini_Si","ini_Fe","ini_Mn","ini_Zn"]])
 
-            print(site_info)
-
-            print(sum_impurities)
-
             site_info["sum_impurities"] = sum_impurities
 
             # Add to the main dictionary
@@ -2582,18 +2641,50 @@ class ResourceCalculator :
 
             # Add columns for site name and 'technology_group'
             df['Site'] = site_name
-            df['Production'] = sites_df.loc[sites_df['site_name'] == site_name,'production'].values[0]
+            #df['Production'] = sites_df.loc[sites_df['site_name'] == site_name,'production'].values[0]
             df['Technology'] = sites_df.loc[sites_df['site_name'] == site_name,'technology_group'].values[0]
-            df['Country'] = sites_df.loc[sites_df['site_name'] == site_name,'country_location'].values[0]
+            #df['Country'] = sites_df.loc[sites_df['site_name'] == site_name,'country_location'].values[0]
             #df['Activity status'] = sites_df.loc[sites_df['site_name'] == site_name,'activity_status_order'].values[0]
             df['Li wt. %'] = sites_df.loc[sites_df['site_name'] == site_name,'ini_Li'].values[0]
             df['Sum impurities'] = sites_df.loc[sites_df['site_name'] == site_name,'sum_impurities'].values[0]
+            df['Energy'] = df['Heat'] * 0.277777778 + df['Electricity'] + (df['Water'] * 2.783 / 1000)
+
+            #print entire df columns
+            print(df.columns)
+
+
+            waste_list = ['Waste (solid)', 'Waste (Na)', 'Waste (Cl)', 'Waste (heat)', 'Waste (organicsolvent)', 'Waste (salt)']
+
+            for waste in waste_list:
+                if waste in df.columns:
+                    df[waste] = df[waste]
+                else:
+                    df[waste] = 0
+
+            # if df has column "Waste (solid)" then add salt + solid
+            if 'Waste (solid)' in df.columns :
+                df['Solid waste'] = df['Waste (solid)'] + df['Waste (salt)']
+            else :
+                df['Solid waste'] = df['Waste (salt)']
+
+            chemicals_list = ['Chemicals (calciumchloride)', 'Chemicals (organicsolvent)', 'Chemicals (limestone)']
+
+            for chemical in chemicals_list:
+                if chemical in df.columns:
+                    df[chemical] = df[chemical]
+                else:
+                    df[chemical] = 0
+
+            df['Chemicals (other)'] = df['Chemicals (calciumchloride)'] + df['Chemicals (organicsolvent)'] + df['Chemicals (limestone)']
 
             # Set 'location' as the index
             df.set_index('Site',inplace=True)
+            df.drop(columns=['Waste (heat)', 'Waste (Na)', 'Waste (Cl)', 'Waste (organicsolvent)',
+                             'Waste (salt)', 'Waste (solid)', 'Chemicals (calciumchloride)',
+                             'Chemicals (organicsolvent)', 'Chemicals (limestone)'],inplace=True)
 
             # Reorder columns to make 'technology_group', 'country_location', and 'activity_status' appear first in the DataFrame body
-            first_cols = ['Country', 'Technology', 'Production', 'Li wt. %', 'Sum impurities']
+            first_cols = [ 'Technology', 'Li wt. %', 'Sum impurities', 'Energy', 'Heat','Electricity' ]
             other_cols = [col for col in df.columns if col not in first_cols]
             columns_order = first_cols + other_cols
             df = df[columns_order]
@@ -2612,11 +2703,11 @@ class ResourceCalculator :
         combined_df.columns = combined_df.columns.map(lambda x : f'{x[0]}_{x[1]}' if isinstance(x,tuple) else x)
 
         # Sort the DataFrame by 'technology_group'
-        combined_df = combined_df.sort_values(by=['Technology', 'Li wt. %'])
+        combined_df = combined_df.sort_values(by=['Technology', 'Li wt. %'], ascending=[True, False])
 
         # Round the numbers in the DataFrame
         # specify the number of decimal places you want to round to
-        combined_df = combined_df.round(decimals=2)  # for example, rounding to 2 decimal places
+        combined_df = combined_df.round(decimals=4)  # for example, rounding to 2 decimal places
 
         ResourceCalculator.save_compiled_csv(combined_df,directory, filename = "compiled_resource_data")
 

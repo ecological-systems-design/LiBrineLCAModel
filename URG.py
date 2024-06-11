@@ -4,7 +4,7 @@ import pandas as pd
 # from Processes import *
 # from chemical_formulas import *
 # from operational_data_salton import *
-from rsc.Brightway2.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
+from src.BW2_calculations.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
 
 
 import os
@@ -55,11 +55,11 @@ if __name__ == '__main__' :
     # print all brightway2 databases
     print(bd.databases)
 
-    # from rsc.lithium_production.creating_inventories import inventories
+    # from src.LifeCycleInventoryModel_Li.creating_inventories import inventories
     # demand_all, df = inventories(Li_conc= 0.04, max_eff = 0.9, min_eff = 0.3, eff_steps = 0.1,
     #                             max_number_boreholes = 0, borehole_depth = 0)
 
-    #from rsc.Brightway2.lithium_site_db import check_database
+    #from src.BW2_calculations.lithium_site_db import check_database
 
     #site = check_database(database_name=site_name, country_location="US", elec_location="US-WECC",
     #               eff=0.5, Li_conc=0.04, op_location="Salton Sea",
@@ -71,10 +71,10 @@ if __name__ == '__main__' :
     op_location = "Upper Rhine Graben"
 
     # initialize the processing sequence
-    from rsc.lithium_production.import_site_parameters import extract_data, update_config_value
+    from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from rsc.lithium_production.licarbonate_processes import *
+    from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 
     process_sequence = [
         SiFe_removal_limestone(),
@@ -125,19 +125,19 @@ if __name__ == '__main__' :
 
 
 
-    from rsc.Brightway2.setting_up_db_env import database_environment
+    from src.BW2_calculations.setting_up_db_env import database_environment
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                              eff, Li_conc, op_location, abbrev_loc, dataframes_dict)
 
-    #from rsc.Brightway2.lci_method_aware import import_aware
+    #from src.BW2_calculations.lci_method_aware import import_aware
     #import_aware(ei_reg, bio)
 
-    #from rsc.Brightway2.lci_method_pm import import_PM
+    #from src.BW2_calculations.lci_method_pm import import_PM
     #import_PM(ei_reg, bio)
 
 
-    #from rsc.Brightway2.calculating_impacts import  calculate_impacts_for_selected_methods
+    #from src.BW2_calculations.calculating_impacts import  calculate_impacts_for_selected_methods
     #fu = [act for act in site_db if "Geothermal Li" in act['name']]
     #results = calculate_impacts_for_selected_methods(activities=fu, amounts=[1])
 
@@ -146,7 +146,7 @@ if __name__ == '__main__' :
     eff = 0.9
     Li_conc = 0.03
 
-    from rsc.Brightway2.iterating_LCIs import change_exchanges_in_database
+    from src.BW2_calculations.iterating_LCIs import change_exchanges_in_database
     #site_db = change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, results)
 
 
@@ -169,7 +169,7 @@ if __name__ == '__main__' :
 
     method_list = [method_cc]
 
-    from rsc.Brightway2.impact_assessment import calculate_impacts_for_selected_scenarios
+    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
@@ -177,7 +177,7 @@ if __name__ == '__main__' :
                                                        site_name, ei_name, eff_range, Li_conc_range,
                                                        abbrev_loc)
 
-    from rsc.Postprocessing_results.visualization_functions import Visualization
+    from src.Postprocessing_results.visualization_functions import Visualization
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
 
