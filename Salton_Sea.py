@@ -56,7 +56,7 @@ if __name__ == '__main__' :
     # from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 
     process_sequence = [
-        SiFe_removal_limestone(),
+        SiFeRemovalLimestone(),
         MnZn_removal_lime(),
         acidification(),
         Li_adsorption(),

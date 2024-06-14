@@ -1,6 +1,12 @@
 import bw2data as bd
 from pathlib import Path
-
+from src.BW2_calculations.setting_up_db_env import *
+from src.BW2_calculations.lci_method_aware import import_aware
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
+from src.BW2_calculations.impact_assessment import saving_LCA_results,print_recursive_calculation
+from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
+from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import os
 
 if not os.path.exists("results") :
@@ -36,39 +42,36 @@ if __name__ == '__main__' :
     op_location = "Salar de Arizaro"
 
     # initialize the processing sequence
-    from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
+
 
     process_sequence = [
         evaporation_ponds(),
-        Mg_removal_sodaash(),
-        acidification(),
         Li_adsorption(),
         triple_evaporator(),
         ion_exchange_L(),
         DLE_evaporation_ponds(),
         Liprec_TG(),
-        CentrifugeTG(),
+        CentrifugeTG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(),
+        CentrifugeBG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         washing_BG(),
-        CentrifugeWash(),
+        CentrifugeWash(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         rotary_dryer()
         ]
 
     # 1. Define your initial parameters
-    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+    prod, m_pumpbr = setup_site(eff,initial_data[abbrev_loc],DEFAULT_CONSTANTS)
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params = None)
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -82,16 +85,24 @@ if __name__ == '__main__' :
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
-                                                               Li_conc_min)
+                                                               Li_conc_min, DEFAULT_CONSTANTS, params = None)
 
     print(results)
 
-    from src.BW2_calculations.setting_up_db_env import *
+    # 3. Run the sensitivity analysis
+    sensitivity_results = manager.run_sensitivity_analysis(filename)
+
+    # Optionally, save the sensitivity results to a file
+    import json
+
+    with open(f'{filename}_sensitivity_results.json','w') as f :
+        json.dump(sensitivity_results,f)
+
+
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
-    from src.BW2_calculations.lci_method_aware import import_aware
 
     import_aware(ei_reg, bio, site_name, site_db)
 
@@ -110,8 +121,6 @@ if __name__ == '__main__' :
 
     method_list = [method_cc, method_water]
 
-    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
-
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
@@ -120,13 +129,6 @@ if __name__ == '__main__' :
     #print(impacts)
 
     # saving results
-    from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation
 
     saving_LCA_results(impacts, abbrev_loc)
-
-    from src.Postprocessing_results.visualization_functions import Visualization
-
-    # Plot the results
-    Visualization.plot_impact_categories(impacts, abbrev_loc)
-
 

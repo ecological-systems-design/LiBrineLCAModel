@@ -339,8 +339,13 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path, directory_path):
         site_data = extract_data(site_name, abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'{site_name}_databases_08062024'
+        old_project = f'{site_name}_databases_08062024'
+        project = f'{site_name}_databases_11062024'
         print(f"Currently assessing: {project}")
+
+        if old_project in bd.projects:
+            bd.projects.delete_project(old_project, delete_dir=True)
+            bd.projects.set_current("Default")
 
         # Initialize flags to check the existence of project and results
         project_exists = project in bd.projects

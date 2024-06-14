@@ -22,7 +22,7 @@ standard_values = {
     "distance_to_processing" : 0,
     "second_Li_enrichment_reported" : 0,
     "second_Li_enrichment" : np.nan,
-    "quicklime_reported" : 1,
+    "quicklime_reported" : 0,
     "diesel_reported" : 0,
     "diesel_consumption" : np.nan,
     "motherliq_reported" : 0
@@ -426,6 +426,36 @@ def prepare_brine_analyses(file_path, abbrev_loc):
 
     # Return the structured format containing matched analyses
     return analyses_dict
+
+
+def generate_range(value,percentage) :
+    """Generate a range around a value based on a percentage."""
+    lower_bound = value * (1 - percentage)
+    upper_bound = value * (1 + percentage)
+    return [lower_bound,value,upper_bound]
+
+
+def define_custom_ranges(extracted_database,abbrev_loc,custom_percentages) :
+    site_data = extracted_database[abbrev_loc]
+
+    SENSITIVITY_RANGES_SITE_PARAMS = {
+        'annual_airtemp' : generate_range(site_data['annual_airtemp'],custom_percentages.get('annual_airtemp',0.1)),
+        'density_brine' : generate_range(site_data['density_brine'],custom_percentages.get('density_brine',0.1)),
+        'density_enriched_brine' : generate_range(site_data.get('density_enriched_brine',1.13),
+                                                  custom_percentages.get('density_enriched_brine',0.1)),
+        'lifetime' : generate_range(site_data['lifetime'],custom_percentages.get('lifetime',0.1)),
+        'Li_efficiency' : generate_range(site_data['Li_efficiency'],custom_percentages.get('Li_efficiency',0.1)),
+        'brine_vol' : generate_range(site_data['brine_vol'],custom_percentages.get('brine_vol',0.1)),
+        'well_depth_brine' : generate_range(site_data.get('well_depth_brine',1500),
+                                            custom_percentages.get('well_depth_brine',0.1)),
+        'distance_to_processing' : generate_range(site_data['distance_to_processing'],
+                                                  custom_percentages.get('distance_to_processing',0.1)),
+        'production' : generate_range(site_data.get('production',1),custom_percentages.get('production',0.1)),
+        'evaporation_rate' : generate_range(site_data.get('evaporation_rate',0),
+                                            custom_percentages.get('evaporation_rate',0.1))
+        }
+
+    return SENSITIVITY_RANGES_SITE_PARAMS
 
 
 
