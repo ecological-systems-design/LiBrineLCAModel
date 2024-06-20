@@ -191,6 +191,12 @@ SENSITIVITY_RANGES = {
     'water_purification_elec_factor' : [1.3915,2.783,5.566,8.349,11.132]
 }
 
+SENSITIVITY_RANGES = {
+    'T_Liprec': [1000, 10, 20000],
+    'Li_out_evaporator_geothermal': [20000, 25000, 30000, 35000, 40000],
+    'Li_out_EP_DLE': [1.8, 2.0, 2.2, 2.4, 2.6],
+}
+
 
 # Define custom percentages for each parameter
 custom_percentages = {

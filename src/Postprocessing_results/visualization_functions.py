@@ -369,7 +369,7 @@ class Visualization :
             plot_bgcolor='white',
             paper_bgcolor='white',
             font=dict(family=font_family, size=14, color='black'),
-            title='LCA Results per Site (Grouped by Country)',
+            title='LCA Results per Site',
             showlegend=False,
             legend=dict(title='Impact Type', x=1.05, y=1, bgcolor='rgba(255, 255, 255, 1)', bordercolor='black',
                         borderwidth=1),

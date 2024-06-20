@@ -13,8 +13,85 @@ from src.BW2_calculations.lci_method_aware import import_aware
 from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, saving_LCA_results, saving_LCA_results_brinechemistry, calculate_impacts_for_brine_chemistry, calculate_battery_impacts, save_battery_results_to_csv, print_recursive_calculation
 from src.Postprocessing_results.visualization_functions import Visualization
 from src.BW2_calculations.modification_bw2 import change_energy_provision
+from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS as constants, SENSITIVITY_RANGES as params
 
-def get_process_sequence(process_names):
+
+def create_process_instance(process_class, constants, params, custom_name=None):
+    try:
+        if custom_name:
+            return process_class(constants=constants, params=params, custom_name=custom_name)
+        else:
+            return process_class(constants=constants, params=params)
+    except TypeError:
+        if custom_name:
+            return process_class(custom_name=custom_name)
+        else:
+            return process_class()
+
+
+def get_process_sequence(process_names, constants, params):
+    sequence = []
+    ion_exchange_H_count = 0  # Counter for ion_exchange_H
+    ion_exchange_L_count = 0  # Counter for ion_exchange_L
+    centrifuge_general_count = 0  # Counter for centrifuge_general
+
+    for proc in process_names:
+        if proc == 'ion_exchange_H':
+            ion_exchange_H_count += 1
+            custom_name = None if ion_exchange_H_count == 1 else f"df_ion_exchange_H_{ion_exchange_H_count}"
+            print(f"Instantiating process: ion_exchange_H with custom name {custom_name}")
+            sequence.append(process_function_map['ion_exchange_H'](constants, params, custom_name))
+        elif proc == 'ion_exchange_L':
+            ion_exchange_L_count += 1
+            custom_name = None if ion_exchange_L_count == 1 else f"df_ion_exchange_L_{ion_exchange_L_count}"
+            print(f"Instantiating process: ion_exchange_L with custom name {custom_name}")
+            sequence.append(process_function_map['ion_exchange_L'](constants, params, custom_name))
+        elif proc == 'Centrifuge_general':
+            centrifuge_general_count += 1
+            custom_name = None if centrifuge_general_count == 1 else f"df_centrifuge_general_{centrifuge_general_count}"
+            print(f"Instantiating process: Centrifuge_general with custom name {custom_name}")
+            sequence.append(process_function_map['Centrifuge_general'](constants, params, custom_name))
+        elif proc in process_function_map:
+            print(f"Instantiating process: {proc}")
+            sequence.append(process_function_map[proc](constants, params))
+        else:
+            print(f"Process not found in the map: {proc}")
+
+    return sequence
+
+
+def get_process_sequence_old_old(process_names, constants, params):
+    sequence = []
+    ion_exchange_H_count = 0  # Counter for ion_exchange_H
+    ion_exchange_L_count = 0  # Counter for ion_exchange_L
+    centrifuge_general_count = 0  # Counter for centrifuge_general
+
+    for proc in process_names:
+        if proc == 'ion_exchange_H':
+            ion_exchange_H_count += 1
+            custom_name = None if ion_exchange_H_count == 1 else f"df_ion_exchange_H_{ion_exchange_H_count}"
+            print(f"Instantiating process: ion_exchange_H with custom name {custom_name}")
+            sequence.append(process_function_map['ion_exchange_H'](constants, params, custom_name))
+        elif proc == 'ion_exchange_L':
+            ion_exchange_L_count += 1
+            custom_name = None if ion_exchange_L_count == 1 else f"df_ion_exchange_L_{ion_exchange_L_count}"
+            print(f"Instantiating process: ion_exchange_L with custom name {custom_name}")
+            sequence.append(process_function_map['ion_exchange_L'](constants, params, custom_name))
+        elif proc == 'Centrifuge_general':
+            centrifuge_general_count += 1
+            custom_name = None if centrifuge_general_count == 1 else f"df_centrifuge_general_{centrifuge_general_count}"
+            print(f"Instantiating process: Centrifuge_general with custom name {custom_name}")
+            sequence.append(process_function_map['Centrifuge_general'](constants, params, custom_name))
+        elif proc in process_function_map:
+            print(f"Instantiating process: {proc}")
+            sequence.append(process_function_map[proc](constants, params))
+        else:
+            print(f"Process not found in the map: {proc}")
+
+    return sequence
+
+
+def get_process_sequence_old(process_names):
     sequence = []
     ion_exchange_H_count = 0  # Counter for ion_exchange_H
     ion_exchange_L_count = 0  # Counter for ion_exchange_L
@@ -407,10 +484,10 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
                 target_ini_Li = site_data[abbreviation]['vec_ini'][0]
                 target_eff = site_data[abbreviation]['Li_efficiency']
 
-                process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'])
+                process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'], constants, params)
                 site_location = site_name
                 country_location = site_data[abbreviation]['country_location']
-                project = f'Site_{site_location}_brinechemistry_final'
+                project = f'Site_{site_location}_brinechemistry_final1'
                 project_exist = project in bd.projects
 
                 # Check for existing result files for the site

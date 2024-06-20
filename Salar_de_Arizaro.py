@@ -2,12 +2,13 @@ import bw2data as bd
 from pathlib import Path
 from src.BW2_calculations.setting_up_db_env import *
 from src.BW2_calculations.lci_method_aware import import_aware
-from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
-from src.BW2_calculations.impact_assessment import saving_LCA_results,print_recursive_calculation
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
+from src.BW2_calculations.impact_assessment import saving_LCA_results,print_recursive_calculation, saving_sensitivity_results
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
 from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import os
+import json
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -22,9 +23,23 @@ deposit_type = "salar"
 site_location = "Ari"
 
 # Biosphere
-if __name__ == '__main__' :
+if __name__ == '__main__':
 
-    project = f'Site_{site_name}_1'
+    project = f'Site_{site_name}_7'
+
+    project = "default"
+    #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
+    for i in range(1,6):
+        project_old = f'Site_{site_name}_{i}'
+        if project_old in bd.projects:
+            print(f'Project {project_old} exists')
+            bd.projects.delete_project(project_old,delete_dir=True)
+            bd.projects.set_current(project)
+        else:
+            print(f'Project {project_old} does not exist')
+
+    project = f'Site_{site_name}_7'
+
     bd.projects.set_current(project)
     print(project)
 
@@ -61,17 +76,17 @@ if __name__ == '__main__' :
         washing_BG(),
         CentrifugeWash(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         rotary_dryer()
-        ]
+    ]
 
     # 1. Define your initial parameters
-    prod, m_pumpbr = setup_site(eff,initial_data[abbrev_loc],DEFAULT_CONSTANTS)
+    prod, m_pumpbr = setup_site(eff, initial_data[abbrev_loc], DEFAULT_CONSTANTS)
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params = None)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -85,18 +100,15 @@ if __name__ == '__main__' :
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
-                                                               Li_conc_min, DEFAULT_CONSTANTS, params = None)
+                                                               Li_conc_min, DEFAULT_CONSTANTS, params=None)
 
     print(results)
 
-    # 3. Run the sensitivity analysis
-    sensitivity_results = manager.run_sensitivity_analysis(filename)
+    # 4. Run the sensitivity analysis
+    #manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
 
-    # Optionally, save the sensitivity results to a file
-    import json
-
-    with open(f'{filename}_sensitivity_results.json','w') as f :
-        json.dump(sensitivity_results,f)
+    eff = 0.77
+    #sensitivity_results = manager.run_sensitivity_analysis(filename, op_location, abbrev_loc, Li_conc, eff)
 
 
 
@@ -123,6 +135,19 @@ if __name__ == '__main__' :
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+
+    # # 4. Run the sensitivity analysis
+    # manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,DEFAULT_CONSTANTS,
+    #                          params={})
+    #
+    # eff = 0.77
+    # sensitivity_results = manager.run_sensitivity_analysis(filename,op_location,abbrev_loc,Li_conc,eff)
+    #
+    # sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity, method_list, sensitivity_results, site_name, ei_name, abbrev_loc)
+    #
+    #
+    # saving_sensitivity_results(sensitivity_impacts, abbrev_loc, save_dir= r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results')
+
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
                                                        site_name, ei_name, abbrev_loc, eff_range, Li_conc_range,
                                                         literature_eff=None, literature_Li_conc=None)

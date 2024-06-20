@@ -4,6 +4,8 @@ from src.LifeCycleInventoryModel_Li.import_site_parameters import *
 
 from src.Postprocessing_results.visualization_functions import Visualization
 
+from src.Model_Setup_Options.site_LCI_and_LCA import create_process_instance
+
 import pandas as pd
 import os
 import logging
@@ -1278,7 +1280,7 @@ class ion_exchange_L:
     def __init__(self, custom_name=None):
         self.custom_name = custom_name
 
-    def execute(self, site_parameters, m_in, constants, params, water_evap):
+    def execute(self, site_parameters, m_in, water_evap, constants, params):
         process_name = self.custom_name if self.custom_name else "df_ion_exchange_L"
 
         # Retrieve parameters, falling back to constants if not provided
@@ -1663,9 +1665,9 @@ class Liprec_TG :
         T_out = site_parameters['annual_airtemp']  # annual air temperature
 
         # Retrieve parameters, falling back to constants if not provided
-        T_Liprec = constants['T_Liprec']
+        T_Liprec = params.get('T_Liprec',constants['T_Liprec'])
         hCHH_bri = constants['hCHH_bri']
-        heat_loss = constants['heat_loss']
+        heat_loss = params.get('heat_loss',constants['heat_loss'])
         Li = constants['Li']
         C = constants['C']
         O = constants['O']
@@ -1674,7 +1676,6 @@ class Liprec_TG :
 
         sodaash_solution = params.get('sodaash_solution',constants['sodaash_solution'])
         sodaash_reaction_factor = params.get('sodaash_reaction_factor',constants['sodaash_reaction_factor'])
-
 
         E_Liprec = (((T_Liprec - T_out) * hCHH_bri * m_in) / 10 ** 6) / heat_loss  # Thermal energy demand [MJ]
         sodaash_Liprec = ((prod * 1000 / (Li * 2 + C + O * 3)) * (
@@ -1957,22 +1958,21 @@ class CentrifugeBase:
         self.waste_solid_factor_key = waste_solid_factor_key
         self.recycle_factor_key = recycle_factor_key
 
-    def execute(self, prod, site_parameters, m_in, constants, params, motherliq=None):
+    def execute(self, prod, site_parameters, m_in, motherliq=None):
         density_pulp = site_parameters[self.density_key]
         elec_centri = 1.3 * m_in / (density_pulp * 1000)
 
-        prod_factor = params.get(self.prod_factor_key, constants[self.prod_factor_key]) if self.prod_factor_key else None
-        waste_liquid_factor = params.get(self.waste_liquid_factor_key, constants[self.waste_liquid_factor_key]) if self.waste_liquid_factor_key else None
-        waste_solid_factor = params.get(self.waste_solid_factor_key, constants[self.waste_solid_factor_key]) if self.waste_solid_factor_key else None
-        recycle_factor = params.get(self.recycle_factor_key, constants[self.recycle_factor_key]) if self.recycle_factor_key else None
+        prod_factor = self.params.get(self.prod_factor_key, self.constants[self.prod_factor_key]) if self.prod_factor_key else None
+        waste_liquid_factor = self.params.get(self.waste_liquid_factor_key, self.constants[self.waste_liquid_factor_key]) if self.waste_liquid_factor_key else None
+        waste_solid_factor = self.params.get(self.waste_solid_factor_key, self.constants[self.waste_solid_factor_key]) if self.waste_solid_factor_key else None
+        recycle_factor = self.params.get(self.recycle_factor_key, self.constants[self.recycle_factor_key]) if self.recycle_factor_key else None
 
-        m_output = prod_factor * prod if prod_factor is not None else m_in - waste
+        m_output = prod_factor * prod if prod_factor is not None else m_in - (waste_liquid_factor * m_in if waste_liquid_factor else 0)
 
         waste_liquid, waste_solid, recycled_waste = 0, 0, 0
 
         if motherliq is not None:
             recycled_waste = motherliq
-            recycle_factor = None
             waste_liquid = -(m_in - motherliq - m_output)
         else:
             if waste_liquid_factor is not None:
@@ -2017,10 +2017,9 @@ class CentrifugeBase:
             'waste_centrifuge_Boron': None,
             'waste_centrifuge_sodaash': None,
             'waste_centrifuge_quicklime': None,
-            'motherliq': None,
+            'motherliq': motherliq,
             'water_NF': None
         }
-
 
 class CentrifugeTG(CentrifugeBase):
     def __init__(self, constants, params):
@@ -2059,26 +2058,26 @@ class CentrifugeWash(CentrifugeBase):
 
 
 
+
 class CentrifugePurification:
-    def __init__(self, waste_name, custom_name=None):
-        print('custom_name: ', custom_name)
+    def __init__(self, constants, params, waste_name, custom_name=None):
         if not isinstance(waste_name, str) or not waste_name.strip():
             raise ValueError("waste_name must be a non-empty string")
         self.process_name = custom_name if custom_name else f'df_centrifuge_purification_{waste_name.strip().lower()}'
-        print(self.process_name)
+        self.constants = constants
+        self.params = params
 
-    def execute(self, waste, m_in, constants, params):
+    def execute(self, waste, m_in):
         process_name = self.process_name if self.process_name else f"df_centrifuge_purification_{waste.strip().lower()}"
 
         # Get the electricity factor from params or constants
-        elec_factor = params.get('centrifuge_electricity', constants['centrifuge_electricity'])
+        elec_factor = self.params.get('centrifuge_electricity', self.constants['centrifuge_electricity'])
         elec_centri = waste * elec_factor
         m_output = m_in - waste
 
         # Compile data for dataframe
         variables = ['m_output', 'm_in', 'elec', 'waste_solid']
         values = [m_output, m_in, elec_centri, (-waste)]
-        print(values)
 
         df_data = pd.DataFrame({
             "Variables": [f"{var}_{self.process_name}" for var in variables],
@@ -2086,7 +2085,6 @@ class CentrifugePurification:
         })
         df_process = pd.DataFrame(df_data)
         df_process["per kg"] = df_process["Values"] / df_process.iloc[0]["Values"]
-        print(df_process)
 
         m_out = df_process.iloc[0]["Values"]
 
@@ -2107,19 +2105,18 @@ class CentrifugePurification:
             'water_NF': None
         }
 
-
-
 class CentrifugeSoda(CentrifugePurification):
-    def __init__(self):
-        super().__init__(waste_name="sodaash")
+    def __init__(self, constants, params):
+        super().__init__(constants=constants, params=params, waste_name="sodaash")
 
 class CentrifugeQuicklime(CentrifugePurification):
-    def __init__(self):
-        super().__init__(waste_name="quicklime")
+    def __init__(self, constants, params):
+        super().__init__(constants=constants, params=params, waste_name="quicklime")
 
 class Centrifuge_general(CentrifugePurification):
-    def __init__(self, custom_name):
-        super().__init__(waste_name="general", custom_name=custom_name)
+    def __init__(self, constants, params, custom_name):
+        super().__init__(constants=constants, params=params, waste_name="general", custom_name=custom_name)
+
 
 
 
@@ -2390,72 +2387,58 @@ class ProcessManager:
     def _get_args_for_process(self,process_instance) :
         process_type = type(process_instance)
 
-        common_args = (self.site_parameters,self.m_in,self.constants,self.params)
         if process_type == SiFeRemovalLimestone :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == MnZn_removal_lime :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == acidification :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == Li_adsorption :
-            return (self.prod,*common_args)
+            return (self.prod,self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == CaMg_removal_sodiumhydrox :
             Ca_mass_input = self.dynamic_attributes.get("Ca_mass_brine",None)
-            return (*common_args,Ca_mass_input)
-        elif process_type == ion_exchange_L :
+            return (self.site_parameters,self.m_in,Ca_mass_input,self.constants,self.params)
+        elif process_type in [ion_exchange_L,ion_exchange_H] :
             water_evap_value = self.dynamic_attributes.get("water_evap",None)
-            return (*common_args,water_evap_value)
-        elif process_type == ion_exchange_H :
-            water_evap_value = self.dynamic_attributes.get("water_evap",None)
-            return (*common_args,water_evap_value)
+            return (self.site_parameters,self.m_in,water_evap_value,self.constants,self.params)
         elif process_type == reverse_osmosis :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == triple_evaporator :
             motherliq_value = self.dynamic_attributes.get("motherliq",None)
             return (self.site_parameters,self.m_in,self.prod,motherliq_value,self.constants,self.params)
-        elif process_type == Liprec_TG :
-            return (self.prod,*common_args)
-        elif process_type == dissolution :
-            return (self.prod,*common_args)
+        elif process_type in [Liprec_TG,dissolution,washing_TG,washing_BG,belt_filter,rotary_dryer] :
+            return (self.prod,self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == Liprec_BG :
-            return (self.dynamic_attributes["mass_CO2"],self.dynamic_attributes["prod_libicarb"],self.prod,*common_args)
-        elif process_type == washing_TG :
-            return (self.prod,*common_args)
-        elif process_type == washing_BG :
-            return (self.prod,*common_args)
-        elif process_type == belt_filter :
-            return (self.prod,*common_args)
-        elif process_type == rotary_dryer :
-            return (self.prod,*common_args)
+            return (
+            self.dynamic_attributes["mass_CO2"],self.dynamic_attributes["prod_libicarb"],self.prod,self.site_parameters,
+            self.m_in,self.constants,self.params)
         elif process_type == CentrifugeTG :
             motherliq_value = self.dynamic_attributes.get("motherliq",None)
-            return (self.prod,*common_args,motherliq_value)
-        elif process_type == CentrifugeBG :
-            return (self.prod,*common_args)
-        elif process_type == CentrifugeWash :
-            return (self.prod,*common_args)
+            return (self.prod,self.site_parameters,self.m_in,motherliq_value)
+        elif process_type in [CentrifugeBG,CentrifugeWash] :
+            return (self.prod,self.site_parameters,self.m_in)
         elif process_type == evaporation_ponds :
             return (self.site_parameters,self.m_in,self.prod,self.constants,self.params)
         elif process_type == B_removal_organicsolvent :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == transport_brine :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == sulfate_removal_calciumchloride :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == Mg_removal_sodaash :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == Mg_removal_quicklime :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == CentrifugeSoda :
-            return (self.dynamic_attributes["waste_centrifuge_sodaash"],self.m_in)
+            return (self.dynamic_attributes.get("waste_centrifuge_sodaash",None),self.m_in)
         elif process_type == CentrifugeQuicklime :
-            return (self.dynamic_attributes["waste_centrifuge_quicklime"],self.m_in)
+            return (self.dynamic_attributes.get("waste_centrifuge_quicklime",None),self.m_in)
         elif process_type == Centrifuge_general :
             return (0.05 * self.m_in,self.m_in)
         elif process_type == DLE_evaporation_ponds :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         elif process_type == nanofiltration :
-            return common_args
+            return (self.site_parameters,self.m_in,self.constants,self.params)
         else :
             raise ValueError(f"Unsupported process: {process_type}")
 
@@ -2561,8 +2544,6 @@ class ProcessManager:
                 'CentrifugeTG_1'] = Li_adsorption.using_liquid_waste_for_adsorption_or_ion_exchanger(
                 self.data_frames['Li_adsorption_1'],self.data_frames['CentrifugeTG_1'],self.constants,self.params,
                 self.site_parameters)
-
-        print(results)
 
         return results
 
@@ -2696,17 +2677,69 @@ class ProcessManager:
 
         return results_dict,literature_eff,literature_Li_conc
 
-    def run_sensitivity_analysis(self, filename) :
-        results = {}
+    def run_sensitivity_analysis_old(self,filename,op_location,abbrev_loc,Li_conc,eff) :
+        results_dict = {}
+
         for param,values in SENSITIVITY_RANGES.items() :
             for value in values :
                 self.params[param] = value
-                result_key = f"{param}_{value}"
+                result_key = f"{param}|{value}"
                 try :
-                    results[result_key] = self.run(filename + f"_{param}_{value}")
+                    # Ensure the initial data and setup are correct for each sensitivity analysis
+                    initial_data = extract_data(op_location,abbrev_loc,Li_conc)
+                    prod,m_pumpbr = setup_site(eff,initial_data[abbrev_loc],self.constants,self.params)
+
+                    # Initialize ProcessManager for each iteration
+                    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,self.process_sequence,filename,
+                                             self.constants,self.params)
+                    print(self.params)
+
+                    df_results = manager.run(filename)
+                    print(result_key)
+                    if param not in results_dict :
+                        results_dict[param] = {}
+                    results_dict[param][value] = {
+                        'data_frames' : df_results
+                        }
                 except Exception as e :
                     print(f"Error running sensitivity analysis for {param}={value}: {e}")
-        return results
+        return results_dict
+
+    def run_sensitivity_analysis(self,filename,op_location,abbrev_loc,Li_conc,eff) :
+        # Store the original parameters
+        original_params = self.params.copy()
+
+        results_dict = {}
+
+        for param,values in SENSITIVITY_RANGES.items() :
+            for value in values :
+                # Reset to original parameters before each run
+                self.params = original_params.copy()
+
+                # Update the parameter with the new value
+                self.params[param] = value
+                result_key = f"{param}|{value}"
+                try :
+                    # Ensure the initial data and setup are correct for each sensitivity analysis
+                    initial_data = extract_data(op_location,abbrev_loc,Li_conc)
+
+                    prod,m_pumpbr = setup_site(eff,initial_data[abbrev_loc],self.constants,self.params)
+
+                    # Initialize ProcessManager for each iteration
+                    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,self.process_sequence,filename,
+                                             self.constants,self.params)
+
+                    df_results = manager.run(filename)
+                    print(result_key)
+                    if param not in results_dict :
+                        results_dict[param] = {}
+                    results_dict[param][value] = {
+                        'data_frames' : df_results
+                        }
+                except Exception as e :
+                    print(f"Error running sensitivity analysis for {param}={value}: {e}")
+
+        return results_dict
 
     def save_results(self, filename):
         with pd.ExcelWriter(f'{filename}.xlsx') as writer:
@@ -2963,6 +2996,74 @@ class ResourceCalculator :
         print(f"Data from ResourceCalculator saved to '{output_path}'")
 
 process_function_map = {
+    "evaporation_ponds": lambda constants, params, custom_name=None: create_process_instance(evaporation_ponds, constants, params, custom_name),
+    "Centrifuge_general": lambda constants, params, custom_name=None: create_process_instance(Centrifuge_general, constants, params, custom_name),
+    "Liprec_TG": lambda constants, params, custom_name=None: create_process_instance(Liprec_TG, constants, params, custom_name),
+    "washing_TG": lambda constants, params, custom_name=None: create_process_instance(washing_TG, constants, params, custom_name),
+    "CentrifugeTG": lambda constants, params, custom_name=None: create_process_instance(CentrifugeTG, constants, params, custom_name),
+    "dissolution": lambda constants, params, custom_name=None: create_process_instance(dissolution, constants, params, custom_name),
+    "ion_exchange_H": lambda constants, params, custom_name=None: create_process_instance(ion_exchange_H, constants, params, custom_name),
+    "ion_exchange_L": lambda constants, params, custom_name=None: create_process_instance(ion_exchange_L, constants, params, custom_name),
+    "Liprec_BG": lambda constants, params, custom_name=None: create_process_instance(Liprec_BG, constants, params, custom_name),
+    "CentrifugeBG": lambda constants, params, custom_name=None: create_process_instance(CentrifugeBG, constants, params, custom_name),
+    "washing_BG": lambda constants, params, custom_name=None: create_process_instance(washing_BG, constants, params, custom_name),
+    "CentrifugeWash": lambda constants, params, custom_name=None: create_process_instance(CentrifugeWash, constants, params, custom_name),
+    "rotary_dryer": lambda constants, params, custom_name=None: create_process_instance(rotary_dryer, constants, params, custom_name),
+    "DLE_evaporation_ponds": lambda constants, params, custom_name=None: create_process_instance(DLE_evaporation_ponds, constants, params, custom_name),
+    "transport_brine": lambda constants, params, custom_name=None: create_process_instance(transport_brine, constants, params, custom_name),
+    "B_removal_organicsolvent": lambda constants, params, custom_name=None: create_process_instance(B_removal_organicsolvent, constants, params, custom_name),
+    "SiFe_removal_limestone": lambda constants, params, custom_name=None: create_process_instance(SiFeRemovalLimestone, constants, params, custom_name),
+    "MnZn_removal_lime": lambda constants, params, custom_name=None: create_process_instance(MnZn_removal_lime, constants, params, custom_name),
+    "Li_adsorption": lambda constants, params, custom_name=None: create_process_instance(Li_adsorption, constants, params, custom_name),
+    "acidification": lambda constants, params, custom_name=None: create_process_instance(acidification, constants, params, custom_name),
+    "CaMg_removal_sodiumhydrox": lambda constants, params, custom_name=None: create_process_instance(CaMg_removal_sodiumhydrox, constants, params, custom_name),
+    "CentrifugeSoda": lambda constants, params, custom_name=None: create_process_instance(CentrifugeSoda, constants, params, custom_name),
+    "Mg_removal_sodaash": lambda constants, params, custom_name=None: create_process_instance(Mg_removal_sodaash, constants, params, custom_name),
+    "Mg_removal_quicklime": lambda constants, params, custom_name=None: create_process_instance(Mg_removal_quicklime, constants, params, custom_name),
+    "CentrifugeQuicklime": lambda constants, params, custom_name=None: create_process_instance(CentrifugeQuicklime, constants, params, custom_name),
+    "reverse_osmosis": lambda constants, params, custom_name=None: create_process_instance(reverse_osmosis, constants, params, custom_name),
+    "triple_evaporator": lambda constants, params, custom_name=None: create_process_instance(triple_evaporator, constants, params, custom_name),
+    "sulfate_removal_calciumchloride": lambda constants, params, custom_name=None: create_process_instance(sulfate_removal_calciumchloride, constants, params, custom_name),
+    "nanofiltration": lambda constants, params, custom_name=None: create_process_instance(nanofiltration, constants, params, custom_name)
+}
+
+
+process_function_map_2 = {
+    "evaporation_ponds": lambda constants, params: evaporation_ponds(constants=constants, params=params),
+    "Centrifuge_general": lambda constants, params, custom_name=None: Centrifuge_general(constants=constants, params=params, custom_name=custom_name),
+    "Liprec_TG": lambda constants, params: Liprec_TG(constants=constants, params=params),
+    "washing_TG": lambda constants, params: washing_TG(constants=constants, params=params),
+    "CentrifugeTG": lambda constants, params: CentrifugeTG(constants=constants, params=params),
+    "dissolution": lambda constants, params: dissolution(constants=constants, params=params),
+    "ion_exchange_H": lambda constants, params, custom_name=None: ion_exchange_H(constants=constants, params=params, custom_name=custom_name),
+    "ion_exchange_L": lambda constants, params, custom_name=None: ion_exchange_L(constants=constants, params=params, custom_name=custom_name),
+    "Liprec_BG": lambda constants, params: Liprec_BG(constants=constants, params=params),
+    "CentrifugeBG": lambda constants, params: CentrifugeBG(constants=constants, params=params),
+    "washing_BG": lambda constants, params: washing_BG(constants=constants, params=params),
+    "CentrifugeWash": lambda constants, params: CentrifugeWash(constants=constants, params=params),
+    "rotary_dryer": lambda constants, params: rotary_dryer(constants=constants, params=params),
+    "DLE_evaporation_ponds": lambda constants, params: DLE_evaporation_ponds(constants=constants, params=params),
+    "transport_brine": lambda constants, params: transport_brine(constants=constants, params=params),
+    "B_removal_organicsolvent": lambda constants, params: B_removal_organicsolvent(constants=constants, params=params),
+    "SiFe_removal_limestone": lambda constants, params: SiFeRemovalLimestone(constants=constants, params=params),
+    "MnZn_removal_lime": lambda constants, params: MnZn_removal_lime(constants=constants, params=params),
+    "Li_adsorption": lambda constants, params: Li_adsorption(constants=constants, params=params),
+    "acidification": lambda constants, params: acidification(constants=constants, params=params),
+    "CaMg_removal_sodiumhydrox": lambda constants, params: CaMg_removal_sodiumhydrox(constants=constants, params=params),
+    "CentrifugeSoda": lambda constants, params: CentrifugeSoda(constants=constants, params=params),
+    "Mg_removal_sodaash": lambda constants, params: Mg_removal_sodaash(constants=constants, params=params),
+    "Mg_removal_quicklime": lambda constants, params: Mg_removal_quicklime(constants=constants, params=params),
+    "CentrifugeQuicklime": lambda constants, params: CentrifugeQuicklime(constants=constants, params=params),
+    "reverse_osmosis": lambda constants, params: reverse_osmosis(constants=constants, params=params),
+    "triple_evaporator": lambda constants, params: triple_evaporator(constants=constants, params=params),
+    "sulfate_removal_calciumchloride": lambda constants, params: sulfate_removal_calciumchloride(constants=constants, params=params),
+    "nanofiltration": lambda constants, params: nanofiltration(constants=constants, params=params),
+}
+
+
+
+
+process_function_map_old = {
     "evaporation_ponds": evaporation_ponds,
     "Centrifuge_general": Centrifuge_general,
     "Liprec_TG": Liprec_TG,

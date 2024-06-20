@@ -9,6 +9,7 @@ from src.BW2_calculations.setting_up_db_env import *
 from src.BW2_calculations.lci_method_aware import import_aware
 from src.BW2_calculations.lci_method_pm import import_PM
 from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
+from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
 
 if not os.path.exists("results") :
     os.mkdir("results")
@@ -25,7 +26,7 @@ site_location = "Ata"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_2'
+    project = f'Site_{site_name}_5'
     bd.projects.set_current(project)
     print(project)
 
@@ -53,31 +54,31 @@ if __name__ == '__main__' :
         evaporation_ponds(),
         transport_brine(),
         B_removal_organicsolvent(),
-        Centrifuge_general(custom_name=None),
+        Centrifuge_general(DEFAULT_CONSTANTS, SENSITIVITY_RANGES, custom_name=None),
         Mg_removal_sodaash(),
-        CentrifugeSoda(),
+        CentrifugeSoda(DEFAULT_CONSTANTS, SENSITIVITY_RANGES,),
         Mg_removal_quicklime(),
-        CentrifugeQuicklime(),
+        CentrifugeQuicklime(DEFAULT_CONSTANTS, SENSITIVITY_RANGES,),
         Liprec_TG(),
-        CentrifugeTG(),
+        CentrifugeTG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(),
+        CentrifugeBG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         washing_BG(),
-        CentrifugeWash(),
+        CentrifugeWash(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
         rotary_dryer()
         ]
 
     # 1. Define your initial parameters
-    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+    prod, m_pumpbr = setup_site(eff,site_parameters=initial_data[abbrev_loc], constants=DEFAULT_CONSTANTS)
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params=None)
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -91,7 +92,7 @@ if __name__ == '__main__' :
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
-                                                               Li_conc_min)
+                                                               Li_conc_min, DEFAULT_CONSTANTS, params=None)
 
     print(results)
 

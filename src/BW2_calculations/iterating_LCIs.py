@@ -3,6 +3,7 @@ from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import bw2data as bd
 from src.BW2_calculations.setting_up_db_env import database_environment
 
+
 def create_inventory_map(abbrev_loc) :
     print(abbrev_loc)
 
@@ -106,6 +107,231 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
         for exchange in activity.exchanges() :
             exchange_type = exchange.get('type', 'Type not specified')
             print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+
+    print("Database has been updated successfully.")
+    return site_db
+
+
+def change_exchanges_in_database_sensitivity_old(param, value, site_name, abbrev_loc, dict_results):
+    inventory_map = create_inventory_map(abbrev_loc)
+
+    # Selecting the specific dataframe based on the parameter and its value
+    if param not in dict_results or value not in dict_results[param]:
+        raise KeyError(f"Key '{param}|{value}' not found in dict_results")
+    print(param, value)
+    selected_dataframe = dict_results[param][value]['data_frames']
+    print(selected_dataframe)
+
+    # Assessing BW2_calculations database
+    site_db = bd.Database(site_name)
+
+    for act in site_db:
+        act_name = act['name']
+        print(act_name)
+
+        if act_name.startswith('df_'):
+            act_name = act_name[3:]
+
+        act_name = re.sub(r'_\d+$','',act_name)
+
+        # Filtering the dataframe based on the process name in the "Variable" column
+        if act_name in selected_dataframe:
+            filtered_df = selected_dataframe[act_name]
+
+            # Iterating over the exchanges of the activity
+            for exc in act.exchanges():
+                exc_name = exc.input['name']
+                exc_type = exc.get('type', 'Type not specified')
+
+                # Checking if the exchange needs to be updated
+                if exc_name in inventory_map.keys():
+                    # Variable_name should get the according value from the dictionary
+                    variable_name = inventory_map[exc_name]
+
+                    new_value = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]['per kg'].iloc[0]
+
+
+                    #check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value:
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+
+                    # Updating the exchange amount
+                    exc['amount'] = new_value
+                    exc.save()
+
+                elif exc_name.startswith('df_') and exc_type == 'production':
+                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_output')]['per kg'].iloc[0]
+                    #check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value:
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+
+                    # Updating the exchange amount
+                    exc['amount'] = new_value
+                    exc.save()
+
+                elif exc_name.startswith('df_') and exc_type == 'technosphere':
+                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_in')]['per kg'].iloc[0]
+                    #check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value:
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+
+                    # Updating the exchange amount
+                    exc['amount'] = new_value
+                    exc.save()
+
+                else:
+                    print(f'Exchange not found:', exc_name, exc_type)
+
+                # Print activity update status
+                act.save()
+
+    for activity in site_db:
+        #print("Activity:", activity, activity['type'])
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges():
+            exchange_type = exchange.get('type', 'Type not specified')
+            #print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+
+    print("Database has been updated successfully.")
+    return site_db
+
+
+def normalize_name(name) :
+    """
+    Normalize the name by removing the prefix 'df_', suffixes, and underscores.
+    """
+    # Remove prefix 'df_' if it exists
+    if name.startswith('df_') :
+        name = name[3 :]
+    # Replace underscores with nothing
+    name = name.replace('_','')
+    # Return the normalized name
+    return name.lower()
+
+
+def extract_base_name(variable) :
+    """
+    Extract the base name from a variable, such as 'm_output_df_rotary_dryer' to 'rotary_dryer'.
+    """
+    parts = variable.split('_')
+    if len(parts) > 2 :
+        return '_'.join(parts[2 :])
+    return variable
+
+
+def match_activities(site_db,dataframe) :
+    """
+    Match activities in the site_db with the names in the dataframe.
+    """
+    matched_activities = {}
+
+    for df_name in dataframe :
+        # Normalize the dataframe name
+        normalized_df_name = normalize_name(df_name[:-2])  # Remove the '_1' suffix
+        for activity in site_db :
+            # Normalize the activity name
+            activity_name = activity['name']
+            normalized_activity = normalize_name(activity_name)
+
+            if normalized_activity == normalized_df_name :
+                matched_activities[df_name] = activity
+                break
+
+    return matched_activities
+
+
+def change_exchanges_in_database_sensitivity(param,value,site_name,abbrev_loc,dict_results) :
+    inventory_map = create_inventory_map(abbrev_loc)
+
+    # Selecting the specific dataframe based on the parameter and its value
+    if param not in dict_results or value not in dict_results[param] :
+        raise KeyError(f"Key '{param}|{value}' not found in dict_results")
+    print(param,value)
+    selected_dataframe = dict_results[param][value]['data_frames']
+    print("Selected Dataframe:",selected_dataframe)
+
+    # Assessing BW2_calculations database
+    site_db = bd.Database(site_name)
+
+    # Match the activities with dataframe names
+    matched_activities = match_activities(site_db,selected_dataframe)
+    print("Matched Activities:",matched_activities)
+
+    for act_name,act in matched_activities.items() :
+        print("Processing Activity:",act['name'])
+        filtered_df = selected_dataframe[act_name]
+
+        # Iterating over the exchanges of the activity
+        for exc in act.exchanges() :
+            exc_name = exc.input['name']
+            exc_type = exc.get('type','Type not specified')
+            print(f"Checking Exchange: {exc_name}, Type: {exc_type}")
+
+            # Checking if the exchange needs to be updated
+            if exc_name in inventory_map.keys() :
+                # Variable_name should get the according value from the dictionary
+                variable_name = inventory_map[exc_name]
+
+                # Check if filtered DataFrame is not empty
+                filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
+                if not filtered_var_df.empty :
+                    new_value = filtered_var_df['per kg'].iloc[0]
+
+                    # Check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value :
+                        print(f'Old value: {exc["amount"]}, New value: {new_value}.')
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+                    else :
+                        # Updating the exchange amount
+                        exc['amount'] = new_value
+                        exc.save()
+                        print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
+                else :
+                    print(f'Variable name {variable_name} not found in filtered DataFrame for activity {act_name}')
+
+            elif exc_name.startswith('df_') and exc_type == 'production' :
+                filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith('m_output')]
+                if not filtered_var_df.empty :
+                    new_value = filtered_var_df['per kg'].iloc[0]
+                    # Check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value :
+                        print(f'Old value: {exc["amount"]}, New value: {new_value}.')
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+                    else :
+                        # Updating the exchange amount
+                        exc['amount'] = new_value
+                        exc.save()
+                        print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
+                else :
+                    print(f'm_output not found in filtered DataFrame for activity {act_name}')
+
+            elif exc_name.startswith('df_') and exc_type == 'technosphere' :
+                filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith('m_in')]
+                if not filtered_var_df.empty :
+                    new_value = filtered_var_df['per kg'].iloc[0]
+                    # Check if old value and new value in exchange are the same. If yes, print a message
+                    if exc['amount'] == new_value :
+                        print(f'Old value: {exc["amount"]}, New value: {new_value}.')
+                        print(f'Old and new values are the same for {exc_name}. No change was made.')
+                    else :
+                        # Updating the exchange amount
+                        exc['amount'] = new_value
+                        exc.save()
+                        print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
+                else :
+                    print(f'm_in not found in filtered DataFrame for activity {act_name}')
+
+            else :
+                print(f'Exchange not found:',exc_name,exc_type)
+
+            # Print activity update status
+            act.save()
+
+    for activity in site_db :
+        # Loop through all exchanges for the current activity
+        for exchange in activity.exchanges() :
+            exchange_type = exchange.get('type','Type not specified')
+            print("\tExchange:",exchange.input,"->",exchange.amount,exchange.unit,exchange_type)
 
     print("Database has been updated successfully.")
     return site_db
