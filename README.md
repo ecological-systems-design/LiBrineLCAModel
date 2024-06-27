@@ -7,6 +7,8 @@ XXX
 
 ## Assessment of lithium mining from brines - single site
 
+Directories in the code need to be changed to own settings.
+
 1. Import of relevant input data from excel file stored in \data (e.g., location, brine chemistry, etc.) -> import_site_parameters.py
 2. Modeling of lithium extraction from brines based on processing_sequence -> licarbonate_processes.py
 3. Import of biosphere and ecoinvent -> setting_up_bio_and_ei.py
@@ -15,4 +17,6 @@ XXX
 6. Import impact categories (AWARE, PM) and link with existing databases -> lci_method_aware.py, lci_method_pm.py
 7. Calculation of life cycle impacts -> impact_assessment.py
 8. Contributional analysis of functional unit -> contributional_analysis_processes.py
-9. Visualization of results -> visualization.py 
+9. Visualization of results -> visualization.py
+
+Assessment of all sites in this publication can be performed using the comparison_all_sites.py
