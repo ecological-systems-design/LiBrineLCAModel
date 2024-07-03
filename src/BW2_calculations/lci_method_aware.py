@@ -198,6 +198,7 @@ def import_aware(ei, bio_f,site_name, site_db, copy_site_db = None):
             elif database_name == new_bio_name :
 
                 connected_to_biosphere_regionalized = True
+                print(f"{site_db} is already linked to {new_bio_name}.")
 
         # Now you can check the flags and act accordingly
         if connected_to_biosphere3 :

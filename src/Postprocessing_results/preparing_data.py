@@ -41,8 +41,10 @@ def get_category_mapping(df):
         'df_reverse_osmosis': 'volume reduction',
         'df_triple_evaporator': 'volume reduction',
         'df_nanofiltration': 'volume reduction',
+        'df_centrifuge_purification_general_1': 'purification',
         'df_centrifuge_purification_general': 'purification',
         'df_centrifuge_purification_general_2': 'purification',
+        'df_centrifuge_general_1' : 'purification',
         'df_centrifuge_general_2': 'purification',
         'df_CaMg_removal_sodiumhydrox': 'purification'
         }
@@ -403,6 +405,7 @@ def prepare_data_for_waterfall_diagram(file_path, abbrev_loc):
 
     # Convert to DataFrame
     grouped_process_df = pd.DataFrame(new_process_data)
+
 
     return grouped_process_df
 

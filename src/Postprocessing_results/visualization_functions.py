@@ -867,6 +867,17 @@ class Visualization :
                     )
                 )
 
+            # Add annotations for each point in the group
+            for d in group_data :
+                fig.add_annotation(
+                    x=d['IPCC'],
+                    y=d['AWARE'],
+                    text=d['site'],
+                    showarrow=True,
+                    arrowhead=1
+                    )
+
+
         # Customizing the layout to accommodate the larger plot and other requirements
         font_family = "Arial"
 
@@ -925,6 +936,7 @@ class Visualization :
         # Create a dataframe from the data
         scatter_data = [{
             'site' : site,
+            'abbreviation': info['abbreviation'],
             'IPCC' : matched_results[site]['IPCC'],
             'AWARE' : matched_results[site]['AWARE'],
             'Li_concentration' : info['ini_Li'],
@@ -1021,12 +1033,175 @@ class Visualization :
 
         print(f"Scatter plot saved in {save_dir}")
 
+    def save_plots_and_data(site_data,category,save_dir,max_li_conc,max_ipcc,max_aware) :
+        # Create subplots
+        fig = make_subplots(rows=2,cols=1,subplot_titles=(
+        f"Climate Change Impact", f"Water Scarcity Impact"))
 
+        # Generate a list of unique colors and symbols for each site
+        colors = px.colors.qualitative.Vivid
+        symbols = ['circle','square','diamond','cross','x','triangle-up','triangle-down',
+                   'triangle-left','triangle-right','pentagon','hexagon','star','hexagram','star-triangle-up']
+        color_map = {site : colors[i % len(colors)] for i,site in enumerate(site_data.keys())}
+        symbol_map = {site : symbols[i % len(symbols)] for i,site in enumerate(site_data.keys())}
 
-    def create_plots_from_brinechemistry(directory_path, save_dir) :
+        # Create subplots for each site
+        for site,data in site_data.items() :
+            # Add scatter plot for climate change impact
+            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['IPCC'],mode='markers',name=site,
+                                     marker=dict(color=color_map[site], symbol=symbol_map[site], size=10, line=dict(color='black', width=1))),row=1,col=1)
+
+            # Add scatter plot for water scarcity impact
+            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['AWARE'],mode='markers',name=site,
+                                     marker=dict(color=color_map[site],symbol=symbol_map[site], size=10, line=dict(color='black', width=1))),row=2,col=1)
+
+        # Update layout
+        fig.update_layout(
+            height=600,
+            width=800,
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(
+                family="Arial",
+                size=14,
+                color="black"
+                ),
+            showlegend=True
+            )
+
+        fig.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=1,col=1,showgrid=True,zeroline=True,
+                         zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=2,col=1,showgrid=True,zeroline=True,
+                         zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig.update_yaxes(range=[0,max_ipcc*1.1],title_text="IPCC",row=1,col=1,showgrid=True,zeroline=True,
+                         zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig.update_yaxes(range=[0,max_aware*1.1],title_text="AWARE",row=2,col=1,showgrid=True,zeroline=True,
+                         zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Save the figures to the specified directory
+        save_path_png = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_{category}.png')
+        fig.write_image(save_path_png)
+
+        save_path_svg = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_{category}.svg')
+        fig.write_image(save_path_svg)
+
+        # Create a pandas Excel writer using XlsxWriter as the engine.
+        save_path_xlsx = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_{category}.xlsx')
+        with pd.ExcelWriter(save_path_xlsx,engine='xlsxwriter') as writer :
+            for site,data in site_data.items() :
+                df = pd.DataFrame(data)
+                df.to_excel(writer,sheet_name=site,index=False,startrow=0)
+
+        print(f"Data saved to {save_path_xlsx}")
+        print(f"Figures saved to {save_path_png} and {save_path_svg}")
+
+    def create_plots_from_brinechemistry(directory_path,save_dir) :
+        # Dictionaries to hold the aggregated data for each site category
+        general_site_data = {}
+        uyu_data = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+        special_site_data = {}
+        special_sites = ['Cau','Ata','Ola','Pas']
+
+        max_li_conc_general = 0
+        max_ipcc_general = 0
+        max_aware_general = 0
+        max_li_conc_special = 0
+        max_ipcc_special = 0
+        max_aware_special = 0
+        max_li_conc_uyu = 0
+        max_ipcc_uyu = 0
+        max_aware_uyu = 0
+
+        # Process each CSV file in the directory
+        for file in os.listdir(directory_path) :
+            if file.endswith('.csv') :
+                # Extract site abbreviation from the file name
+                site_abbreviation = file.split('_')[0]
+
+                # Load the CSV file
+                file_path = os.path.join(directory_path,file)
+                csv_data = pd.read_csv(file_path)
+
+                # Aggregate data by site category
+                if site_abbreviation == 'Uyu' :
+                    for _,row in csv_data.iterrows() :
+                        li_conc = row['Li-conc']
+                        ipcc = row['IPCC']
+                        aware = row['AWARE']
+
+                        uyu_data['Li-conc'].append(li_conc)
+                        uyu_data['IPCC'].append(ipcc)
+                        uyu_data['AWARE'].append(aware)
+
+                        # Update max values for Uyu
+                        if li_conc > max_li_conc_uyu :
+                            max_li_conc_uyu = li_conc
+                        if ipcc > max_ipcc_uyu :
+                            max_ipcc_uyu = ipcc
+                        if aware > max_aware_uyu :
+                            max_aware_uyu = aware
+                elif site_abbreviation in special_sites :
+                    if site_abbreviation not in special_site_data :
+                        special_site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+
+                    for _,row in csv_data.iterrows() :
+                        li_conc = row['Li-conc']
+                        ipcc = row['IPCC']
+                        aware = row['AWARE']
+
+                        special_site_data[site_abbreviation]['Li-conc'].append(li_conc)
+                        special_site_data[site_abbreviation]['IPCC'].append(ipcc)
+                        special_site_data[site_abbreviation]['AWARE'].append(aware)
+
+                        # Update max values for special sites
+                        if li_conc > max_li_conc_special :
+                            max_li_conc_special = li_conc
+                        if ipcc > max_ipcc_special :
+                            max_ipcc_special = ipcc
+                        if aware > max_aware_special :
+                            max_aware_special = aware
+                else :
+                    if site_abbreviation not in general_site_data :
+                        general_site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+
+                    for _,row in csv_data.iterrows() :
+                        li_conc = row['Li-conc']
+                        ipcc = row['IPCC']
+                        aware = row['AWARE']
+
+                        general_site_data[site_abbreviation]['Li-conc'].append(li_conc)
+                        general_site_data[site_abbreviation]['IPCC'].append(ipcc)
+                        general_site_data[site_abbreviation]['AWARE'].append(aware)
+
+                        # Update max values for general sites
+                        if li_conc > max_li_conc_general :
+                            max_li_conc_general = li_conc
+                        if ipcc > max_ipcc_general :
+                            max_ipcc_general = ipcc
+                        if aware > max_aware_general :
+                            max_aware_general = aware
+
+        # Save plots and data for each category
+        if general_site_data :
+            Visualization.save_plots_and_data(general_site_data,'general_sites',save_dir,max_li_conc_general,max_ipcc_general,
+                                max_aware_general)
+        if special_site_data :
+            Visualization.save_plots_and_data(special_site_data,'special_sites',save_dir,max_li_conc_special,max_ipcc_special,
+                                max_aware_special)
+        if uyu_data['Li-conc'] :
+            Visualization.save_plots_and_data({'Uyu' : uyu_data},'Uyu',save_dir,max_li_conc_uyu,500,100)
+
+    def create_plots_from_brinechemistry_OLD(directory_path,save_dir) :
         # Dictionary to hold the aggregated data for each site
         site_data = {}
-
+        uyu_data = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+        max_li_conc = 0
+        max_ipcc_other = 0
+        max_aware_other = 0
+        max_ipcc_uyu = 0
+        max_aware_uyu = 0
 
         # Process each CSV file in the directory
         for file in os.listdir(directory_path) :
@@ -1039,40 +1214,120 @@ class Visualization :
                 csv_data = pd.read_csv(file_path)
 
                 # Aggregate data by site
-                if site_abbreviation not in site_data :
-                    site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
+                if site_abbreviation == 'Uyu' :
+                    for _,row in csv_data.iterrows() :
+                        li_conc = row['Li-conc']
+                        ipcc = row['IPCC']
+                        aware = row['AWARE']
 
-                for _,row in csv_data.iterrows() :
-                    site_data[site_abbreviation]['Li-conc'].append(row['Li-conc'])
-                    site_data[site_abbreviation]['IPCC'].append(row['IPCC'])
-                    site_data[site_abbreviation]['AWARE'].append(row['AWARE'])
+                        uyu_data['Li-conc'].append(li_conc)
+                        uyu_data['IPCC'].append(ipcc)
+                        uyu_data['AWARE'].append(aware)
 
+                        # Update max values for Uyu
+                        if li_conc > max_li_conc :
+                            max_li_conc = li_conc
+                        if ipcc > max_ipcc_uyu :
+                            max_ipcc_uyu = ipcc
+                        if aware > max_aware_uyu :
+                            max_aware_uyu = aware
+                else :
+                    if site_abbreviation not in site_data :
+                        site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
 
+                    for _,row in csv_data.iterrows() :
+                        li_conc = row['Li-conc']
+                        ipcc = row['IPCC']
+                        aware = row['AWARE']
 
-        fig = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact","Water Scarcity Impact"))
+                        site_data[site_abbreviation]['Li-conc'].append(li_conc)
+                        site_data[site_abbreviation]['IPCC'].append(ipcc)
+                        site_data[site_abbreviation]['AWARE'].append(aware)
 
-        # Generate a list of unique colors for each site
-        colors = px.colors.qualitative.Antique
+                        # Update max values for other sites
+                        if li_conc > max_li_conc :
+                            max_li_conc_other = li_conc
+                        if ipcc > max_ipcc_other :
+                            max_ipcc_other = ipcc
+                        if aware > max_aware_other :
+                            max_aware_other = aware
+
+        # Plot for all sites except Uyu
+        fig1 = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact","Water Scarcity Impact"))
+
+        # Generate a list of unique colors and symbols for each site
+        colors = px.colors.qualitative.Plotly
+        symbols = ['circle','square','diamond','cross','x','triangle-up','triangle-down',
+                   'triangle-left','triangle-right','pentagon','hexagon','star','hexagram','star-triangle-up']
         color_map = {site : colors[i % len(colors)] for i,site in enumerate(site_data.keys())}
+        symbol_map = {site : symbols[i % len(symbols)] for i,site in enumerate(site_data.keys())}
 
         # Create subplots for each site
         for site,data in site_data.items() :
-
-
             # Add scatter plot for climate change impact
-            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['IPCC'],mode='markers', name=site,
-                                 marker=dict(color=color_map[site])),row=1,col=1)
+            fig1.add_trace(go.Scatter(x=data['Li-conc'],y=data['IPCC'],mode='markers',name=site,
+                                      marker=dict(color=color_map[site],symbol=symbol_map[site])),row=1,col=1)
 
             # Add scatter plot for water scarcity impact
-            fig.add_trace(go.Scatter(x=data['Li-conc'],y=data['AWARE'],mode='markers', name=site,
-                                 marker=dict(color=color_map[site])),row=2,col=1)
+            fig1.add_trace(go.Scatter(x=data['Li-conc'],y=data['AWARE'],mode='markers',name=site,
+                                      marker=dict(color=color_map[site],symbol=symbol_map[site])),row=2,col=1)
 
-        # Update layout
-        fig.update_layout(height=600,width=800,title_text=f"Impacts for {site}")
-        fig.update_xaxes(range=[0, 0.4], title_text="Li-conc (weight %)",row=1,col=1)
-        fig.update_xaxes(range=[0, 0.4],title_text="Li-conc (weight %)",row=2,col=1)
-        fig.update_yaxes(range = [0, 100], title_text="IPCC",row=1,col=1)
-        fig.update_yaxes(range = [0, 40], title_text="AWARE",row=2,col=1)
+        # Update layout for fig1
+        fig1.update_layout(
+            height=600,
+            width=800,
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(
+                family="Arial",
+                size=14,
+                color="black"
+                ),
+            showlegend=True
+            )
+
+        fig1.update_xaxes(range=[0,max_li_conc_other*1.1],title_text="Li-conc (weight %)",row=1,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig1.update_xaxes(range=[0,max_li_conc_other*1.1],title_text="Li-conc (weight %)",row=2,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig1.update_yaxes(range=[0,max_ipcc_other*1.1],title_text="IPCC",row=1,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig1.update_yaxes(range=[0,max_aware_other*1.1],title_text="AWARE",row=2,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+
+        # Plot for Uyu site
+        fig2 = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact (Uyu)","Water Scarcity Impact (Uyu)"))
+
+        # Add scatter plot for climate change impact
+        fig2.add_trace(go.Scatter(x=uyu_data['Li-conc'],y=uyu_data['IPCC'],mode='markers',name='Uyu',
+                                  marker=dict(color='blue',symbol='circle')),row=1,col=1)
+
+        # Add scatter plot for water scarcity impact
+        fig2.add_trace(go.Scatter(x=uyu_data['Li-conc'],y=uyu_data['AWARE'],mode='markers',name='Uyu',
+                                  marker=dict(color='blue',symbol='circle')),row=2,col=1)
+
+        # Update layout for fig2
+        fig2.update_layout(
+            height=600,
+            width=800,
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            font=dict(
+                family="Arial",
+                size=14,
+                color="black"
+                ),
+            showlegend=True
+            )
+
+        fig2.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=1,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig2.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=2,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig2.update_yaxes(range=[0,max_ipcc_uyu*1.1],title_text="IPCC",row=1,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
+        fig2.update_yaxes(range=[0,max_aware_uyu*1.1],title_text="AWARE",row=2,col=1,showgrid=True,zeroline=True,
+                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -1080,18 +1335,31 @@ class Visualization :
         if not os.path.exists(save_dir) :
             os.makedirs(save_dir)
 
-        # Save the figure to the specified directory
-        save_path_png = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.png')
-        fig.write_image(save_path_png)
+        # Save the figures to the specified directory
+        save_path_png1 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_other_sites.png')
+        fig1.write_image(save_path_png1)
 
-        save_path_svg = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.svg')
-        fig.write_image(save_path_svg)
+        save_path_svg1 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_other_sites.svg')
+        fig1.write_image(save_path_svg1)
 
-        save_path_html = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.html')
-        fig.write_html(save_path_html)
+        save_path_png2 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_Uyu.png')
+        fig2.write_image(save_path_png2)
 
-        print(f"Figure saved to {save_path_png} and {save_path_html}")
+        save_path_svg2 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_Uyu.svg')
+        fig2.write_image(save_path_svg2)
 
+        # Create a pandas Excel writer using XlsxWriter as the engine.
+        save_path_xlsx = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.xlsx')
+        with pd.ExcelWriter(save_path_xlsx,engine='xlsxwriter') as writer :
+            for site,data in site_data.items() :
+                df = pd.DataFrame(data)
+                df.to_excel(writer,sheet_name=site,index=False,startrow=0)
+            # Add Uyu data to a separate sheet
+            df_uyu = pd.DataFrame(uyu_data)
+            df_uyu.to_excel(writer,sheet_name='Uyu',index=False,startrow=0)
+
+        print(f"Data saved to {save_path_xlsx}")
+        print(f"Figures saved to {save_path_png1}, {save_path_svg1}, {save_path_png2}, and {save_path_svg2}")
 
     def create_waterfall_plots(file_path, save_dir, abbrev_loc, li_conc, eff, impact_type, location) :
         df = prepare_data_for_waterfall_diagram(file_path)

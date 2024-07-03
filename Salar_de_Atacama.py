@@ -8,6 +8,8 @@ from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, 
 from src.BW2_calculations.setting_up_db_env import *
 from src.BW2_calculations.lci_method_aware import import_aware
 from src.BW2_calculations.lci_method_pm import import_PM
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
+from src.BW2_calculations.impact_assessment import saving_sensitivity_results
 from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
 
@@ -26,7 +28,19 @@ site_location = "Ata"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_5'
+    project = "default"
+    # Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
+    for i in range(1,23) :
+        project_old = f'Site_{site_name}_{i}'
+        if project_old in bd.projects :
+            print(f'Project {project_old} exists')
+            bd.projects.delete_project(project_old,delete_dir=True)
+            bd.projects.set_current(project)
+        else :
+            print(f'Project {project_old} does not exist')
+
+    project = f'Site_{site_name}_23_with_adapted_negative_wastewater'
+
     bd.projects.set_current(project)
     print(project)
 
@@ -54,19 +68,19 @@ if __name__ == '__main__' :
         evaporation_ponds(),
         transport_brine(),
         B_removal_organicsolvent(),
-        Centrifuge_general(DEFAULT_CONSTANTS, SENSITIVITY_RANGES, custom_name=None),
+        Centrifuge_general(DEFAULT_CONSTANTS,{}, custom_name=None),
         Mg_removal_sodaash(),
-        CentrifugeSoda(DEFAULT_CONSTANTS, SENSITIVITY_RANGES,),
+        CentrifugeSoda(DEFAULT_CONSTANTS, {}),
         Mg_removal_quicklime(),
-        CentrifugeQuicklime(DEFAULT_CONSTANTS, SENSITIVITY_RANGES,),
+        CentrifugeQuicklime(DEFAULT_CONSTANTS, {}),
         Liprec_TG(),
-        CentrifugeTG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeTG(DEFAULT_CONSTANTS, {}),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeBG(DEFAULT_CONSTANTS, {}),
         washing_BG(),
-        CentrifugeWash(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeWash(DEFAULT_CONSTANTS, {}),
         rotary_dryer()
         ]
 
@@ -78,7 +92,7 @@ if __name__ == '__main__' :
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params=None)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -95,8 +109,32 @@ if __name__ == '__main__' :
                                                                Li_conc_min, DEFAULT_CONSTANTS, params=None)
 
     print(results)
+    process_sequence = [
+        evaporation_ponds(),
+        transport_brine(),
+        B_removal_organicsolvent(),
+        Centrifuge_general(DEFAULT_CONSTANTS,SENSITIVITY_RANGES,custom_name=None),
+        Mg_removal_sodaash(),
+        CentrifugeSoda(DEFAULT_CONSTANTS,SENSITIVITY_RANGES,),
+        Mg_removal_quicklime(),
+        CentrifugeQuicklime(DEFAULT_CONSTANTS,SENSITIVITY_RANGES,),
+        Liprec_TG(),
+        CentrifugeTG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        washing_TG(),
+        dissolution(),
+        Liprec_BG(),
+        CentrifugeBG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        washing_BG(),
+        CentrifugeWash(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        rotary_dryer()
+        ]
 
+    # 4. Run the sensitivity analysis
+    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,
+                             constants=DEFAULT_CONSTANTS,
+                             params=SENSITIVITY_RANGES)
 
+    sensitivity_results = manager.run_sensitivity_analysis(filename,op_location,abbrev_loc,Li_conc,eff)
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
@@ -121,6 +159,13 @@ if __name__ == '__main__' :
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+
+    sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity,method_list,sensitivity_results,site_name,
+                                                                     ei_name,abbrev_loc)
+    #
+    #
+    saving_sensitivity_results(sensitivity_impacts,abbrev_loc,
+                               save_dir=r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results')
 
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
                                                        site_name, ei_name, abbrev_loc, eff_range, Li_conc_range

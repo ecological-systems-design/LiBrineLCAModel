@@ -14,7 +14,7 @@ def creating_new_act(activities_to_copy, new_location, db) :
             new_act['location'] = new_location
             new_act['type'] = "process"
             new_act.save()
-            print(f"{new_act, new_act['type']} was successfully created.")
+            #print(f"{new_act, new_act['type']} was successfully created.")
         else :
             print(f"{new_act} already exists")
     return db, new_act
@@ -179,7 +179,7 @@ def chinese_coal(act_f, db) :
 
         # Set the coal_adapted flag
         act['coal_adapted'] = True
-        print(f'Adapted {act, act["type"]}')
+        #print(f'Adapted {act, act["type"]}')
     return db
 
 
@@ -293,11 +293,11 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
     act_list = [act for act in site_db]
 
     for act in act_list :
-        print(act)
+        #print(act)
         exc_list = [exc for exc in act.exchanges()]
-        print(exc_list)
+        #print(exc_list)
         for exc in act.technosphere() :
-            print(exc, exc.input['name'])
+            #print(exc, exc.input['name'])
             exc_name = exc.input['name']
 
             # Check if exc_name is in the list of regionalized activity names
@@ -317,7 +317,7 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
                         exc['input'] = act_subst.key
                         exc.save()
                         act.save()
-                        print(f"Regionalized technosphere exchange in {act['name']} at {site_location}")
+                        #print(f"Regionalized technosphere exchange in {act['name']} at {site_location}")
                     else :
                         print(
                             f"Regionalized technosphere exchange already present for {act['name']} at {site_location}")
@@ -325,12 +325,12 @@ def regionalize_activities(ei_name, site_name, site_location, regionalized_activ
                 print(f"No regionalization performed for {exc_name}")
 
     # Loop through all activities in the database
-    for activity in site_db :
-        print("Activity:", activity, activity['type'])
-        # Loop through all exchanges for the current activity
-        for exchange in activity.exchanges() :
-            exchange_type = exchange.get('type', 'Type not specified')
-            print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
+    # for activity in site_db :
+    #     print("Activity:", activity, activity['type'])
+    #     # Loop through all exchanges for the current activity
+    #     for exchange in activity.exchanges() :
+    #         exchange_type = exchange.get('type', 'Type not specified')
+    #         print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
 
     return ei_reg, site_db
 

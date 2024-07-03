@@ -39,25 +39,44 @@ process_required_concentrations_dict = {
     "MnZn_removal_lime": [10, 12]
     }
 
-def convert_mg_L_to_wt_percent(mg_L_values, density):
-    # Example conversion, adjust based on actual chemistry
-    # Ensure density is a float
+
+def convert_mg_L_to_wt_percent(values,density,sum_threshold=100) :
+    """
+    Converts a list of values from mg/L to weight percent, if they are not already in weight percent.
+
+    Parameters:
+    values (list): List of values in mg/L or weight percent.
+    density (float): Density of the solution in g/mL.
+    sum_threshold (float): Threshold to distinguish between mg/L and weight percent.
+
+    Returns:
+    list: List of values in weight percent.
+    """
     density = float(density)
-    wt_percent_values = [ ]
+    wt_percent_values = []
 
-    for value in mg_L_values :
-        # Convert value to float if it's not already
-        if isinstance(value, str) :
-            try :
-                value = float(value)
-            except ValueError :
-                # Handle the case where conversion fails
-                print(f"Conversion failed for value: {value}")
-                continue  # Skip this value or use a placeholder like 0 or np.nan
+    # Convert values to a numpy array to handle NaN values
+    values_array = np.array(values,dtype=np.float64)
 
-        # Perform the calculation with numeric types
-        wt_percent = (value / 1000) / (density * 1000) * 100
-        wt_percent_values.append(wt_percent)
+    # Calculate the sum ignoring NaN values
+    total_sum = np.nansum(values_array)
+
+    # Check if the values are likely in mg/L based on the sum
+    if total_sum > sum_threshold :
+        print("Values are in mg/L, converting to weight percent")
+        for value in values_array :
+            # Skip NaN values
+            if np.isnan(value) :
+                wt_percent_values.append(np.nan)
+                continue
+
+            # Perform the calculation with numeric types
+            wt_percent = (value / 1000) / (density * 1000) * 100
+            wt_percent_values.append(wt_percent)
+    else :
+        print("Values are already in weight percent")
+        wt_percent_values = values
+
     return wt_percent_values
 
 def boiling_point_at_elevation(elevation_meters):
@@ -193,6 +212,7 @@ def update_required_concentrations( process_sequence, vec_end, vec_ini):
 
 
 def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
+    print(f'beginning of function: {vec_ini}')
     # Load the Excel file
     op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
                             sheet_name="Sheet1", index_col=0)
@@ -249,8 +269,17 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         last_value = 100 - total_wt_percent
         vec_ini = vec_ini + [ last_value ]
 
+    print(f'vec_ini here: {vec_ini}')
 
-    vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[31 :47]]
+    # Extract the technology type
+    technology_type = site_data.get('technology_group') # assuming technology_group is consistent
+
+    # Check if the technology type is 'salar_DLE' or 'geo_DLE'
+    if technology_type in ['salar_DLE','geo_DLE'] :
+        vec_end = vec_ini
+    else :
+        vec_end = [value if pd.notna(value) else np.nan for value in site_data.values[31 :47]]
+
 
     if Li_conc is not None:
         vec_ini[0] = Li_conc
@@ -400,32 +429,75 @@ def update_config_value(config, key, new_value):
         print(f"Key '{key}' not found in the {config} dictionary.")
 
 
-def convert_to_numeric(df, column_list):
-    for column in column_list :
-        # Attempt to convert each value in the column to float, removing commas
-        df[ column ] = df[ column ].apply(lambda x : float(str(x).replace(',', '')) if isinstance(x, str) else x)
+
+def convert_to_numeric_old(df, columns):
+    for column in columns:
+        # Only attempt to replace commas if the column contains string values
+        if df[column].dtype == 'object':
+            df[column] = df[column].str.replace(',', '')
+        df[column] = pd.to_numeric(df[column], errors='coerce')
     return df
 
-def prepare_brine_analyses(file_path, abbrev_loc):
 
-    #load and prepare sheet4 for brine analyses
+def convert_to_numeric(df,columns) :
+    for column in columns :
+        if column in df.columns :
+            # Print original values for debugging
+            #print(f"Original values in column {column}:\n",df[column].head())
+
+            # Replace commas and convert all values to strings
+            df[column] = df[column].astype(str).str.replace(',','')
+
+            # Convert to numeric
+            df[column] = pd.to_numeric(df[column],errors='coerce')
+
+            # Print converted values for debugging
+            #print(f"Converted values in column {column}:\n",df[column].head())
+    return df
+
+
+def prepare_brine_analyses(file_path,abbrev_loc) :
+    # Load and prepare sheet4 for brine analyses
     columns_to_convert = ['ini_Li','ini_Cl','ini_Na','ini_K','ini_Ca','ini_Mg',
                           'ini_SO4','ini_B','ini_Si','ini_As','ini_Mn','ini_Fe','ini_Zn','ini_Sr','ini_Ba','ini_H2O']
-    sheet4_df = pd.read_excel(file_path, sheet_name="Sheet4", index_col=0)
+    sheet4_df = pd.read_excel(file_path,sheet_name="Sheet4",index_col=0)
+
+    # Drop columns where all elements are NaN
+    sheet4_df.dropna(axis=1,how='all',inplace=True)
+
+    # Ensure all columns_to_convert are in the DataFrame, adding them with NaN values if they are missing
+    for column in columns_to_convert :
+        if column not in sheet4_df.columns :
+            sheet4_df[column] = np.nan
+
+    # Filter out 'Unnamed' columns if they exist
+    sheet4_df = sheet4_df.loc[:,~sheet4_df.columns.str.contains('^Unnamed')]
+
+    # Print available columns for debugging
+    available_columns = sheet4_df.columns.tolist()
+    #print("Available columns before conversion:",available_columns)
+
     # Apply the conversion function
-    sheet4_df = convert_to_numeric(sheet4_df, columns_to_convert)
+    sheet4_df = convert_to_numeric(sheet4_df,columns_to_convert)
+
     # Replace non-numeric placeholders with NaN (or other value as needed)
-    sheet4_df.replace({'–' : np.nan}, inplace=True)
+    sheet4_df.replace({'-' : np.nan},inplace=True)
+
+    # Drop rows where all elements are NaN
+    sheet4_df.dropna(how='all',inplace=True)
+
+    # Drop rows where the index itself is NaN and convert the index to string
+    sheet4_df = sheet4_df[~sheet4_df.index.isna()]
+    sheet4_df.index = sheet4_df.index.map(str)
 
     # Use a boolean mask to filter rows where the index starts with {abbrev_loc}_
-    # This is more precise than .filter and allows for specific pattern matching
-    matched_analyses = sheet4_df[ sheet4_df.index.to_series().str.startswith(f"{abbrev_loc}_") ]
+    matched_analyses = sheet4_df[sheet4_df.index.to_series().str.startswith(f"{abbrev_loc}_")]
+
 
     # Convert matched analyses to a structured format (dictionary or list)
-    analyses_dict = {idx : row.tolist() for idx, row in matched_analyses.iterrows()}
+    analyses_dict = {idx : row.tolist() for idx,row in matched_analyses.iterrows()}
 
-    # Return the structured format containing matched analyses
-    return analyses_dict
+    return analyses_dict,available_columns
 
 
 def generate_range(value,percentage) :

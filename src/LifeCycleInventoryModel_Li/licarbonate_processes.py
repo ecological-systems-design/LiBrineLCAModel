@@ -4,7 +4,7 @@ from src.LifeCycleInventoryModel_Li.import_site_parameters import *
 
 from src.Postprocessing_results.visualization_functions import Visualization
 
-from src.Model_Setup_Options.site_LCI_and_LCA import create_process_instance
+
 
 import pandas as pd
 import os
@@ -55,21 +55,23 @@ class evaporation_ponds :
 
         # Retrieve constants
         gravity_constant = constants['gravity_constant']
-        eff_pw = constants['eff_pw']
-        proxy_saltremoval = constants['proxy_saltremoval']
-        proxy_salt_ATACAMA = constants['proxy_salt_ATACAMA']
-        proxy_quicklime_OLAROZ = constants['proxy_quicklime_OLAROZ']
+        eff_pw = params.get('eff_pw', constants['eff_pw'])
+        proxy_saltremoval = params.get('proxy_saltremoval', constants['proxy_saltremoval'])
+        proxy_salt_ATACAMA = params.get('proxy_salt_ATACAMA', constants['proxy_salt_ATACAMA'])
+        proxy_quicklime_OLAROZ = params.get('proxy_quicklime_OLAROZ', constants['proxy_quicklime_OLAROZ'])
         dens_frw = constants['dens_frw']
-        sulfuricacid_solution = constants['sulfuricacid_solution']
+        sulfuricacid_solution = params.get('sulfuricacid_solution', constants['sulfuricacid_solution'])
         hCHH_bri = constants['hCHH_bri']
-        heat_loss = constants['heat_loss']
+        heat_loss = params.get('heat_loss', constants['heat_loss'])
         Ca = constants['Ca']
         O = constants['O']
         H = constants['H']
         Mg = constants['Mg']
-        working_hours_excavator = constants['working_hours_excavator']
-        proxy_harvest = constants['proxy_harvest']
-        proxy_freshwater_EP = constants['proxy_freshwater_EP']
+        working_hours_excavator = params.get('working_hours_excavator', constants['working_hours_excavator'])
+
+        proxy_harvest = params.get('proxy_harvest', constants['proxy_harvest'])
+        proxy_freshwater_EP = params.get('proxy_freshwater_EP', constants['proxy_freshwater_EP'])
+
 
         operating_time = op_days * 24 * 60 * 60  # Operating time in seconds
         m_in_initial = m_in
@@ -182,7 +184,7 @@ class evaporation_ponds :
                            f'waste_salt_{process_name}',
                            f'waste_liquid_{process_name}'],
             'Values' : [m_output, m_Li, electric_well, hrs_excav, water_evaporationponds, area_occup, transf, transf,
-                        chemical_quicklime, sulfuric_acid, (-m_salt), -waste_water]
+                        chemical_quicklime, sulfuric_acid, (-m_salt), waste_water]
             }
 
         df_process = pd.DataFrame(df_data)
@@ -230,7 +232,7 @@ class evaporation_ponds :
         O = constants['O']
         H = constants['H']
         Mg = constants['Mg']
-        proxy_quicklime_OLAROZ = constants['proxy_quicklime_OLAROZ']
+        proxy_quicklime_OLAROZ = params.get('proxy_quicklime_OLAROZ', constants['proxy_quicklime_OLAROZ'])
 
         # Check if each element in vec_loss is NaN
         is_nan_vec_loss_except_first = [math.isnan(loss) for loss in vec_loss[1 :]]
@@ -292,7 +294,7 @@ class evaporation_ponds :
         :return: Working hours for excavators.
         """
         # Retrieve constants
-        working_hours_excavator = constants['working_hours_excavator']
+        working_hours_excavator = params.get('working_hours_excavator', constants['working_hours_excavator'])
 
         hrs_excav = (proxy_value * m_saltbri) / working_hours_excavator  # working hours for excavators
         return hrs_excav
@@ -332,7 +334,7 @@ class DLE_evaporation_ponds :
                 area_occup,
                 transf,
                 transf,
-                -waste_water
+                waste_water
                 ]
             }
 
@@ -420,21 +422,23 @@ class B_removal_organicsolvent:
 
         return HCl_mass32
 
-    def calculcate_organicsolvent_demand(self, density_enriched_brine, m_in, life, constants):
-        organic = (1 - constants['recycling_rate']) * ((m_in / (density_enriched_brine * 1000)) * constants['dens_organicsolvent'])
+    def calculcate_organicsolvent_demand(self, density_enriched_brine, m_in, life, recycling_rate, constants):
 
-        organic_invest = (organic / (1 - constants['recycling_rate'])) / life
+        organic = (1 - recycling_rate) * ((m_in / (density_enriched_brine * 1000)) * constants['dens_organicsolvent'])
+
+        organic_invest = (organic / (1 - recycling_rate)) / life
         water_SX_strip = ((organic / constants['dens_organicsolvent']) / 3) * 1000
         organic_sum = organic + organic_invest
-        waste_organic = (1 - constants['recycling_rate']) * organic_sum
+        waste_organic = (1 - recycling_rate) * organic_sum
 
         return organic_sum, waste_organic, water_SX_strip
 
-    def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in, constants):
+    def calculate_NaOH_and_boron_precipitates(self, vec_end, m_in, sodiumhydroxide_solution, constants):
+
         boron_mass = ((vec_end[7]) / 100 * m_in)
         nat_boron = -(boron_mass / constants['B'] * (1 / 4 * (constants['Na'] * 2 + constants['B'] * 4 + constants['O'] * 7)))
         sodium_hydroxide = nat_boron / (constants['Na'] * 2 + constants['B'] * 4 + constants['O'] * 7) * 2 * (constants['Na'] + constants['O'] + constants['H'])
-        water_sodium_hydroxide = sodium_hydroxide / constants['sodiumhydroxide_solution']
+        water_sodium_hydroxide = sodium_hydroxide / sodiumhydroxide_solution
         return nat_boron, -sodium_hydroxide, water_sodium_hydroxide, boron_mass
 
     def execute(self, site_parameters, m_in, constants, params):
@@ -468,8 +472,8 @@ class B_removal_organicsolvent:
         delta_H_conc, delta_OH_conc = self.calculate_delta_concentrations(pH_aft, pH_ini, pOH_ini, pOH_aft)
         HCl_mass32 = self.calculate_HCl_demand(delta_H_conc, delta_OH_conc, m_in, density_enriched_brine, density_initial_brine, vec_end, constants)
 
-        organic, waste_organic, water_SX_strip = self.calculcate_organicsolvent_demand(density_enriched_brine, m_in, life, constants)
-        nat_boron, sodium_hydroxide, water_sodium_hydroxide, boron_mass = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in, constants)
+        organic, waste_organic, water_SX_strip = self.calculcate_organicsolvent_demand(density_enriched_brine, m_in, life, recycling_rate, constants)
+        nat_boron, sodium_hydroxide, water_sodium_hydroxide, boron_mass = self.calculate_NaOH_and_boron_precipitates(vec_end, m_in, sodiumhydroxide_solution, constants)
 
         water_sum = water_sodium_hydroxide + water_SX_strip
         m_output = m_in - boron_mass
@@ -685,6 +689,7 @@ class Li_adsorption:
         T_out = site_parameters['annual_airtemp']
         deposit_type = site_parameters['deposit_type']
         process_sequence = site_parameters['process_sequence']
+        print(f'Running function with: {params}')
 
         Li = constants['Li']
         C = constants['C']
@@ -698,8 +703,11 @@ class Li_adsorption:
         heat_loss = params.get('heat_loss', constants['heat_loss'])
 
         adsorb_capacity_salar = params.get('adsorb_capacity_salar', constants['adsorb_capacity_salar'])
+
         adsorp_capacity = params.get('adsorp_capacity', constants['adsorp_capacity'])
         Li_out_adsorb = params.get('Li_out_adsorb', constants['Li_out_adsorb'])
+        water_adsorbent_factor = params.get('water_adsorption_factor', constants['water_adsorption_factor'])
+        electricity_adsorption = params.get('electricity_adsorption', constants['electricity_adsorption'])
 
         adsorbent_loss = prod * ((2 * Li) / (2 * Li + C + 3 * O)) * 1.25
         waste_adsorbent = -adsorbent_loss
@@ -711,7 +719,7 @@ class Li_adsorption:
         adsorbent = (adsorbent_invest / life) + adsorbent_loss
 
         if deposit_type == 'salar':
-            water_adsorbent = 100 * adsorbent_invest
+            water_adsorbent = water_adsorbent_factor * adsorbent_invest
             mg_index = process_sequence.index('Mg_removal_sodaash') if 'Mg_removal_sodaash' in process_sequence else -1
             li_index = process_sequence.index('Li_adsorption') if 'Li_adsorption' in process_sequence else -1
 
@@ -720,10 +728,10 @@ class Li_adsorption:
             else:
                 E_adsorp = (((T_desorp - T_out) * hCHH * water_adsorbent) + ((T_adsorp - T_out) * hCHH_bri * m_in) / 10 ** 6) / heat_loss
         else:
-            water_adsorbent = 100 * adsorbent_invest
+            water_adsorbent = water_adsorbent_factor * adsorbent_invest
             E_adsorp = (((T_desorp - T_out) * hCHH * water_adsorbent) / 10 ** 6) / heat_loss
 
-        elec_adsorp = 0.73873739 * 10 ** (-3) * (m_in + water_adsorbent)
+        elec_adsorp = electricity_adsorption * (m_in + water_adsorbent)
         m_output = water_adsorbent
 
         df_data = {
@@ -909,7 +917,7 @@ class Li_adsorption:
         waste_ratio = params.get('waste_ratio',constants['waste_ratio'])
 
         print('Using liquid waste from centrifuge_TG for adsorption or ion exchanger')
-        print(f'Water saved due to re-circulation: {-df_centrifuge_TG.iloc[3,1] / df_adsorption.iloc[3,1] * 100} %')
+        print(f'Water saved due to re-circulation: {df_centrifuge_TG.iloc[3,1] / df_adsorption.iloc[3,1] * 100} %')
 
         try :
             liquid_waste_centrifuge_TG = df_centrifuge_TG.iloc[3,1]
@@ -917,7 +925,6 @@ class Li_adsorption:
                 liquid_waste_centrifuge_TG = -liquid_waste_centrifuge_TG
             print('Liquid waste from centrifuge_TG:',liquid_waste_centrifuge_TG)
 
-            waste_ratio = 0.1
             new_value = df_adsorption.iloc[3,1] - (1 - waste_ratio) * liquid_waste_centrifuge_TG
             print(new_value)
 
@@ -927,8 +934,8 @@ class Li_adsorption:
                 df_adsorption.loc[3,'per kg'] = new_value_kg
                 print('Liquid waste from centrifuge_TG used for Li-adsorption')
 
-                df_centrifuge_TG.loc[3,'Values'] = -(waste_ratio * liquid_waste_centrifuge_TG)
-                df_centrifuge_TG.loc[3,'per kg'] = -(
+                df_centrifuge_TG.loc[3,'Values'] = (waste_ratio * liquid_waste_centrifuge_TG)
+                df_centrifuge_TG.loc[3,'per kg'] = (
                         (waste_ratio * liquid_waste_centrifuge_TG) / df_centrifuge_TG.iloc[0,1])
 
                 if T_desorp > T_Liprec :
@@ -1294,7 +1301,7 @@ class ion_exchange_L:
 
         # Calculate the required values
         elec_IX = elec_IX_factor * m_in  # Electricity demand for ion exchanger [kWh]
-        water_IX = water_IX_factor * m_in  # Required mass of deionized water [kg]
+        water_IX = (water_IX_factor * m_in)*0.5  # Required mass of deionized water [kg]
         HCl_IX = HCl_IX_factor * m_in  # HCl demand for ion exchanger [kg]
         NaOH_IX = NaOH_IX_factor * m_in  # NaOH demand for ion exchanger [kg]
         heat_IX = heat_IX_factor * m_in  # Thermal energy waste for ion exchanger [MJ]
@@ -1349,7 +1356,7 @@ class ion_exchange_L:
             'water_NF': None
         }
 
-    def update_IX(self, df_ion_exchange_L, df_triple_evaporator):
+    def update_IX( df_ion_exchange_L, df_triple_evaporator):
         water_evap = df_triple_evaporator.iloc[-1, 1]
         new_value = df_ion_exchange_L.iloc[3, 1] - water_evap
         if new_value >= 0:
@@ -1373,7 +1380,7 @@ class ion_exchange_H:
     def __init__(self, custom_name=None):
         self.custom_name = custom_name
 
-    def execute(self, site_parameters, m_in, constants, params, water_evap):
+    def execute(self, site_parameters, m_in, water_evap, constants, params):
         process_name = self.custom_name if self.custom_name else "df_ion_exchange_H"
 
         # Retrieve parameters, falling back to constants if not provided
@@ -1442,7 +1449,7 @@ class ion_exchange_H:
             'water_NF': None
         }
 
-    def update_IX(self, df_ion_exchange_H, df_triple_evaporator):
+    def update_IX(df_ion_exchange_H, df_triple_evaporator):
         water_evap = df_triple_evaporator.iloc[-1, 1]
         new_value = df_ion_exchange_H.iloc[3, 1] - water_evap
 
@@ -1958,14 +1965,15 @@ class CentrifugeBase:
         self.waste_solid_factor_key = waste_solid_factor_key
         self.recycle_factor_key = recycle_factor_key
 
-    def execute(self, prod, site_parameters, m_in, motherliq=None):
+    def execute(self, prod, site_parameters, m_in, motherliq=None, constants=None, params=None):
+        print(f"Executing {self.process_name} with params: {self.params}")
         density_pulp = site_parameters[self.density_key]
         elec_centri = 1.3 * m_in / (density_pulp * 1000)
 
         prod_factor = self.params.get(self.prod_factor_key, self.constants[self.prod_factor_key]) if self.prod_factor_key else None
-        waste_liquid_factor = self.params.get(self.waste_liquid_factor_key, self.constants[self.waste_liquid_factor_key]) if self.waste_liquid_factor_key else None
+        waste_liquid_factor = None
         waste_solid_factor = self.params.get(self.waste_solid_factor_key, self.constants[self.waste_solid_factor_key]) if self.waste_solid_factor_key else None
-        recycle_factor = self.params.get(self.recycle_factor_key, self.constants[self.recycle_factor_key]) if self.recycle_factor_key else None
+        recycle_factor = None
 
         m_output = prod_factor * prod if prod_factor is not None else m_in - (waste_liquid_factor * m_in if waste_liquid_factor else 0)
 
@@ -1973,16 +1981,14 @@ class CentrifugeBase:
 
         if motherliq is not None:
             recycled_waste = motherliq
-            waste_liquid = -(m_in - motherliq - m_output)
+            waste_liquid = (m_in - motherliq - m_output)
         else:
-            if waste_liquid_factor is not None:
-                waste_liquid = (m_in - m_output) * waste_liquid_factor
+            waste_liquid = (m_in - m_output)
 
         if waste_solid_factor is not None:
             waste_solid = (m_in - m_output) * waste_solid_factor
 
-        if recycle_factor is not None:
-            recycled_waste = waste_liquid * recycle_factor
+
 
         variables = ['m_output', 'm_in', 'elec']
         values = [m_output, m_in, elec_centri]
@@ -1996,6 +2002,8 @@ class CentrifugeBase:
         if recycled_waste:
             variables.append('recycled_waste')
             values.append(recycled_waste)
+
+
 
         df_data = {
             "Variables": [f"{var}_{self.process_name}" for var in variables],
@@ -2071,7 +2079,8 @@ class CentrifugePurification:
         process_name = self.process_name if self.process_name else f"df_centrifuge_purification_{waste.strip().lower()}"
 
         # Get the electricity factor from params or constants
-        elec_factor = self.params.get('centrifuge_electricity', self.constants['centrifuge_electricity'])
+        print(f'Electricity param: {self.params.get("centrifuge_electricity", self.constants["centrifuge_electricity"])}')
+        elec_factor = 0.01
         elec_centri = waste * elec_factor
         m_output = m_in - waste
 
@@ -2186,7 +2195,7 @@ class rotary_dryer :
 
         E_dry = (rotarydryer_heat * prod * 7) / heat_loss  # Thermal energy demand [MJ]
         elec_dry = rotarydryer_electricity * prod * 0.3  # Electricity demand [kWh]
-        waste_heat = rotarydryer_waste_heat * E_dry  # Waste heat [MJ]
+        waste_heat = - rotarydryer_waste_heat * E_dry  # Waste heat [MJ]
         m_output = prod
 
         df_data = {
@@ -2292,6 +2301,7 @@ def setup_site(eff, site_parameters, constants, params=None):
         params = {}
 
     vec_ini = site_parameters['vec_ini']  # vector of concentrations at the beginning of the process sequence
+    print('vec_ini in setup_site', vec_ini)
     Li_conc = vec_ini[0]  # concentration of lithium in the brine
 
     Dens_ini = site_parameters['density_brine']  # initial density of brine
@@ -2373,6 +2383,7 @@ class ProcessManager:
         self.log_folder = "C:/Users/Schenker/PycharmProjects/Geothermal_brines/data/logging_files"
         self.constants = constants
         self.params = params if params else {}
+        print(self.params)
 
     def _check_dependencies(self, current_process_base_name, executed_processes):
         dependencies = self.process_dependencies.get(current_process_base_name, [])
@@ -2386,6 +2397,7 @@ class ProcessManager:
 
     def _get_args_for_process(self,process_instance) :
         process_type = type(process_instance)
+        print(self.params)
 
         if process_type == SiFeRemovalLimestone :
             return (self.site_parameters,self.m_in,self.constants,self.params)
@@ -2462,6 +2474,8 @@ class ProcessManager:
                 unique_process_name = f"{process_name}_{process_counts[process_name]}"
 
             updated_args = self._get_args_for_process(process_instance)
+            #print(f"Arguments for {unique_process_name}: {updated_args}")
+
             self.logger.info(f"Arguments for {unique_process_name}: {updated_args}")
 
             self._check_dependencies(process_name, executed_processes)
@@ -2533,6 +2547,8 @@ class ProcessManager:
                 and not 'Li_adsorption_1' in self.data_frames :
             self.data_frames['ion_exchange_L_1'] = ion_exchange_L.update_IX(self.data_frames['ion_exchange_L_1'],
                                                                             self.data_frames['triple_evaporator_1'])
+
+
 
         if 'ion_exchange_H_1' in self.data_frames and 'triple_evaporator_1' in self.data_frames \
                 and not 'Li_adsorption_1' in self.data_frames :
@@ -2627,6 +2643,7 @@ class ProcessManager:
         """
         vec_ini = site_parameters['vec_ini']  # vector of concentrations at the beginning
         literature_Li_conc = vec_ini[0]  # concentration of lithium in the brine
+        print(f'Run simulation with literature data: {literature_Li_conc}')
         literature_eff = site_parameters['Li_efficiency']  # efficiency of lithium extraction
 
         results_dict = {}
@@ -2638,6 +2655,7 @@ class ProcessManager:
         filename = f"{abbrev_loc}_eff{literature_eff}_Li{literature_Li_conc}.txt"
 
         initial_data = extract_data(op_location,abbrev_loc,literature_Li_conc)
+
 
         prod,m_pumpbr = setup_site(literature_eff,initial_data[abbrev_loc], constants, params = None)
 
@@ -2651,8 +2669,7 @@ class ProcessManager:
                                filename=f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\rawdata\\ResourceCalculator\\output_{abbrev_loc}.csv')
 
         results_dict[literature_eff][literature_Li_conc] = {
-            'data_frames' : result_df,
-            'resources_per_kg' : (energy_per_prod_mass,elec_per_prod_mass,water_per_prod_mass)
+            'data_frames' : result_df
             }
 
         base_directory = f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\figures\\results_{abbrev_loc}'
@@ -2677,44 +2694,115 @@ class ProcessManager:
 
         return results_dict,literature_eff,literature_Li_conc
 
-    def run_sensitivity_analysis_old(self,filename,op_location,abbrev_loc,Li_conc,eff) :
+
+    def run_simulation_with_brinechemistry_data(self,site_name,abbrev_loc,process_sequence,site_data,
+                                                constants, params) :
+        initial_data = site_data
+        literature_eff = initial_data['Li_efficiency']
+        literature_Li_conc = initial_data['vec_ini'][0]
+
+        results_dict = {}
+        if literature_eff not in results_dict :
+            results_dict[literature_eff] = {}
+
+        filename = f"{abbrev_loc}_eff{literature_eff}_Li{literature_Li_conc}.txt"
+        prod,m_pumpbr = setup_site(literature_eff,initial_data,constants)
+        manager = ProcessManager(initial_data,m_pumpbr,prod,process_sequence,filename,constants,params=None)
+
+        result_df = manager.run(filename)
+
+        results_dict[literature_eff][literature_Li_conc] = {
+            'data_frames' : result_df
+            }
+
+        return results_dict, literature_eff, literature_Li_conc
+
+    def run_simulation_with_brinechemistry_data_old(self,op_location,abbrev_loc,process_sequence,site_parameters,constants,
+                                            params) :
+        """
+        Run the simulation with specific literature values for efficiency and lithium concentration.
+
+        Parameters:
+        - op_location: Operating location
+        - abbrev_loc: Abbreviation for location
+        - process_sequence: Sequence of processes
+        - literature_eff: Efficiency value from literature
+        - literature_Li_conc: Lithium concentration value from literature
+        """
+        vec_ini = site_parameters['vec_ini']  # vector of concentrations at the beginning
+        literature_Li_conc = vec_ini[0]  # concentration of lithium in the brine
+        print(f'Run simulation with literature data: {literature_Li_conc}')
+        literature_eff = site_parameters['Li_efficiency']  # efficiency of lithium extraction
+
         results_dict = {}
 
-        for param,values in SENSITIVITY_RANGES.items() :
-            for value in values :
-                self.params[param] = value
-                result_key = f"{param}|{value}"
-                try :
-                    # Ensure the initial data and setup are correct for each sensitivity analysis
-                    initial_data = extract_data(op_location,abbrev_loc,Li_conc)
-                    prod,m_pumpbr = setup_site(eff,initial_data[abbrev_loc],self.constants,self.params)
+        # Ensure the nested dictionary for each efficiency exists
+        if literature_eff not in results_dict :
+            results_dict[literature_eff] = {}
 
-                    # Initialize ProcessManager for each iteration
-                    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,self.process_sequence,filename,
-                                             self.constants,self.params)
-                    print(self.params)
+        filename = f"{abbrev_loc}_eff{literature_eff}_Li{literature_Li_conc}.txt"
 
-                    df_results = manager.run(filename)
-                    print(result_key)
-                    if param not in results_dict :
-                        results_dict[param] = {}
-                    results_dict[param][value] = {
-                        'data_frames' : df_results
-                        }
-                except Exception as e :
-                    print(f"Error running sensitivity analysis for {param}={value}: {e}")
-        return results_dict
+        initial_data = extract_data(op_location,abbrev_loc,literature_Li_conc, vec_ini)
+
+
+        prod,m_pumpbr = setup_site(literature_eff,initial_data[abbrev_loc], constants, params = None)
+
+        manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,constants,params = None)
+
+        result_df = manager.run(filename)
+
+        calculator = ResourceCalculator(result_df)
+        results = calculator.calculate_resource_per_prod_mass(production_mass=prod)  # example production mass
+        calculator.save_to_csv(results,
+                               filename=f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\rawdata\\ResourceCalculator\\output_{abbrev_loc}.csv')
+
+        results_dict[literature_eff][literature_Li_conc] = {
+            'data_frames' : result_df
+            }
+
+
+
+        base_directory = f'C:\\Users\\Schenker\\PycharmProjects\\Geothermal_brines\\results\\figures\\results_{abbrev_loc}'
+
+        # Check if the base directory exists, if not create it
+        if not os.path.exists(base_directory) :
+            os.makedirs(base_directory)
+
+        # Create a new directory for the specific location
+        location_directory = os.path.join(base_directory,f'{abbrev_loc}_LCI')
+        if not os.path.exists(location_directory) :
+            os.makedirs(location_directory)
+
+        # Path for the .pkl file
+        file_path = os.path.join(location_directory,
+                                 f"results_dict_{abbrev_loc}_{literature_Li_conc}_{literature_eff}.pkl")
+
+        with open(file_path,"wb") as f :
+            pickle.dump(results_dict,f)
+
+        print(results_dict)
+
+        print("Simulation completed and results stored in the dictionary.")
+
+        return results_dict,literature_eff,literature_Li_conc
+
+
 
     def run_sensitivity_analysis(self,filename,op_location,abbrev_loc,Li_conc,eff) :
+
         # Store the original parameters
-        original_params = self.params.copy()
+        original_params = (self.constants.copy())
 
         results_dict = {}
 
         for param,values in SENSITIVITY_RANGES.items() :
+            # Reset to original parameters before each run
+            self.params = original_params.copy()
             for value in values :
-                # Reset to original parameters before each run
-                self.params = original_params.copy()
+
+                # Ensure no duplicate keys by checking and removing if exists
+                if param in self.params :
+                    del self.params[param]
 
                 # Update the parameter with the new value
                 self.params[param] = value
@@ -2730,6 +2818,12 @@ class ProcessManager:
                                              self.constants,self.params)
 
                     df_results = manager.run(filename)
+                    calculator = ResourceCalculator(df_results)
+                    results = calculator.calculate_resource_per_prod_mass(
+                        production_mass=prod)  # example production mass
+                    result_key_updated = f"{param}_{value}"
+                    calculator.save_to_csv(results, rf'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\ResourceCalculator\Sensitivities\output_{abbrev_loc}_{result_key_updated}.csv')
+
                     print(result_key)
                     if param not in results_dict :
                         results_dict[param] = {}
@@ -2995,6 +3089,41 @@ class ResourceCalculator :
         compiled_data.to_csv(output_path)
         print(f"Data from ResourceCalculator saved to '{output_path}'")
 
+
+def create_process_instance(process_class, constants, params, custom_name=None):
+    try:
+        if custom_name is not None:
+            return process_class(constants=constants, params=params, custom_name=custom_name)
+        else:
+            return process_class(constants=constants, params=params)
+    except TypeError:
+        # If the process class does not accept constants and params
+        if custom_name is not None:
+            return process_class(custom_name=custom_name)
+        else:
+            return process_class()
+
+
+
+
+def create_process_instance_old(process_class, constants, params, custom_name=None):
+    try:
+        if custom_name:
+            return process_class(constants=constants, params=params, custom_name=custom_name)
+        else:
+            return process_class(constants=constants, params=params)
+    except TypeError as e:
+        print(f"Error: {e}")
+        if "missing 1 required positional argument" in str(e) and custom_name:
+            return process_class(constants, params, custom_name)
+        elif "missing 3 required positional arguments" in str(e):
+            return process_class(constants, params, custom_name)
+        elif custom_name:
+            return process_class(custom_name=custom_name)
+        else:
+            return process_class()
+
+
 process_function_map = {
     "evaporation_ponds": lambda constants, params, custom_name=None: create_process_instance(evaporation_ponds, constants, params, custom_name),
     "Centrifuge_general": lambda constants, params, custom_name=None: create_process_instance(Centrifuge_general, constants, params, custom_name),
@@ -3026,6 +3155,9 @@ process_function_map = {
     "sulfate_removal_calciumchloride": lambda constants, params, custom_name=None: create_process_instance(sulfate_removal_calciumchloride, constants, params, custom_name),
     "nanofiltration": lambda constants, params, custom_name=None: create_process_instance(nanofiltration, constants, params, custom_name)
 }
+
+
+
 
 
 process_function_map_2 = {

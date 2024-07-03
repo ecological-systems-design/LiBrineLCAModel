@@ -100,6 +100,8 @@ def calculate_impacts_for_brine_chemistry(activity,methods,dict_results,site_nam
     eff_to_use = [literature_eff] if literature_eff is not None else eff_range
     Li_conc_to_use = [literature_Li_conc] if literature_Li_conc is not None else Li_conc_range
 
+    print(f'Lithium concentration to use: {Li_conc_to_use}')
+
     # Check if either literature values or ranges are provided
     if len(eff_to_use) == 0 or len(Li_conc_to_use) == 0 :
         raise ValueError(
@@ -110,6 +112,9 @@ def calculate_impacts_for_brine_chemistry(activity,methods,dict_results,site_nam
         for Li in Li_conc_to_use :
             print('abbrev_loc:',abbrev_loc)
             site_db = change_exchanges_in_database(eff,Li,site_name,abbrev_loc,dict_results)
+
+            activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+
 
             # Calculate impacts for the activity
             impacts = calculate_impacts(activity,methods)
@@ -130,15 +135,19 @@ def calculate_impacts_for_brine_chemistry(activity,methods,dict_results,site_nam
 def calculate_impacts_for_sensitivity_analysis(activity,methods,dict_results,site_name,ei_name,abbrev_loc,
                                                threshold=1e-30) :
     site_db = bd.Database(site_name)
+
     ei_reg = bd.Database(ei_name)
 
     dict_impacts = {}
 
     # Calculate impacts for each parameter combination and store them
     for param,values_dict in dict_results.items() :
+        print(param)
         for value in values_dict.keys() :
+
             # Update the database with the new parameter and value
             site_db = change_exchanges_in_database_sensitivity(param,value,site_name,abbrev_loc,dict_results)
+
 
             # Calculate impacts for the activity
             impacts = calculate_impacts(activity,methods)
@@ -418,43 +427,44 @@ def calculate_battery_impacts(battery_act,methods,site_db,ei_reg,country) :
     return dict_impacts
 
 
-def save_battery_results_to_csv(directory,results,abbrev_loc,battery_act) :
+def save_battery_results_to_csv(directory, results, abbrev_loc, battery_act, energy_type):
     # Mapping of battery names to filenames
     battery_files = {
-        "NMC811" : "NMC811_results.csv",
-        "LFP" : "LFP_results.csv"
-        }
+        "NMC811": f"NMC811_results_{energy_type}.csv",
+        "LFP": f"LFP_results_{energy_type}.csv"
+    }
 
     # Extract battery type from the activity name
     battery_type = None
-    for key in battery_files.keys() :
-        if key in battery_act['name'] :
+    for key in battery_files.keys():
+        if key in battery_act['name']:
             battery_type = key
             break
 
     # Check if the battery type was found and get the filename
-    if battery_type :
-        filename = os.path.join(directory,battery_files[battery_type])
-    else :
+    if battery_type:
+        filename = os.path.join(directory, battery_files[battery_type])
+    else:
         print('Battery type not recognized')
         return  # Exit the function early if battery type is not recognized
 
     # Check if the directory exists; if not, create it
-    os.makedirs(directory,exist_ok=True)
+    os.makedirs(directory, exist_ok=True)
 
     # Prepare to write results to CSV
-    headers = ['Method',f'Impact Score {abbrev_loc}']
+    headers = ['Method', 'Site', 'Impact Score']
     new_file = not os.path.exists(filename)
 
     method_dict = {
-        "('IPCC 2021', 'climate change', 'global warming potential (GWP100)')" : 'IPCC 2021',
-        "('AWARE regionalized', 'Annual', 'All')" : "AWARE"}
+        "('IPCC 2021', 'climate change', 'global warming potential (GWP100)')": 'IPCC 2021',
+        "('AWARE regionalized', 'Annual', 'All')": "AWARE"
+    }
 
-    with open(filename,'a',newline='') as csvfile :
+    with open(filename, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        if new_file :
+        if new_file:
             writer.writerow(headers)  # Write headers if it's a new file
-        for method,score in results.items() :
+        for method, score in results.items():
             # Check if method is in method_dict and use the corresponding value if it is
-            method_name = method_dict.get(method,method)
-            writer.writerow([f'{method_name} {abbrev_loc}',score])
+            method_name = method_dict.get(method, method)
+            writer.writerow([method_name, abbrev_loc, score])

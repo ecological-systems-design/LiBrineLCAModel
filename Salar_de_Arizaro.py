@@ -25,12 +25,10 @@ site_location = "Ari"
 # Biosphere
 if __name__ == '__main__':
 
-    project = f'Site_{site_name}_7'
-
     project = "default"
     #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
-    for i in range(1,6):
-        project_old = f'Site_{site_name}_{i}'
+    for i in range(1,24):
+        project_old = f'Site_{site_name}_{i}_with_adapted_negative_wastewater'
         if project_old in bd.projects:
             print(f'Project {project_old} exists')
             bd.projects.delete_project(project_old,delete_dir=True)
@@ -38,7 +36,7 @@ if __name__ == '__main__':
         else:
             print(f'Project {project_old} does not exist')
 
-    project = f'Site_{site_name}_7'
+    project = f'Site_{site_name}_23_sensitivity_analysis'
 
     bd.projects.set_current(project)
     print(project)
@@ -51,8 +49,9 @@ if __name__ == '__main__':
     # print all brightway2 databases
     print(bd.databases)
 
+
     eff = 0.77
-    Li_conc = 0.01
+    Li_conc = 0.026065574
     abbrev_loc = "Ari"
     op_location = "Salar de Arizaro"
 
@@ -63,18 +62,20 @@ if __name__ == '__main__':
 
     process_sequence = [
         evaporation_ponds(),
+        Mg_removal_sodaash(),
+        acidification(),
         Li_adsorption(),
         triple_evaporator(),
         ion_exchange_L(),
         DLE_evaporation_ponds(),
         Liprec_TG(),
-        CentrifugeTG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeTG(DEFAULT_CONSTANTS,{}),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeBG(DEFAULT_CONSTANTS, {}),
         washing_BG(),
-        CentrifugeWash(DEFAULT_CONSTANTS, SENSITIVITY_RANGES),
+        CentrifugeWash(DEFAULT_CONSTANTS, {}),
         rotary_dryer()
     ]
 
@@ -84,13 +85,13 @@ if __name__ == '__main__':
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
-
+    print('1')
     # 2. Initialize the ProcessManager
     manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
-
+    print('2')
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
-
+    print('3')
     max_eff = 0.77
     min_eff = 0.5
     eff_steps = 0.3
@@ -103,12 +104,32 @@ if __name__ == '__main__':
                                                                Li_conc_min, DEFAULT_CONSTANTS, params=None)
 
     print(results)
+    process_sequence = [
+        evaporation_ponds(),
+        Mg_removal_sodaash(),
+        acidification(),
+        Li_adsorption(),
+        triple_evaporator(),
+        ion_exchange_L(),
+        DLE_evaporation_ponds(),
+        Liprec_TG(),
+        CentrifugeTG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        washing_TG(),
+        dissolution(),
+        Liprec_BG(),
+        CentrifugeBG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        washing_BG(),
+        CentrifugeWash(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
+        rotary_dryer()
+        ]
 
     # 4. Run the sensitivity analysis
-    #manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename,
+    constants=DEFAULT_CONSTANTS,
+    params=SENSITIVITY_RANGES)
 
     eff = 0.77
-    #sensitivity_results = manager.run_sensitivity_analysis(filename, op_location, abbrev_loc, Li_conc, eff)
+    sensitivity_results = manager.run_sensitivity_analysis(filename, op_location, abbrev_loc, Li_conc, eff)
 
 
 
@@ -138,22 +159,14 @@ if __name__ == '__main__':
 
     # # 4. Run the sensitivity analysis
     # manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,DEFAULT_CONSTANTS,
-    #                          params={})
-    #
+    #                           params={})
+    # #
     # eff = 0.77
     # sensitivity_results = manager.run_sensitivity_analysis(filename,op_location,abbrev_loc,Li_conc,eff)
     #
-    # sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity, method_list, sensitivity_results, site_name, ei_name, abbrev_loc)
+    print(sensitivity_results)
+    sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity, method_list, sensitivity_results, site_name, ei_name, abbrev_loc)
     #
     #
-    # saving_sensitivity_results(sensitivity_impacts, abbrev_loc, save_dir= r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results')
-
-    impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range,
-                                                        literature_eff=None, literature_Li_conc=None)
-    #print(impacts)
-
-    # saving results
-
-    saving_LCA_results(impacts, abbrev_loc)
+    saving_sensitivity_results(sensitivity_impacts, abbrev_loc, save_dir= r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results')
 

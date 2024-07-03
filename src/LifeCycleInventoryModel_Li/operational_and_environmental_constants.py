@@ -113,26 +113,29 @@ DEFAULT_CONSTANTS = {
     'water_purification_waste_factor' : 0.25,
     'water_purification_new_factor' : 0.25,
     'water_purification_elec_factor' : 2.783,
+    'water_adsorption_factor': 100,
+    'electricity_adsorption':0.73873739 * 10 ** (-3)
 }
 
 
 SENSITIVITY_RANGES = {
     'dissol_cons': [0.03, 0.04, 0.05, 0.06, 0.07],
-    'T_Liprec': [70, 75, 80, 85],
-    'heat_loss': [0.5, 0.6, 0.7, 0.80, 0.90],
-    'T_deion1': [70, 75, 80, 85, 90],
-    'T_dissol': [5, 10, 15, 20],
-    'T_RO': [30, 35, 40, 45, 50],
-    'T_evap': [60, 65, 70, 75, 80],
-    'T_desorp': [30, 35, 40, 45, 50],
+    'T_Liprec': [40, 60, 80, 90],
+    'heat_loss': [0.3, 0.6, 0.90],
+    'T_deion1': [50, 75, 100],
+    'T_dissol': [5,  15,  50],
+    'T_RO': [20, 40,  80],
+    'T_evap': [60, 70, 80, 90],
+    'T_desorp': [30, 40, 50, 90],
     'T_adsorp': [40, 50, 60, 70, 80, 90],
-    'T_boron': [5, 10, 15, 20],
-    'T_Mg_soda': [50, 55, 60, 65, 70],
-    'T_motherliq': [70, 75, 80, 85, 90],
-    'T_nano': [40, 45, 50, 55, 60],
-    'T_IX': [60, 65, 70, 75, 80],
-    'adsorp_capacity': [0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.02, 0.03],
-    'Li_out_adsorb': [5000, 7500, 10000, 12500, 15000],
+    'T_boron': [5, 15, 35],
+    'T_Mg_soda': [30, 50, 70, 90],
+    'T_motherliq': [30, 50, 70, 90],
+    'T_nano': [30, 50, 70, 90],
+    'T_IX': [30, 50, 70, 90],
+    'adsorp_capacity': [0.005, 0.008, 0.01, 0.03,0.6, 1.0],
+    'adsorp_capacity_salar': [0.005, 0.008, 0.01, 0.03,0.6, 1.0],
+    'Li_out_adsorb': [5000, 10000, 15000],
     'Li_out_RO': [2500, 5000, 7500, 10000],
     'Li_in_RO': [2000, 2250, 2500, 2750, 3000],
     'Li_out_evaporator_geothermal': [20000, 25000, 30000, 35000, 40000],
@@ -172,30 +175,23 @@ SENSITIVITY_RANGES = {
     'E_evap_factor' : [0.5 * 145,1.0 * 145,2.0 * 145,3.0 * 145,4.0 * 145],
     'elec_evap_factor' : [0.5 * 2,1.0 * 2,2.0 * 2,3.0 * 2,4.0 * 2],
     'evaporator_steam_factor' : [0.1,0.2,0.4,0.6,0.8],
-    'CO2_factor': [5.0, 10.0, 20.0, 30.0, 40.0],
+    'CO2_factor': [5.0, 10.0, 20.0],
     'washing_factor': [1 , 2, 4, 6, 8],
-    'centrifuge_TG_prod_factor' : [0.75,1.5,3.0,4.5,6.0],
-    'centrifuge_TG_waste_liquid_factor' : [-0.4,-0.8,-1.6,-2.4,-3.2],
-    'centrifuge_TG_recycle_factor' : [0.1,0.2,0.4,0.6,0.8],
-    'centrifuge_BG_prod_factor' : [0.75,1.5,3.0,4.5,6.0],
-    'centrifuge_BG_waste_liquid_factor' : [-0.5,-1,-2,-3,-4],
-    'centrifuge_wash_prod_factor' : [0.75,1.5,3.0,4.5,6.0],
-    'centrifuge_wash_waste_liquid_factor' : [-0.5,-1,-2,-3,-4],
     'centrifuge_electricity': [0.005, 0.01, 0.02, 0.03, 0.04],
     'beltfilter_electricity' : [0.2, 0.4, 0.6, 0.8, 1.0],
-    'rotarydryer_heat' : [0.15,0.3,0.6,0.9,1.2],  # Sensitivity ranges for thermal energy factor
+    'rotarydryer_heat' : [0.15,0.3,0.6,0.9,1.2,2],  # Sensitivity ranges for thermal energy factor
     'rotarydryer_electricity' : [0.5,1,2,3,4],  # Sensitivity ranges for electricity factor
     'rotarydryer_waste_heat' : [0.25,0.5,1,1.5,2],  # Sensitivity ranges for waste heat factor
     'water_purification_waste_factor' : [0.25,0.5,0.75,1],
     'water_purification_new_factor' : [0.25,0.5,0.75,1],
-    'water_purification_elec_factor' : [1.3915,2.783,5.566,8.349,11.132]
+    'water_purification_elec_factor' : [1.3915,2.783,5.566,8.349,11.132],
+    'water_adsorption_factor': [10, 50, 100, 400, 600],
+    'electricity_adsorption': [0.2 * 0.73873739 * 10 ** (-3), 0.73873739 * 10 ** (-3), 3 * 0.73873739 * 10 ** (-3)]
 }
 
-SENSITIVITY_RANGES = {
-    'T_Liprec': [1000, 10, 20000],
-    'Li_out_evaporator_geothermal': [20000, 25000, 30000, 35000, 40000],
-    'Li_out_EP_DLE': [1.8, 2.0, 2.2, 2.4, 2.6],
-}
+SENSITIVITY_RANGES_old= {
+    'T_Liprec': [40, 60, 80, 90]
+    }
 
 
 # Define custom percentages for each parameter
@@ -212,4 +208,21 @@ custom_percentages = {
     'evaporation_rate': 0.20
 }
 
+
+if __name__ == '__main__' :
+    import pandas as pd
+
+    # Convert DEFAULT_CONSTANTS to DataFrame
+    df_constants = pd.DataFrame(list(DEFAULT_CONSTANTS.items()), columns=['Constant', 'Value'])
+
+    # Convert SENSITIVITY_RANGES to DataFrame
+    df_sensitivity = pd.DataFrame(list(SENSITIVITY_RANGES.items()), columns=['Parameter', 'Range'])
+
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter('sensitivity_values.xlsx', engine='xlsxwriter') as writer:
+        # Write each DataFrame to a different worksheet.
+        df_constants.to_excel(writer, sheet_name='DEFAULT_CONSTANTS', index=False)
+        df_sensitivity.to_excel(writer, sheet_name='SENSITIVITY_RANGES', index=False)
+
+    print("Excel file created successfully.")
 
