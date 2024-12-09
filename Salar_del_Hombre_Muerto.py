@@ -22,7 +22,7 @@ site_location = "Hom"
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}_17'
+    project = f'Site_{site_name}_18'
     bd.projects.set_current(project)
     print(project)
 
@@ -43,37 +43,37 @@ if __name__ == '__main__' :
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
 
-
     process_sequence = [
         evaporation_ponds(),
+        transport_brine(),
         B_removal_organicsolvent(),
-        Centrifuge_general(custom_name=None),
+        Centrifuge_general(DEFAULT_CONSTANTS,{},custom_name=None),
         Mg_removal_sodaash(),
-        CentrifugeSoda(),
+        CentrifugeSoda(DEFAULT_CONSTANTS,{}),
         Mg_removal_quicklime(),
-        CentrifugeQuicklime(),
+        CentrifugeQuicklime(DEFAULT_CONSTANTS,{}),
         Liprec_TG(),
-        CentrifugeTG(),
+        CentrifugeTG(DEFAULT_CONSTANTS,{}),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(),
+        CentrifugeBG(DEFAULT_CONSTANTS,{}),
         washing_BG(),
-        CentrifugeWash(),
+        CentrifugeWash(DEFAULT_CONSTANTS,{}),
         rotary_dryer()
         ]
 
     # 1. Define your initial parameters
     print(f'before setting up site: {abbrev_loc}')
 
-    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc], constants=DEFAULT_CONSTANTS)
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename,DEFAULT_CONSTANTS, params={})
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -87,7 +87,7 @@ if __name__ == '__main__' :
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
                                                                min_eff, eff_steps, Li_conc_steps, Li_conc_max,
-                                                               Li_conc_min)
+                                                               Li_conc_min, DEFAULT_CONSTANTS, params={})
 
     print(results)
 

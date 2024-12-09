@@ -5,7 +5,6 @@ from src.BW2_calculations.setting_up_db_env import database_environment
 
 
 def create_inventory_map(abbrev_loc) :
-    print(abbrev_loc)
 
     if abbrev_loc == "Ola":
         heat_act = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
@@ -71,29 +70,45 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
 
             # Checking if the exchange needs to be updated
             if exc_name in inventory_map.keys() :
-                # Variable_name should get the according value from the dictionary
-                variable_name = inventory_map[exc_name]
-                print(variable_name)
-
-                # Check if filtered DataFrame is not empty
-                filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
-                if not filtered_var_df.empty :
-                    if variable_name == f"waste_liquid" :
-                        new_value = -filtered_var_df['per kg'].iloc[0] / 1000
-                        print(f'Is updated: {new_value}')
-                    else :
+                if exc_name == "heat and power co-generation, natural gas, 1MW electrical, lean burn" :
+                    exc_unit = exc.get('unit','Unit not specified')
+                    if exc_unit == "megajoule" :
+                        variable_name = "E_"
+                        filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
                         new_value = filtered_var_df['per kg'].iloc[0]
-
-                    # Check if old value and new value in exchange are the same. If yes, print a message
-                    if exc['amount'] == new_value :
-                        print(f'.')
-                    else :
-                        # Updating the exchange amount
                         exc['amount'] = new_value
                         exc.save()
-                        print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
-                else :
-                    print(f'Variable name {variable_name} not found in filtered DataFrame for activity {act_name}')
+                    elif exc_unit == "kilowatt hour" :
+                        variable_name = "elec_"
+                        filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
+                        new_value = filtered_var_df['per kg'].iloc[0]
+                        exc['amount'] = new_value
+                        exc.save()
+                else:
+
+                    # Variable_name should get the according value from the dictionary
+                    variable_name = inventory_map[exc_name]
+                    print(variable_name)
+
+                    # Check if filtered DataFrame is not empty
+                    filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
+                    if not filtered_var_df.empty :
+                        if variable_name == f"waste_liquid" :
+                            new_value = -filtered_var_df['per kg'].iloc[0] / 1000
+                            print(f'Is updated: {new_value}')
+                        else :
+                            new_value = filtered_var_df['per kg'].iloc[0]
+
+                        # Check if old value and new value in exchange are the same. If yes, print a message
+                        if exc['amount'] == new_value :
+                            print(f'.')
+                        else :
+                            # Updating the exchange amount
+                            exc['amount'] = new_value
+                            exc.save()
+                            print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
+                    else :
+                        print(f'Variable name {variable_name} not found in filtered DataFrame for activity {act_name}')
 
             elif exc_name.startswith('df_') and exc_type == 'production' :
                 filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith('m_output')]
@@ -141,90 +156,6 @@ def change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, dict_resul
     return site_db
 
 
-def change_exchanges_in_database_sensitivity_old(param, value, site_name, abbrev_loc, dict_results):
-    inventory_map = create_inventory_map(abbrev_loc)
-
-    # Selecting the specific dataframe based on the parameter and its value
-    if param not in dict_results or value not in dict_results[param]:
-        raise KeyError(f"Key '{param}|{value}' not found in dict_results")
-    print(param, value)
-    selected_dataframe = dict_results[param][value]['data_frames']
-    print(selected_dataframe)
-
-    # Assessing BW2_calculations database
-    site_db = bd.Database(site_name)
-
-    for act in site_db:
-        act_name = act['name']
-        print(act_name)
-
-        if act_name.startswith('df_'):
-            act_name = act_name[3:]
-
-        act_name = re.sub(r'_\d+$','',act_name)
-
-        # Filtering the dataframe based on the process name in the "Variable" column
-        if act_name in selected_dataframe:
-            filtered_df = selected_dataframe[act_name]
-
-            # Iterating over the exchanges of the activity
-            for exc in act.exchanges():
-                exc_name = exc.input['name']
-                exc_type = exc.get('type', 'Type not specified')
-
-                # Checking if the exchange needs to be updated
-                if exc_name in inventory_map.keys():
-                    # Variable_name should get the according value from the dictionary
-                    variable_name = inventory_map[exc_name]
-
-                    new_value = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]['per kg'].iloc[0]
-
-
-                    #check if old value and new value in exchange are the same. If yes, print a message
-                    if exc['amount'] == new_value:
-                        print(f'Old and new values are the same for {exc_name}. No change was made.')
-
-                    # Updating the exchange amount
-                    exc['amount'] = new_value
-                    exc.save()
-
-                elif exc_name.startswith('df_') and exc_type == 'production':
-                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_output')]['per kg'].iloc[0]
-                    #check if old value and new value in exchange are the same. If yes, print a message
-                    if exc['amount'] == new_value:
-                        print(f'Old and new values are the same for {exc_name}. No change was made.')
-
-                    # Updating the exchange amount
-                    exc['amount'] = new_value
-                    exc.save()
-
-                elif exc_name.startswith('df_') and exc_type == 'technosphere':
-                    new_value = filtered_df[filtered_df['Variables'].str.startswith('m_in')]['per kg'].iloc[0]
-                    #check if old value and new value in exchange are the same. If yes, print a message
-                    if exc['amount'] == new_value:
-                        print(f'Old and new values are the same for {exc_name}. No change was made.')
-
-                    # Updating the exchange amount
-                    exc['amount'] = new_value
-                    exc.save()
-
-                else:
-                    print(f'Exchange not found:', exc_name, exc_type)
-
-                # Print activity update status
-                act.save()
-
-    for activity in site_db:
-        #print("Activity:", activity, activity['type'])
-        # Loop through all exchanges for the current activity
-        for exchange in activity.exchanges():
-            exchange_type = exchange.get('type', 'Type not specified')
-            #print("\tExchange:", exchange.input, "->", exchange.amount, exchange.unit, exchange_type)
-
-    print("Database has been updated successfully.")
-    return site_db
-
-
 def normalize_name(name) :
     """
     Normalize the name by removing the prefix 'df_', suffixes, and underscores.
@@ -246,7 +177,6 @@ def extract_base_name(variable) :
     if len(parts) > 2 :
         return '_'.join(parts[2 :])
     return variable
-
 
 def match_activities(site_db,dataframe) :
     """
@@ -296,29 +226,44 @@ def change_exchanges_in_database_sensitivity(param,value,site_name,abbrev_loc,di
 
             # Checking if the exchange needs to be updated
             if exc_name in inventory_map.keys() :
-                # Variable_name should get the according value from the dictionary
-                variable_name = inventory_map[exc_name]
-                print(variable_name)
 
-                # Check if filtered DataFrame is not empty
-                filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
-                if not filtered_var_df.empty :
-                    if variable_name == f"waste_liquid":
-                        new_value = -filtered_var_df['per kg'].iloc[0]/1000
-                        print(f'Is updated: {new_value}')
-                    else:
+                if exc_name == "heat and power co-generation, natural gas, 1MW electrical, lean burn" :
+                    exc_unit = exc.get('unit','Unit not specified')
+                    if exc_unit == "megajoule" :
+                        variable_name = "E_"
+                        filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
                         new_value = filtered_var_df['per kg'].iloc[0]
-
-                    # Check if old value and new value in exchange are the same. If yes, print a message
-                    if exc['amount'] == new_value :
-                        print(f'.')
-                    else :
-                        # Updating the exchange amount
                         exc['amount'] = new_value
                         exc.save()
-                        print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
-                else :
-                    print(f'Variable name {variable_name} not found in filtered DataFrame for activity {act_name}')
+                    elif exc_unit == "kilowatt hour" :
+                        variable_name = "elec_"
+                        filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
+                        new_value = filtered_var_df['per kg'].iloc[0]
+                        exc['amount'] = new_value
+                        exc.save()
+                else:
+                    # Variable_name should get the according value from the dictionary
+                    variable_name = inventory_map[exc_name]
+
+                    # Check if filtered DataFrame is not empty
+                    filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith(variable_name)]
+                    if not filtered_var_df.empty :
+                        if variable_name == f"waste_liquid":
+                            new_value = -filtered_var_df['per kg'].iloc[0]/1000
+                            print(f'Is updated: {new_value}')
+                        else:
+                            new_value = filtered_var_df['per kg'].iloc[0]
+
+                        # Check if old value and new value in exchange are the same. If yes, print a message
+                        if exc['amount'] == new_value :
+                            print(f'.')
+                        else :
+                            # Updating the exchange amount
+                            exc['amount'] = new_value
+                            exc.save()
+                            print(f'Updated {exc_name} from {exc["amount"]} to {new_value}')
+                    else :
+                        print(f'Variable name {variable_name} not found in filtered DataFrame for activity {act_name}')
 
             elif exc_name.startswith('df_') and exc_type == 'production' :
                 filtered_var_df = filtered_df[filtered_df['Variables'].str.startswith('m_output')]
@@ -356,12 +301,12 @@ def change_exchanges_in_database_sensitivity(param,value,site_name,abbrev_loc,di
             # Print activity update status
             act.save()
 
-    for activity in site_db :
-        print("Activity:",activity,activity['type'])
-        act_search = [act for act in site_db if act['name'] == f"waste_liquid_{abbrev_loc}"][0]
-        for exchange in act_search.exchanges():
-            exchange_type = exchange.get('type','Type not specified')
-            print("\tExchange:",exchange.input,"->",exchange.amount,exchange.unit,exchange_type, exchange.as_dict())
+    # for activity in site_db :
+    #     print("Activity:",activity,activity['type'])
+    #     act_search = [act for act in site_db if act['name'] == f"waste_liquid_{abbrev_loc}"][0]
+    #     for exchange in act_search.exchanges():
+    #         exchange_type = exchange.get('type','Type not specified')
+    #         print("\tExchange:",exchange.input,"->",exchange.amount,exchange.unit,exchange_type, exchange.as_dict())
         # Loop through all exchanges for the current activity
         # for exchange in activity.exchanges() :
         #     exchange_type = exchange.get('type','Type not specified')

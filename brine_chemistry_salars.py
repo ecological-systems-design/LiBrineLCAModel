@@ -22,6 +22,6 @@ if __name__ == '__main__' :
     #process_generated_dataframes(file_path, save_directory, result_directory)
 
 
-    #run_analysis_for_brinechemistry(file_path, directory_path)
+    run_analysis_for_brinechemistry(file_path, directory_path)
 
     Visualization.create_plots_from_brinechemistry(directory_path, save_directory)

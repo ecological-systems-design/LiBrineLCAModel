@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
     project = "default"
     #Create a list with the site_name and "Site_{site_name}_number"; numbers should go from 1 to 25
-    for i in range(1,24):
-        project_old = f'Site_{site_name}_{i}_with_adapted_negative_wastewater'
+    for i in range(1,25):
+        project_old = f'Site_{site_name}_{i}_sensitivity_analysis'
         if project_old in bd.projects:
             print(f'Project {project_old} exists')
             bd.projects.delete_project(project_old,delete_dir=True)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         else:
             print(f'Project {project_old} does not exist')
 
-    project = f'Site_{site_name}_23_sensitivity_analysis'
+    project = f'Site_{site_name}_20240703_sensitivity_analysis_2'
 
     bd.projects.set_current(project)
     print(project)

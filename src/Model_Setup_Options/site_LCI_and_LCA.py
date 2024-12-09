@@ -13,7 +13,7 @@ from src.BW2_calculations.setting_up_db_env import *
 from src.BW2_calculations.lci_method_aware import import_aware
 from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios,saving_LCA_results, \
     saving_LCA_results_brinechemistry,calculate_impacts_for_brine_chemistry,calculate_battery_impacts, \
-    save_battery_results_to_csv,print_recursive_calculation
+    save_battery_results_to_csv,print_recursive_calculation, calculate_impacts_for_sensitivity_analysis, saving_sensitivity_results
 from src.Postprocessing_results.visualization_functions import Visualization
 from src.BW2_calculations.modification_bw2 import change_energy_provision
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS as constants, \
@@ -83,18 +83,17 @@ def create_dbs_without_water_regionalization(project,site_name,site_location,cou
     Li_conc = initial_data[abbrev_loc]['vec_ini'][0]
 
     # Define initial parameters and setup site
-    prod,m_pumpbr = setup_site(eff,site_parameters=initial_data[abbrev_loc])
+    prod,m_pumpbr = setup_site(eff,initial_data[abbrev_loc], constants)
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     # Initialize the ProcessManager with the given process sequence
-    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename)
+    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename, constants, params={})
 
     # Run the processes and simulations
     dataframes_dict = manager.run(filename)
     results,literature_eff,literature_Li_conc = manager.run_simulation_with_literature_data(site_location,abbrev_loc,
                                                                                             process_sequence,
-                                                                                            site_parameters=
-                                                                                            initial_data[abbrev_loc])
+                                                                                            initial_data[abbrev_loc], constants, params=None)
 
     # Setting up databases for environmental impact calculation
     biosphere = "biosphere3"
@@ -123,15 +122,13 @@ def run_operation_analysis_with_literature_data(project,site_name,site_location,
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
 
     # Initialize the ProcessManager with the given process sequence
-    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename, constants)
+    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename, constants, params={})
 
     # Run the processes and simulations
     dataframes_dict = manager.run(filename)
-    print(f'Before calculation - initial data: {initial_data}')
     results,literature_eff,literature_Li_conc = manager.run_simulation_with_literature_data(site_location,abbrev_loc,
                                                                                             process_sequence,
-                                                                                            initial_data[abbrev_loc],
-                                                                                            constants,params=None)
+                                                                                            initial_data[abbrev_loc], constants, params=None)
 
     # Setting up databases for environmental impact calculation
     biosphere = "biosphere3"
@@ -298,7 +295,53 @@ def run_operation_analysis_with_brine_chemistry(project, site_name, site_locatio
     return impacts
 
 
+def run_local_sensitivity_analysis(project,site_name,site_location,country_location,process_sequence_setup, process_sequence_sensitivity,
+                                                abbrev_loc, save_directory) :
 
+    # Initialize the processing sequence
+    initial_data = extract_data(site_name,abbrev_loc)
+    eff = initial_data[abbrev_loc]['Li_efficiency']
+    Li_conc = initial_data[abbrev_loc]['vec_ini'][0]
+
+    # Define initial parameters and setup site
+    prod,m_pumpbr = setup_site(eff,initial_data[abbrev_loc],constants)
+    filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
+
+    # Initialize the ProcessManager with the given process sequence
+    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence_setup,filename, constants, params={})
+    dataframes_dict = manager.run(filename)
+
+    # Initialize the ProcessManager with the given process sequence
+    manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence_sensitivity,filename, constants=DEFAULT_CONSTANTS, params=SENSITIVITY_RANGES)
+
+    # Run the processes and simulations
+    sensitivity_results = manager.run_sensitivity_analysis(filename, site_location,abbrev_loc, Li_conc, eff)
+
+    # Setting up databases for environmental impact calculation
+    biosphere = "biosphere3"
+    ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
+    ei_name = "ecoinvent 3.9.1 cutoff"
+    deposit_type = initial_data[abbrev_loc]['deposit_type']
+    ei_reg,site_db,bio = database_environment(biosphere,ei_path,ei_name,site_name,deposit_type,country_location,
+                                              eff,Li_conc,site_location,abbrev_loc,dataframes_dict,chemical_map)
+
+    # Importing impact assessment methods
+    import_aware(ei_reg,bio,site_name,site_db)
+
+    # Select impact assessment methods
+    method_cc = [m for m in bd.methods if
+                 'IPCC 2021' in str(m) and 'climate change' in str(m) and 'global warming potential' in str(m)][-20]
+    method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
+    method_list = [method_cc,method_water]
+
+    # Calculate and plot impacts
+    activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
+    sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity,method_list,sensitivity_results,site_name,
+                                                                     ei_name,abbrev_loc)
+    # Saving results
+    saving_sensitivity_results(sensitivity_impacts, abbrev_loc, save_directory)
+
+    return sensitivity_impacts
 
 def run_analysis_for_all_sites(excel_file_path,directory_path) :
     # Extract site names and their abbreviations
@@ -306,11 +349,12 @@ def run_analysis_for_all_sites(excel_file_path,directory_path) :
 
     # Iterate over each site and its abbreviation
     for site_name,abbreviation in site_abbreviations.items() :
+        print(site_name)
         site_data = extract_data(site_name,abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project_old = f'Site_{site_name}_23062024_final'
-        project = f'Site_{site_name}_23062024_final_batteries'
+        project_old = f'Site_{site_name}_21082024_adaptedwater_final_10'
+        project = f'Site_{site_name}_06112024'
         print(f"Currently assessing: {project}")
         old_project_exists = project_old in bd.projects
         if old_project_exists :
@@ -357,7 +401,7 @@ def run_analysis_for_all_sites(excel_file_path,directory_path) :
         # Run analysis only if project and results don't exist
         if not results_exist :
             # Extract process sequence and country location
-            process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params)
+            process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'], constants, params=None)
             country_location = site_data[abbreviation]['country_location']
             site_location = site_name
             print(f'Currently assessing: {site_name}')
@@ -378,8 +422,8 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path,directory_path) :
         site_data = extract_data(site_name,abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        old_project = f'{site_name}_databases_08062024'
-        project = f'{site_name}_databases_11062024'
+        old_project = f'{site_name}_databases_xx'
+        project = f'{site_name}_databases_26082024'
         print(f"Currently assessing: {project}")
 
         if old_project in bd.projects :
@@ -391,7 +435,7 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path,directory_path) :
 
         if not project_exists :
             bd.projects.set_current(project)
-            process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'])
+            process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'], DEFAULT_CONSTANTS, params=None)
             country_location = site_data[abbreviation]['country_location']
             site_location = site_name
             create_dbs_without_water_regionalization(project,site_name,site_location,country_location,process_sequence,
@@ -422,7 +466,7 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
     for site_name, abbreviation in site_abbreviations.items():
         print(f'Site_name: {site_name}, abbreviation: {abbreviation}')
 
-        project = f'Site_{site_name}_brinechemistry_final_02072024'
+        project = f'Site_{site_name}_brinechemistry_final_13112024'
         bd.projects.set_current(project)
 
         # Get the list of brine chemistry analyses for the site
@@ -453,99 +497,27 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
 
 
 
-
-
-def run_analysis_for_brinechemistry_old(excel_file_path,directory_path) :
+def run_local_sensitivity_analysis_for_all_sites(excel_file_path,directory_path, project_name = "Local_sensitivity_analysis") :
     # Extract site names and their abbreviations
     site_abbreviations = extract_sites_and_abbreviations(excel_file_path)
-    print(site_abbreviations)
 
     # Iterate over each site and its abbreviation
     for site_name,abbreviation in site_abbreviations.items() :
-        print(f'Site_name: {site_name}, abbreviation: {abbreviation}')
+        print(site_name)
+        site_data = extract_data(site_name,abbreviation)
+        target_ini_Li = site_data[abbreviation]['ini_Li']
+        target_eff = site_data[abbreviation]['Li_efficiency']
+        project = f'{project_name}_{site_name}_3'
+        print(f"Currently assessing: {project}")
+        bd.projects.set_current(project)
 
-        # Get the list of brine chemistry analyses for the site
-        brine_chemistry_sets,available_columns = prepare_brine_analyses(excel_file_path,abbreviation)
-
-        # Check if there are no brine chemistry analyses for the site and skip to the next if so
-        if not brine_chemistry_sets :
-            print(f"No brine chemistry analyses found for {site_name}. Skipping to next site.")
-            continue
-        else :
-
-            # Iterate over the values of brine_chemistry_sets, which are the lists of analysis values
-            for analysis_id,vec_ini_list in brine_chemistry_sets.items() :
-                print(f'New brine chemistry used: {analysis_id}')
-                print(vec_ini_list)
-
-                # Call extract_data for each set of brine chemistry analyses
-                site_data = extract_data(site_location=site_name,abbrev_loc=abbreviation,Li_conc=None,
-                                         vec_ini=vec_ini_list)
-                # Initialize a flag to check the existence of results
-                results_exist = False
-                target_ini_Li = site_data[abbreviation]['vec_ini'][0]
-                print(f'Target: {target_ini_Li}')
-                target_eff = site_data[abbreviation]['Li_efficiency']
-
-                process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params ={})
-                site_location = site_name
-                country_location = site_data[abbreviation]['country_location']
-                project = f'Site_{site_location}_brinechemistry_test3'
-
-                for i in range(0,2) :
-                    project_old = f'Site_{site_location}_brinechemistry_test{i}'
-                if project_old in bd.projects :
-                    print(f'Project {project_old} exists')
-                    bd.projects.delete_project(project_old,delete_dir=True)
-                    bd.projects.set_current(project)
-                else :
-                    print(f'Project {project_old} does not exist')
-
-                project_exist = project in bd.projects
-
-
-                # Check for existing result files for the site
-                if project_exist :
-                    for file in os.listdir(directory_path) :
-                        if file.startswith(abbreviation) and file.endswith('.csv') :
-                            csv_data = pd.read_csv(os.path.join(directory_path,file))
-                            for _,row in csv_data.iterrows() :
-                                # Round both values to 5 decimal places before comparing
-                                if round(row['Li-conc'],5) == round(target_ini_Li,5) and round(row['eff'],5) == round(
-                                        target_eff,5) :
-                                    print(
-                                        f"Results already exist for site {site_name} with abbreviation {abbreviation}.")
-                                    results_exist = True
-                            if results_exist :
-                                break
-
-                if results_exist :
-                    # Skip to the next site if results already exist
-                    continue
-                else :
-                    print(f"No results found for site {site_name} with abbreviation {abbreviation}.")
-                    process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,
-                                                            params = {})
-                    # Assigning the site location and country location
-                    site_location = site_name
-                    country_location = site_data[abbreviation]['country_location']
-
-                    # Run operation analysis for the site with the extracted information
-                    impacts = run_operation_analysis_with_brine_chemistry(project,site_name,site_location,
-                                                                          country_location,process_sequence,
-                                                                          abbreviation,site_data)
-
-            else :
-                # site_data = extract_data(site_name, abbreviation)
-                process_sequence = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params = {})
-                # Assigning the site location and country location
-                site_location = site_name
-                country_location = site_data[abbreviation]['country_location']
-
-                # Run operation analysis for the site with the extracted information
-                impacts = run_operation_analysis_with_brine_chemistry(project,site_name,site_location,
-                                                                      country_location,process_sequence,abbreviation,
-                                                                      site_data)
+        # Extract process sequence and country location
+        process_sequence_setup = get_process_sequence(site_data[abbreviation]['process_sequence'], constants, params=None)
+        process_sequence_sensitivity = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params=None)
+        country_location = site_data[abbreviation]['country_location']
+        site_location = site_name
+        sensitivity_impacts = run_local_sensitivity_analysis(project,site_name,site_location,country_location, process_sequence_setup,
+                                                            process_sequence_sensitivity,abbreviation, directory_path)
 
 
 def extract_site_info_from_excel(excel_file_path) :

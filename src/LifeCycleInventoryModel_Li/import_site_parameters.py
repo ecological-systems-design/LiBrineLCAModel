@@ -285,7 +285,6 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
         vec_ini[0] = Li_conc
 
     if any(pd.isna(vec_ini[i]) for i in nan_indices_ini) :
-        print('yes')
         closest_site_data = find_closest_valid_site_brinechemistry(site_data['latitude'], site_data['longitude'], dat, nan_indices_ini, 13)
         if closest_site_data is not None :
 
@@ -299,18 +298,25 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
 
     print(vec_ini)
 
-    # Convert all elements in vec_ini to floats, replace non-numeric values with 0 or NaN
-    vec_ini_float = []
-    for item in vec_ini[:-1] :  # Exclude the last item for now
-        try :
-            vec_ini_float.append(float(item))  # Convert to float
-        except ValueError :  # Handle the case where conversion to float fails
-            vec_ini_float.append(0)  # Replace with 0 or you can use np.nan
+    # # Convert all elements in vec_ini to floats, replace non-numeric values with 0 or NaN
+    # vec_ini_float = []
+    # for item in vec_ini[:-1] :  # Exclude the last item for now
+    #     try :
+    #         vec_ini_float.append(float(item))  # Convert to float
+    #     except ValueError :  # Handle the case where conversion to float fails
+    #         vec_ini_float.append(0)  # Replace with 0 or you can use np.nan
+    #
+    # # Now sum the converted list
+    # sum_of_others = sum(vec_ini_float)
+    #
+    # # Set the last element of vec_ini
+    # vec_ini[-1] = 100 - sum_of_others
 
-    # Now sum the converted list
-    sum_of_others = sum(vec_ini_float)
+    vec = np.array(vec_ini)
 
-    # Set the last element of vec_ini
+    # Calculate the sum of all elements except the last one, ignoring NaNs
+    sum_of_others = np.nansum(vec[:-1])
+
     vec_ini[-1] = 100 - sum_of_others
 
     # Initialize an empty list to store the process sequence

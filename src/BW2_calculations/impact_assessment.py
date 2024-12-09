@@ -142,7 +142,7 @@ def calculate_impacts_for_sensitivity_analysis(activity,methods,dict_results,sit
 
     # Calculate impacts for each parameter combination and store them
     for param,values_dict in dict_results.items() :
-        print(param)
+        #print(param)
         for value in values_dict.keys() :
 
             # Update the database with the new parameter and value

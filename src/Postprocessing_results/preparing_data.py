@@ -5,6 +5,8 @@ import datetime
 from src.LifeCycleInventoryModel_Li.import_site_parameters import standard_values
 from src.BW2_calculations.lithium_site_db import chemical_map
 import ast
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 def get_category_mapping(df):
@@ -151,6 +153,7 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
             "country_location" : row[ "country_location" ],
             "ini_Li" : row.get("ini_Li", None),
             "Li_efficiency" : row.get("Li_efficiency", None),
+            "sum_impurities": row.get("sum_impurities", None),
             "deposit_type" : row.get("deposit_type", None),
             "technology_group": row.get("technology_group", None),
             "activity_status": row.get("activity_status", None),
@@ -171,6 +174,10 @@ def preparing_data_for_LCA_results_comparison(file_path, directory_path) :
         if file.endswith('.csv') :
             # Extract site abbreviation from the file name
             site_abbreviation = file.split('_')[ 0 ]
+
+            if site_abbreviation == "renewables":
+                site_abbreviation = file.split('_')[ 1 ]
+
             # Find the corresponding site info
             for site, info in sites_info.items() :
                 if info[ "abbreviation" ] == site_abbreviation :
@@ -512,7 +519,7 @@ def process_data_based_on_excel(excel_path, base_directory):
                 print(f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and Eff: {eff}")
 
 
-def process_battery_scores(file_path, directory) :
+def process_battery_scores_old(file_path, directory) :
     # get location-specific data by importing xlsx file
     excel_data = pd.read_excel(file_path)
 
@@ -645,6 +652,272 @@ def process_battery_scores(file_path, directory) :
     return results_df
 
 
+def process_battery_scores_without_diagrams(csv_file_path,excel_file_path,output_dir) :
+    # Create directory to save tables if it doesn't exist
+    if not os.path.exists(output_dir) :
+        os.makedirs(output_dir)
+
+    # Load the LCA CSV data
+    lca_data = pd.read_csv(csv_file_path)
+
+    # Load the site-specific information from the Excel file
+    excel_data = pd.read_excel(excel_file_path)
+
+    # Transpose the data for easier processing
+    transposed_data = excel_data.transpose()
+
+    # Set the first row as the header
+    transposed_data.columns = transposed_data.iloc[0]
+
+    # Drop the first row since it's now the header
+    transposed_data = transposed_data.drop(transposed_data.index[0])
+
+    # Dictionary to group activity status
+    activity_status_order = {
+        # Early stage
+        'Grassroots' : '3 - Exploration - Early stage',
+        'Exploration' : '3 - Exploration - Early stage',
+        'Target Outline' : '3 - Exploration - Early stage',
+        'Commissioning' : '3 - Exploration - Early stage',
+        'Prefeas/Scoping' : '3 - Exploration - Early stage',
+        'Advanced exploration' : '3 - Exploration - Early stage',
+        'Feasibility Started' : '3 - Exploration - Early stage',
+        # Late stage
+        'Reserves Development' : '2 - Exploration - Late stage',
+        'Feasibility' : '2 - Exploration - Late stage',
+        'Feasibility complete' : '2 - Exploration - Late stage',
+        'Construction started' : '2 - Exploration - Late stage',
+        'Construction planned' : '2 - Exploration - Late stage',
+        # Mine stage
+        'Preproduction' : '2 - Exploration - Late stage',
+        'Production' : '1 - Mine stage',
+        'Operating' : '1 - Mine stage',
+        'Satellite' : '1 - Mine stage',
+        'Expansion' : '1 - Mine stage',
+        'Limited production' : '1 - Mine stage',
+        'Residual production' : '1 - Mine stage'
+        }
+
+    # Extract site information from the transposed Excel data
+    sites_info = {}
+    for site,row in transposed_data.iterrows() :
+        activity_status = row.get("activity_status",None)
+        production_value = row.get("production",None)
+
+        if pd.isna(production_value) :  # Check if the value is nan
+            production_value = "Unknown"  # Replace with the default if it's nan
+
+        site_info = {
+            "site_name" : site,
+            "abbreviation" : row["abbreviation"],
+            "country_location" : row["country_location"],
+            "ini_Li" : row.get("ini_Li",None),
+            "Li_efficiency" : row.get("Li_efficiency",None),
+            "deposit_type" : row.get("deposit_type",None),
+            "technology_group" : row.get("technology_group",None),
+            "activity_status" : row.get("activity_status",None),
+            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other'),
+            "production" : production_value,
+            }
+
+        # Add to the main dictionary
+        sites_info[site] = site_info
+
+    # Convert 'sites_info' to DataFrame for easier manipulation
+    sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+
+    # Merge LCA data with site-specific information using the abbreviation as the key
+    merged_data = pd.merge(lca_data,sites_df,left_on='Site',right_on='abbreviation',how='left')
+
+    # Update the Method column with more descriptive names
+    merged_data['Method'] = merged_data['Method'].replace({
+                                                              "('AWARE regionalized', 'Annual', 'All')" : 'Water Scarcity Impacts',
+                                                              "('IPCC 2021', 'climate change', 'global warming potential (GWP100)')" : 'Climate Change Impacts'})
+
+    # Create a new table with the merged information
+    new_table = merged_data[
+        ['Method','site_name','Impact Score','country_location','activity_status_order','technology_group']]
+
+    # Round Impact Score to 1 digit after the comma
+    new_table = new_table.copy()
+    new_table['Impact Score'] = new_table['Impact Score'].round(1)
+
+    # Split the table into separate tables for each impact category and save them
+    impact_categories = new_table['Method'].unique()
+    tables = {}
+    for category in impact_categories :
+        category_table = new_table[new_table['Method'] == category]
+        tables[category] = category_table
+        # Save each table to a CSV file
+        battery_type = os.path.basename(csv_file_path).split('_')[0]  # Extract battery type from file name
+        category_name = category.replace(' ','_').lower()
+        file_name = os.path.join(output_dir,f"{battery_type}_impact_{category_name}.csv")
+        category_table.to_csv(file_name,index=False)
+
+        # Create summary tables grouped by activity status and technology group
+        activity_status_summary = category_table.groupby('activity_status_order')['Impact Score'].agg(
+            ['min','max',lambda x : round(x.mean(),1)]).reset_index()
+        tech_group_summary = category_table.groupby('technology_group')['Impact Score'].agg(
+            ['min','max',lambda x : round(x.mean(),1)]).reset_index()
+
+        # Save the summary tables to CSV files
+        activity_status_file = os.path.join(output_dir,
+                                            f"{battery_type}_impact_{category_name}_activity_status_summary.csv")
+        tech_group_file = os.path.join(output_dir,f"{battery_type}_impact_{category_name}_technology_group_summary.csv")
+        activity_status_summary.to_csv(activity_status_file,index=False)
+        tech_group_summary.to_csv(tech_group_file,index=False)
+
+
+def process_battery_scores(csv_file_path,excel_file_path,output_dir) :
+    # Create directory to save tables if it doesn't exist
+    if not os.path.exists(output_dir) :
+        os.makedirs(output_dir)
+
+    # Load the LCA CSV data
+    lca_data = pd.read_csv(csv_file_path)
+
+    # Load the site-specific information from the Excel file
+    excel_data = pd.read_excel(excel_file_path)
+
+    # Transpose the data for easier processing
+    transposed_data = excel_data.transpose()
+
+    # Set the first row as the header
+    transposed_data.columns = transposed_data.iloc[0]
+
+    # Drop the first row since it's now the header
+    transposed_data = transposed_data.drop(transposed_data.index[0])
+
+    # Dictionary to group activity status
+    activity_status_order = {
+        # Early stage
+        'Grassroots' : '3 - Exploration - Early stage',
+        'Exploration' : '3 - Exploration - Early stage',
+        'Target Outline' : '3 - Exploration - Early stage',
+        'Commissioning' : '3 - Exploration - Early stage',
+        'Prefeas/Scoping' : '3 - Exploration - Early stage',
+        'Advanced exploration' : '3 - Exploration - Early stage',
+        'Feasibility Started' : '3 - Exploration - Early stage',
+        # Late stage
+        'Reserves Development' : '2 - Exploration - Late stage',
+        'Feasibility' : '2 - Exploration - Late stage',
+        'Feasibility complete' : '2 - Exploration - Late stage',
+        'Construction started' : '2 - Exploration - Late stage',
+        'Construction planned' : '2 - Exploration - Late stage',
+        # Mine stage
+        'Preproduction' : '2 - Exploration - Late stage',
+        'Production' : '1 - Mine stage',
+        'Operating' : '1 - Mine stage',
+        'Satellite' : '1 - Mine stage',
+        'Expansion' : '1 - Mine stage',
+        'Limited production' : '1 - Mine stage',
+        'Residual production' : '1 - Mine stage'
+        }
+
+    # Extract site information from the transposed Excel data
+    sites_info = {}
+    for site,row in transposed_data.iterrows() :
+        activity_status = row.get("activity_status",None)
+        production_value = row.get("production",None)
+
+        if pd.isna(production_value) :  # Check if the value is nan
+            production_value = "Unknown"  # Replace with the default if it's nan
+
+        site_info = {
+            "site_name" : site,
+            "abbreviation" : row["abbreviation"],
+            "country_location" : row["country_location"],
+            "ini_Li" : row.get("ini_Li",None),
+            "Li_efficiency" : row.get("Li_efficiency",None),
+            "deposit_type" : row.get("deposit_type",None),
+            "technology_group" : row.get("technology_group",None),
+            "activity_status" : row.get("activity_status",None),
+            "activity_status_order" : activity_status_order.get(activity_status,'4 - Other'),
+            "production" : production_value,
+            }
+
+        # Add to the main dictionary
+        sites_info[site] = site_info
+
+    # Convert 'sites_info' to DataFrame for easier manipulation
+    sites_df = pd.DataFrame.from_dict(sites_info,orient='index').reset_index(drop=True)
+
+    # Merge LCA data with site-specific information using the abbreviation as the key
+    merged_data = pd.merge(lca_data,sites_df,left_on='Site',right_on='abbreviation',how='left')
+
+    # Update the Method column with more descriptive names
+    merged_data['Method'] = merged_data['Method'].replace({
+                                                              "('AWARE regionalized', 'Annual', 'All')" : 'Water Scarcity Impacts',
+                                                              "('IPCC 2021', 'climate change', 'global warming potential (GWP100)')" : 'Climate Change Impacts'})
+
+    # Create a new table with the merged information
+    new_table = merged_data[
+        ['Method','site_name','Impact Score','country_location','activity_status_order','technology_group']]
+
+    # Round Impact Score to 1 digit after the comma
+    new_table = new_table.copy()
+    new_table['Impact Score'] = new_table['Impact Score'].round(1)
+
+    # Split the table into separate tables for each impact category and save them
+    impact_categories = new_table['Method'].unique()
+    tables = {}
+    for category in impact_categories :
+        category_table = new_table[new_table['Method'] == category]
+        tables[category] = category_table
+        # Save each table to a CSV file
+        battery_type = os.path.basename(csv_file_path).split('_')[0]  # Extract battery type from file name
+        category_name = category.replace(' ','_').lower()
+        file_name = os.path.join(output_dir,f"{battery_type}_impact_{category_name}.csv")
+        category_table.to_csv(file_name,index=False)
+
+        # Create summary tables grouped by activity status and technology group
+        activity_status_summary = category_table.groupby('activity_status_order')['Impact Score'].agg(
+            min='min',max='max',mean=lambda x : round(x.mean(),1)).reset_index()
+        tech_group_summary = category_table.groupby('technology_group')['Impact Score'].agg(
+            min='min',max='max',mean=lambda x : round(x.mean(),1)).reset_index()
+
+        # Save the summary tables to CSV files
+        activity_status_file = os.path.join(output_dir,
+                                            f"{battery_type}_impact_{category_name}_activity_status_summary.csv")
+        tech_group_file = os.path.join(output_dir,f"{battery_type}_impact_{category_name}_technology_group_summary.csv")
+        activity_status_summary.to_csv(activity_status_file,index=False)
+        tech_group_summary.to_csv(tech_group_file,index=False)
+
+        # Create visualizations using Plotly
+        # 1. Impact Score by Site - Bar Chart
+        fig = px.bar(category_table,x='site_name',y='Impact Score',title=f'Impact Score by Site for {category}',
+                     labels={'site_name' : 'Site Name','Impact Score' : 'Impact Score'},
+                     color_discrete_sequence=['#006400'])  # Use earth tone color
+        fig.update_layout(xaxis_tickangle=-45,template='plotly_white',title_font=dict(size=16),title_x=0.5)
+        fig.write_image(os.path.join(output_dir, f"{battery_type}_impact_{category_name}_by_site.png"))
+        fig.write_image(os.path.join(output_dir, f"{battery_type}_impact_{category_name}_by_site.svg"))
+
+
+        # 2. Impact Score Summary by Activity Status - Bar Chart
+        fig = px.bar(activity_status_summary,x='activity_status_order',y=['min','max','mean'],
+                     title=f'Impact Score Summary by Activity Status for {category}',
+                     labels={'activity_status_order' : 'Activity Status','value' : 'Impact Score'},
+                     barmode='group',
+                     color_discrete_sequence=['#FF6347','#4B0000','#800000'])  # Use earth tone color palette
+        fig.update_layout(xaxis_tickangle=-45,template='plotly_white',title_font=dict(size=16),title_x=0.5)
+        fig.write_image(os.path.join(output_dir,f"{battery_type}_impact_{category_name}_activity_status_summary.png"))
+        fig.write_image(os.path.join(output_dir,f"{battery_type}_impact_{category_name}_activity_status_summary.svg"))
+
+        # 3. Impact Score Summary by Technology Group - Bar Chart
+        fig = px.bar(tech_group_summary,x='technology_group',y=['min','max','mean'],
+                     title=f'Impact Score Summary by Technology Group for {category}',
+                     labels={'technology_group' : 'Technology Group','value' : 'Impact Score'},
+                     barmode='group',
+                     color_discrete_sequence=['#87CEFA','#4682B4','#000080'])  # Use earth tone color palette
+        fig.update_layout(xaxis_tickangle=-45,template='plotly_white',title_font=dict(size=16),title_x=0.5)
+        fig.write_image(os.path.join(output_dir,f"{battery_type}_impact_{category_name}_technology_group_summary.png"))
+        fig.write_image(os.path.join(output_dir,f"{battery_type}_impact_{category_name}_technology_group_summary.svg"))
+
+
+    print(f'Saved tables and visualizations successfully')
+
+
+
 def analyze_and_save_technology_group_stats(input_df):
     # Calculate average, min, and max for 'Climate change impacts' and 'Water scarcity impacts' by 'technology_group'
     technology_group_stats = input_df.groupby('technology_group').agg(
@@ -684,14 +957,18 @@ def save_stats_to_excel(tech_stats_df, activity_stats_df, file_path):
         tech_stats_df.to_excel(writer, sheet_name='Technology Group Stats', index=False)
         activity_stats_df.to_excel(writer, sheet_name='Activity Status Order Stats', index=False)
 
-def prepare_data_for_table_IPCC_and_AWARE(data_df):
+def prepare_data_for_table_IPCC_and_AWARE(data_df, file_contains_renewables):
     # Rename columns based on existing DataFrame structure
     data_df.rename(columns={'IPCC': 'Climate change impacts', 'AWARE': 'Water scarcity impacts'}, inplace=True)
 
-    # Save the updated dataframe to a new CSV file
-    updated_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\updated_data_for_Marimekko.csv'
-    stats_file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\stats_data.xlsx'
+    # Determine the keyword to add to the filename based on whether the file contains "renewables"
+    file_suffix = "_renewables" if file_contains_renewables else ""
 
+    # Define updated file paths with the new naming logic
+    updated_file_path = rf'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\updated_data_for_Marimekko_{file_suffix}.csv'
+    stats_file_path = rf'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results\stats_data_{file_suffix}.xlsx'
+
+    # Round the dataframe to one decimal place and save as CSV
     data_df_round = data_df.round(1)
     data_df_round.to_csv(updated_file_path, index=False)
 

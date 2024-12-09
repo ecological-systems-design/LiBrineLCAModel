@@ -338,10 +338,10 @@ def change_energy_provision(ei_name, copy_db_name, country, abbrev_loc):
     copy_db = bd.Database(copy_db_name)
     ei_reg = bd.Database(ei_name)
 
-    if abbrev_loc == "Ola":
-        electricity_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
-        heat_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
-    elif abbrev_loc == "Chaer" or abbrev_loc == "Yilip":
+    # if abbrev_loc == "Ola":
+    #     electricity_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
+    #     heat_list = "heat and power co-generation, natural gas, 1MW electrical, lean burn"
+    if abbrev_loc == "Chaer" or abbrev_loc == "Yilip":
         electricity_list = "electricity, high voltage, production mix"
         heat_list = "heat production, natural gas, at industrial furnace >100kW"
     else:
