@@ -1511,174 +1511,6 @@ class Visualization :
         if uyu_data['Li-conc'] :
             Visualization.save_plots_and_data({'Uyu' : uyu_data},'Uyu',save_dir,max_li_conc_uyu,500,100)
 
-    def create_plots_from_brinechemistry_OLD(directory_path,save_dir) :
-        # Dictionary to hold the aggregated data for each site
-        site_data = {}
-        uyu_data = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
-        max_li_conc = 0
-        max_ipcc_other = 0
-        max_aware_other = 0
-        max_ipcc_uyu = 0
-        max_aware_uyu = 0
-
-        # Process each CSV file in the directory
-        for file in os.listdir(directory_path) :
-            if file.endswith('.csv') :
-                # Extract site abbreviation from the file name
-                site_abbreviation = file.split('_')[0]
-
-                # Load the CSV file
-                file_path = os.path.join(directory_path,file)
-                csv_data = pd.read_csv(file_path)
-
-                # Aggregate data by site
-                if site_abbreviation == 'Uyu' :
-                    for _,row in csv_data.iterrows() :
-                        li_conc = row['Li-conc']
-                        ipcc = row['IPCC']
-                        aware = row['AWARE']
-
-                        uyu_data['Li-conc'].append(li_conc)
-                        uyu_data['IPCC'].append(ipcc)
-                        uyu_data['AWARE'].append(aware)
-
-                        # Update max values for Uyu
-                        if li_conc > max_li_conc :
-                            max_li_conc = li_conc
-                        if ipcc > max_ipcc_uyu :
-                            max_ipcc_uyu = ipcc
-                        if aware > max_aware_uyu :
-                            max_aware_uyu = aware
-                else :
-                    if site_abbreviation not in site_data :
-                        site_data[site_abbreviation] = {'Li-conc' : [],'IPCC' : [],'AWARE' : []}
-
-                    for _,row in csv_data.iterrows() :
-                        li_conc = row['Li-conc']
-                        ipcc = row['IPCC']
-                        aware = row['AWARE']
-
-                        site_data[site_abbreviation]['Li-conc'].append(li_conc)
-                        site_data[site_abbreviation]['IPCC'].append(ipcc)
-                        site_data[site_abbreviation]['AWARE'].append(aware)
-
-                        # Update max values for other sites
-                        if li_conc > max_li_conc :
-                            max_li_conc_other = li_conc
-                        if ipcc > max_ipcc_other :
-                            max_ipcc_other = ipcc
-                        if aware > max_aware_other :
-                            max_aware_other = aware
-
-        # Plot for all sites except Uyu
-        fig1 = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact","Water Scarcity Impact"))
-
-        # Generate a list of unique colors and symbols for each site
-        colors = px.colors.qualitative.Plotly
-        symbols = ['circle','square','diamond','cross','x','triangle-up','triangle-down',
-                   'triangle-left','triangle-right','pentagon','hexagon','star','hexagram','star-triangle-up']
-        color_map = {site : colors[i % len(colors)] for i,site in enumerate(site_data.keys())}
-        symbol_map = {site : symbols[i % len(symbols)] for i,site in enumerate(site_data.keys())}
-
-        # Create subplots for each site
-        for site,data in site_data.items() :
-            # Add scatter plot for climate change impact
-            fig1.add_trace(go.Scatter(x=data['Li-conc'],y=data['IPCC'],mode='markers',name=site,
-                                      marker=dict(color=color_map[site],symbol=symbol_map[site])),row=1,col=1)
-
-            # Add scatter plot for water scarcity impact
-            fig1.add_trace(go.Scatter(x=data['Li-conc'],y=data['AWARE'],mode='markers',name=site,
-                                      marker=dict(color=color_map[site],symbol=symbol_map[site])),row=2,col=1)
-
-        # Update layout for fig1
-        fig1.update_layout(
-            height=600,
-            width=800,
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(
-                family="Arial",
-                size=14,
-                color="black"
-                ),
-            showlegend=True
-            )
-
-        fig1.update_xaxes(range=[0,max_li_conc_other*1.1],title_text="Li-conc (weight %)",row=1,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig1.update_xaxes(range=[0,max_li_conc_other*1.1],title_text="Li-conc (weight %)",row=2,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig1.update_yaxes(range=[0,max_ipcc_other*1.1],title_text="IPCC",row=1,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig1.update_yaxes(range=[0,max_aware_other*1.1],title_text="AWARE",row=2,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-
-        # Plot for Uyu site
-        fig2 = make_subplots(rows=2,cols=1,subplot_titles=("Climate Change Impact (Uyu)","Water Scarcity Impact (Uyu)"))
-
-        # Add scatter plot for climate change impact
-        fig2.add_trace(go.Scatter(x=uyu_data['Li-conc'],y=uyu_data['IPCC'],mode='markers',name='Uyu',
-                                  marker=dict(color='blue',symbol='circle')),row=1,col=1)
-
-        # Add scatter plot for water scarcity impact
-        fig2.add_trace(go.Scatter(x=uyu_data['Li-conc'],y=uyu_data['AWARE'],mode='markers',name='Uyu',
-                                  marker=dict(color='blue',symbol='circle')),row=2,col=1)
-
-        # Update layout for fig2
-        fig2.update_layout(
-            height=600,
-            width=800,
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(
-                family="Arial",
-                size=14,
-                color="black"
-                ),
-            showlegend=True
-            )
-
-        fig2.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=1,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig2.update_xaxes(range=[0,max_li_conc*1.1],title_text="Li-conc (weight %)",row=2,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig2.update_yaxes(range=[0,max_ipcc_uyu*1.1],title_text="IPCC",row=1,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-        fig2.update_yaxes(range=[0,max_aware_uyu*1.1],title_text="AWARE",row=2,col=1,showgrid=True,zeroline=True,
-                          zerolinecolor='black',zerolinewidth=2,gridcolor='lightgray')
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Check if save directory exists, if not, create it
-        if not os.path.exists(save_dir) :
-            os.makedirs(save_dir)
-
-        # Save the figures to the specified directory
-        save_path_png1 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_other_sites.png')
-        fig1.write_image(save_path_png1)
-
-        save_path_svg1 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_other_sites.svg')
-        fig1.write_image(save_path_svg1)
-
-        save_path_png2 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_Uyu.png')
-        fig2.write_image(save_path_png2)
-
-        save_path_svg2 = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}_Uyu.svg')
-        fig2.write_image(save_path_svg2)
-
-        # Create a pandas Excel writer using XlsxWriter as the engine.
-        save_path_xlsx = os.path.join(save_dir,f'LCA_Brinechemistry_{timestamp}.xlsx')
-        with pd.ExcelWriter(save_path_xlsx,engine='xlsxwriter') as writer :
-            for site,data in site_data.items() :
-                df = pd.DataFrame(data)
-                df.to_excel(writer,sheet_name=site,index=False,startrow=0)
-            # Add Uyu data to a separate sheet
-            df_uyu = pd.DataFrame(uyu_data)
-            df_uyu.to_excel(writer,sheet_name='Uyu',index=False,startrow=0)
-
-        print(f"Data saved to {save_path_xlsx}")
-        print(f"Figures saved to {save_path_png1}, {save_path_svg1}, {save_path_png2}, and {save_path_svg2}")
-
     def create_waterfall_plots(file_path, save_dir, abbrev_loc, li_conc, eff, impact_type, location) :
         df = prepare_data_for_waterfall_diagram(file_path)
 
@@ -1904,7 +1736,7 @@ class Visualization :
                 latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
                 if latest_file_path :
                     print(f"Processing file: {latest_file_path}")
-                    df = prepare_data_for_waterfall_diagram(latest_file_path)
+                    df = prepare_data_for_waterfall_diagram(latest_file_path, abbrev_loc)
                     df['Score_Diff'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1])
                     reversed_df = df.iloc[: :-1].reset_index(drop=True)
                     cumulative_base = 0
@@ -2306,149 +2138,128 @@ class Visualization :
         fig.write_image(save_path_svg)
         print("Composite figure saved.")
 
-    def create_relative_horizontal_bars_old(excel_path, base_directory, save_directory) : #TODO work here!!!!!
+    def create_absolute_horizontal_bars(excel_path, base_directory, save_directory):
         # Load and process the Excel data
         excel_data = pd.read_excel(excel_path)
         transposed_data = excel_data.transpose()
-        transposed_data.columns = transposed_data.iloc[0]
-        excel_data = transposed_data.drop(transposed_data.index[0])
+        transposed_data.columns = transposed_data.iloc[ 0 ]
+        excel_data = transposed_data.drop(transposed_data.index[ 0 ])
 
         activity_status_order = {
             # Early stage
-            'Grassroots' : '3 - Exploration - Early stage',
-            'Exploration' : '3 - Exploration - Early stage',
-            'Target Outline' : '3 - Exploration - Early stage',
-            'Commissioning' : '3 - Exploration - Early stage',
-            'Prefeas/Scoping' : '3 - Exploration - Early stage',
-            'Advanced exploration' : '3 - Exploration - Early stage',
-            'Feasibility Started' : '3 - Exploration - Early stage',
-            # Late stage
-            'Reserves Development' : '2 - Exploration - Late stage',
-            'Feasibility' : '2 - Exploration - Late stage',
-            'Feasibility complete' : '2 - Exploration - Late stage',
-            'Construction started' : '2 - Exploration - Late stage',
-            'Construction planned' : '2 - Exploration - Late stage',
-            # Mine stage
-            'Preproduction' : '2 - Exploration - Late stage',
-            'Production' : '1 - Mine stage',
-            'Operating' : '1 - Mine stage',
-            'Satellite' : '1 - Mine stage',
-            'Expansion' : '1 - Mine stage',
-            'Limited production' : '1 - Mine stage',
-            'Residual production' : '1 - Mine stage'
-            }
+            'Grassroots': '3 - Exploration - Early stage', 'Exploration': '3 - Exploration - Early stage',
+            'Target Outline': '3 - Exploration - Early stage', 'Commissioning': '3 - Exploration - Early stage',
+            'Prefeas/Scoping': '3 - Exploration - Early stage', 'Advanced exploration': '3 - Exploration - Early stage',
+            'Feasibility Started': '3 - Exploration - Early stage',  # Late stage
+            'Reserves Development': '2 - Exploration - Late stage', 'Feasibility': '2 - Exploration - Late stage',
+            'Feasibility complete': '2 - Exploration - Late stage',
+            'Construction started': '2 - Exploration - Late stage',
+            'Construction planned': '2 - Exploration - Late stage',  # Mine stage
+            'Preproduction': '2 - Exploration - Late stage', 'Production': '1 - Mine stage',
+            'Operating': '1 - Mine stage', 'Satellite': '1 - Mine stage', 'Expansion': '1 - Mine stage',
+            'Limited production': '1 - Mine stage', 'Residual production': '1 - Mine stage'}
 
-        # Mapping activity_status to its corresponding order directly in excel_data
-        excel_data['activity_status_order'] = excel_data['activity_status'].map(activity_status_order).fillna(
+        excel_data[ 'activity_status_order' ] = excel_data[ 'activity_status' ].map(activity_status_order).fillna(
             '4 - Other')
-        # Set a default value for NaN in production
-        default_production_value = standard_values['production']  # or any other suitable default value
-        excel_data['production'] = pd.to_numeric(excel_data['production'],errors='coerce').fillna(
-            default_production_value)
-
-        # Sorting by 'activity_status_order' and then by 'production'
-        excel_data.sort_values(by=['activity_status_order','production'],inplace=True,ascending=[False,True])
-
-        # Print to verify the result
-        print(excel_data[['abbreviation','activity_status','activity_status_order','production']].head())
+        excel_data[ 'production' ] = pd.to_numeric(excel_data[ 'production' ], errors='coerce').fillna(0)
+        excel_data.sort_values(by=[ 'technology_group', 'production' ], inplace=True, ascending=[ True, True ])
 
         # Initialize subplots
-        fig = make_subplots(rows=2,cols=1,shared_xaxes=True,subplot_titles=('Climate Change impacts','Water Scarcity impacts'), vertical_spacing=0.05 )
+        fig = make_subplots(rows=2, cols=2, shared_xaxes=False, vertical_spacing=0.05)
         colors = Visualization.get_color_mapping()
 
-        for index,row in excel_data.iterrows() :
-            print(index)
-            abbrev_loc = row['abbreviation']
+        # Initialize max values for x-axes
+        max_values = {'climatechange': 0, 'waterscarcity': 0}
+
+        # Determine max values for each impact type
+        for index, row in excel_data.iterrows():
+            abbrev_loc = row[ 'abbreviation' ]
             site_location = index
-            li_conc = round(row['ini_Li'],3)
-            eff = row['Li_efficiency']
-            target_directory = os.path.join(base_directory,f'results_{abbrev_loc}')
+            li_conc = round(row[ 'ini_Li' ], 3)
+            eff = row[ 'Li_efficiency' ]
+            target_directory = os.path.join(base_directory, f'results_{abbrev_loc}')
 
-            for i,impact_type in enumerate(['climatechange','waterscarcity']) :
-                latest_file_path = find_latest_matching_file(target_directory,li_conc,eff,impact_type)
-                if latest_file_path :
-                    print(f"Processing file: {latest_file_path}")
-                    df = prepare_data_for_waterfall_diagram(latest_file_path)
+            for impact_type in [ 'climatechange', 'waterscarcity' ]:
+                latest_file_path = find_latest_matching_file(target_directory, li_conc, eff, impact_type)
+                if latest_file_path:
+                    df = prepare_data_for_waterfall_diagram(latest_file_path, abbrev_loc)
+                    max_values[ impact_type ] = max(max_values[ impact_type ], df[ 'Score' ].abs().max())
 
-                    # Calculate the relative contribution
-                    total_score = df.iloc[0]['Score']
-                    df['Relative_Score'] = df['Score'].diff(-1).fillna(df['Score'].iloc[-1]) / total_score * 100
+        # Plot data
+        for index, row in excel_data.iterrows():
+            abbrev_loc = row[ 'abbreviation' ]
+            li_conc = round(row[ 'ini_Li' ], 3)
+            eff = row[ 'Li_efficiency' ]
+            target_directory = os.path.join(base_directory, f'results_{abbrev_loc}')
 
-                    # Iterate over rows to plot
+            for i, impact_type in enumerate([ 'climatechange', 'waterscarcity' ]):
+                latest_file_path = find_latest_matching_file(target_directory, li_conc, eff, impact_type)
+                if latest_file_path:
+                    df = prepare_data_for_waterfall_diagram(latest_file_path, abbrev_loc)
+                    df[ 'Absolute_Score' ] = df[ 'Score' ].diff(-1).fillna(df[ 'Score' ].iloc[ -1 ])
+
+                    # Plot Process Contributions
                     cumulative_base = 0
-                    for _,bar_row in reversed(list(df.iterrows())) :
-                        current_activity = bar_row['Activity']
-                        color = colors.get(current_activity,'rgb(0,0,0)')  # Default to black if not found
-                        fig.add_trace(go.Bar(
-                            name=bar_row['Activity'],
-                            x=[bar_row['Relative_Score']],
-                            y=[f"{index}"],
-                            orientation='h',
-                            marker_color=color,
-                            base=cumulative_base,
-                            hoverinfo="name+y+text",
-                            width=0.8,
-                            marker_line_color='black',
-                            marker_line_width=0.5,
-                            opacity=0.8
-                            ),row=i + 1,col=1)
-                        cumulative_base += bar_row['Relative_Score']
-                else :
-                    print(
-                        f"No matching file found for {abbrev_loc}, {impact_type} with Li_conc: {li_conc} and efficiency: {eff}")
+                    for _, bar_row in reversed(list(df.iterrows())):
+                        current_activity = bar_row[ 'Activity' ]
+                        color = colors.get(current_activity, 'rgb(0,0,0)')
+                        fig.add_trace(
+                            go.Bar(name=bar_row[ 'Activity' ], x=[ bar_row[ 'Absolute_Score' ] ], y=[ f"{index}" ],
+                                   orientation='h', marker_color=color, base=cumulative_base, hoverinfo="name+y+text",
+                                   width=0.8, marker_line_color='black', marker_line_width=0.5, opacity=0.8), row=i + 1,
+                            col=1)
+                        cumulative_base += bar_row[ 'Absolute_Score' ]
 
-        fig.update_layout(
-            showlegend=False,
-            plot_bgcolor='rgba(255, 255, 255, 1)',
-            paper_bgcolor='rgba(255, 255, 255, 1)',
-            barmode='stack',
-            bargap=0.2,
-            height=1400,  # Adjust this value based on your specific needs
-            width=1000,  # Adjust this value based on your specific needs
-            margin=dict(
-                autoexpand=True,
-                l=100,  # Left margin
-                r=20,  # Right margin
-                t=110,  # Top margin
-                b=100  # Bottom margin
-                ),
-            font=dict(
-                family="Arial, sans-serif",  # Set font family to Arial
-                size=14,  # Set font size
-                color="black"  # Set font color to black
-                ),
-            xaxis=dict(
-                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
-                nticks=20,  # Number of ticks to be displayed along the axis
-                tick0=0,  # Starting tick
-                dtick=10,  # Tick spacing
-                tickangle=0,  # Tick angle (can adjust if labels overlap)
-                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
-                tickwidth=2,  # Width of the tick lines
-                tickcolor='black',  # Color of the ticks
-                ticklen=10,  # Length of the ticks
-                showticklabels=True,  # Whether or not to show tick labels
-                ),
-            xaxis2=dict(
-                tickmode='auto',  # Can be 'auto', 'linear', 'array' (if specific values are needed)
-                nticks=20,  # Number of ticks to be displayed along the axis
-                tick0=0,  # Starting tick
-                dtick=10,  # Tick spacing
-                tickangle=0,  # Tick angle (can adjust if labels overlap)
-                ticks="outside",  # Where ticks are drawn ('outside', 'inside', or '')
-                tickwidth=2,  # Width of the tick lines
-                tickcolor='black',  # Color of the ticks
-                ticklen=10,  # Length of the ticks
-                showticklabels=True,  # Whether or not to show tick labels
-                )
+                    # Plot Category Contributions
+                    category_totals = verify_total_category_sums(df)
+                    category_names = [ 'Heat', 'Electricity', 'Chemicals', 'Water', 'Waste', 'Spent solvent', 'Rest' ]
+                    category_colors = [ 'rgb(153, 212, 217)', 'rgb(201,225,226)', 'rgb(231,243,227)',
+                                        'rgb(132,122,113)', 'rgb(219,235,196)', 'rgb(185,211,210)', 'rgb(207,205,206)' ]
+
+                    positive_base = 0
+                    negative_base = 0
+                    for category, color in zip(category_names, category_colors):
+                        score = category_totals.get(f'Total_{category}', 0)
+                        if score >= 0:
+                            fig.add_trace(go.Bar(name=category, x=[ score ], y=[ f"{index}" ], orientation='h',
+                                                 marker_color=color, base=positive_base, hoverinfo="name+y+text",
+                                                 textposition="outside", width=0.8, marker_line_color='black',
+                                                 marker_line_width=0.5, opacity=0.9), row=i + 1, col=2)
+                            positive_base += score
+                        else:
+                            fig.add_trace(go.Bar(name=category, x=[ score ], y=[ f"{index}" ], orientation='h',
+                                                 marker_color=color, base=negative_base, textposition="outside",
+                                                 width=0.8, marker_line_color='black', marker_line_width=0.5,
+                                                 opacity=0.9), row=i + 1, col=2)
+                            negative_base += score
+
+        # Update x-axes range
+        # Update x-axes range and style
+        fig.update_xaxes(range=[ 0, max_values[ 'climatechange' ]*1.2 ], row=1, col=1,
+            zeroline=True, zerolinecolor='black',  # Set the color of the zero line
+            zerolinewidth=1,  # Set the width of the zero line
+            showline=True,  # Show the axis line
+            linecolor='black',  # Set the color of the axis line
+            linewidth=1  # Set the width of the axis line
+            )
+        fig.update_xaxes(range=[ 0, max_values[ 'waterscarcity'] *1.2 ], row=2, col=1,
+            zeroline=True, zerolinecolor='black',  # Set the color of the zero line
+            zerolinewidth=1,  # Set the width of the zero line
+            showline=True,  # Show the axis line
+            linecolor='black',  # Set the color of the axis line
+            linewidth=1  # Set the width of the axis line
             )
 
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_path_png = os.path.join(save_directory,f'LCA_contributional_analysis_across_sites_horizontalbarplot_{timestamp}.png')
-        fig.write_image(save_path_png)
+        # Layout adjustments
+        fig.update_layout(showlegend=True, plot_bgcolor='rgba(255, 255, 255, 1)',
+                          paper_bgcolor='rgba(255, 255, 255, 1)', barmode='stack', bargap=0.2, height=1400, width=1000,
+                          margin=dict(l=100, r=20, t=110, b=100),
+                          font=dict(family="Arial, sans-serif", size=14, color="black"))
 
-        save_path_svg = os.path.join(save_directory,f'LCA_contributional_analysis_across_sites_horizontalbarplot_{timestamp}.svg')
-        fig.write_image(save_path_svg)
+        # Save the figure
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        fig.write_image(os.path.join(save_directory, f'LCA_absolute_contribution_analysis_{timestamp}.png'))
+        fig.write_image(os.path.join(save_directory, f'LCA_absolute_contribution_analysis_{timestamp}.svg'))
         print("Composite figure saved.")
 
 

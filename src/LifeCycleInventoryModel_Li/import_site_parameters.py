@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 import os
+import math
 
 #Default values for non-critical values of a specific site
 standard_values = {
@@ -79,28 +80,26 @@ def convert_mg_L_to_wt_percent(values,density,sum_threshold=100) :
 
     return wt_percent_values
 
-def boiling_point_at_elevation(elevation_meters):
+
+def boiling_point_at_elevation(elevation_m) :
     """
-    Calculate the boiling point of water at a given elevation.
+    Calculate the boiling point of water (°C) at a specific elevation (meters)
+    based on empirical data matching real-world values.
 
-    :param elevation_meters: Elevation in meters.
-    :return: Boiling point of water at the given elevation in degrees Celsius.
+    Parameters:
+        elevation_m (float): Elevation in meters.
+
+    Returns:
+        float: Boiling point of water in degrees Celsius.
     """
-    # Standard boiling point of water at sea level in Celsius
-    boiling_point_sea_level = 100
+    # Constants
+    sea_level_boiling_point = 100.0  # Boiling point at sea level in °C
+    boiling_point_reduction_per_meter = 0.003  # Empirical reduction in °C per meter
 
-    # Atmospheric pressure decreases approximately by 0.1 kPa for each 10 meters increase in elevation
-    # The following is a simplified formula and is an approximation
-    atmospheric_pressure = 101.3 - (0.1 * elevation_meters / 10)
+    # Calculate boiling point
+    boiling_point_c = sea_level_boiling_point - (boiling_point_reduction_per_meter * elevation_m)
 
-    # Calculate boiling point adjustment based on pressure
-    # This is an approximation based on the Clausius-Clapeyron relation
-    boiling_point_adjustment = (boiling_point_sea_level - 100) * 0.0065 / 0.1
-
-    # Adjust boiling point based on current atmospheric pressure
-    boiling_point = boiling_point_sea_level - boiling_point_adjustment * (101.3 - atmospheric_pressure)
-
-    return boiling_point
+    return boiling_point_c
 
 
 def haversine(coord1, coord2):
@@ -175,7 +174,8 @@ def mean_annual_temperature(lat, lon, dataset):
     dataset (xarray.Dataset): The dataset containing temperature data.
 
     Returns:
-    float: Mean annual temperature for the specified location.
+    float or xarray.DataArray: Mean annual temperature for the specified location,
+                               with negative values set to zero.
     """
     # Select the temperature data for the nearest location
     temp_data = dataset['tas'].sel(lat=lat, lon=lon, method='nearest')
@@ -183,7 +183,10 @@ def mean_annual_temperature(lat, lon, dataset):
     # Calculate the mean temperature across all time points
     mean_temp = temp_data.mean(dim='time')
 
-    return mean_temp.values  # Return the mean temperature value
+    # Set negative values to zero
+    mean_temp = mean_temp.where(mean_temp >= 0, 0)
+
+    return mean_temp.values
 
 def update_required_concentrations( process_sequence, vec_end, vec_ini):
 
@@ -214,7 +217,7 @@ def update_required_concentrations( process_sequence, vec_end, vec_ini):
 def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     print(f'beginning of function: {vec_ini}')
     # Load the Excel file
-    op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
+    op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites_manuscript.xlsx',
                             sheet_name="Sheet1", index_col=0)
 
     # Transpose the data for easier row (site) access
@@ -338,6 +341,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     if "evaporation_ponds" in process_sequence:
         if pd.isna(site_data["evaporation_rate"]):
             closest_site_data = find_closest_valid_site_evaporation(site_data['latitude'], site_data['longitude'], dat)
+            print(closest_site_data)
             if closest_site_data is not None:
                 site_data["evaporation_rate"] = closest_site_data["evaporation_rate"]
                 info_assumption["evaporation_rate"] = closest_site_data.name
@@ -356,7 +360,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
             "latitude": site_data["latitude"],
             "annual_airtemp" : site_data["annual_airtemp"],
             "evaporation_rate" : site_data["evaporation_rate"],
-            "boilingpoint_process" : site_data["boilingpoint_process"],
+            "boilingpoint_process" : site_data.get("boilingpoint_process", np.nan),
             "density_brine" : site_data["density_brine"],
             "vec_ini" : vec_ini,  # Vector with initial brine chemistry data
             "density_enriched_brine" : site_data.get("density_enriched_brine", np.nan),
@@ -390,6 +394,7 @@ def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
 
     if np.isnan(extracted_database[abbrev_loc]['boilingpoint_process']):
         extracted_database[abbrev_loc]['boilingpoint_process'] = boiling_point_at_elevation(extracted_database[abbrev_loc]['elevation'])
+        print(f"Boiling point at elevation {extracted_database[abbrev_loc]['elevation']} m: {extracted_database[abbrev_loc]['boilingpoint_process']}")
 
     #create a csv file if one does not already exist and save the extracted_database
     # Path to the CSV file
@@ -435,16 +440,6 @@ def update_config_value(config, key, new_value):
         print(f"Key '{key}' not found in the {config} dictionary.")
 
 
-
-def convert_to_numeric_old(df, columns):
-    for column in columns:
-        # Only attempt to replace commas if the column contains string values
-        if df[column].dtype == 'object':
-            df[column] = df[column].str.replace(',', '')
-        df[column] = pd.to_numeric(df[column], errors='coerce')
-    return df
-
-
 def convert_to_numeric(df,columns) :
     for column in columns :
         if column in df.columns :
@@ -457,8 +452,6 @@ def convert_to_numeric(df,columns) :
             # Convert to numeric
             df[column] = pd.to_numeric(df[column],errors='coerce')
 
-            # Print converted values for debugging
-            #print(f"Converted values in column {column}:\n",df[column].head())
     return df
 
 

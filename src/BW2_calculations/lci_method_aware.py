@@ -84,6 +84,7 @@ def import_aware(ei, bio_f,site_name, site_db, copy_site_db = None):
                 except :
                     if flow.get('location') not in unlinked_loc :
                         unlinked_loc.append(flow.get('location'))
+                        print(unlinked_loc)
 
         # Write new BW method
         aware_tuple = ('AWARE regionalized', 'Annual', 'All')

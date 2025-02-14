@@ -148,7 +148,7 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                 new_act.save()
                 new_act.new_exchange(input=new_act.key, amount=1, unit="kilogram", type="production").save()
 
-                #print(f"Created {activity_name}, {op_location} activity.")
+                print(f"Created {activity_name}, {op_location} activity.")
 
                 exchanges_df = df[df['Variables'].str.contains(activity_name)][1 :]
 
@@ -161,10 +161,11 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             prev_activity_name = prev_m_output_row["Variables"].split('m_output_')[1]
                             # Get the previously created activity from the database using the extracted name
                             prev_act = next((act for act in db if act['name'] == prev_activity_name), None)
+                            print(new_act)
                             # Create the exchange
                             new_act.new_exchange(input=prev_act.key, amount=exchange_row['per kg'], unit="kilogram",
                                                  type="technosphere").save()
-                            #print(f"Created exchange for {activity_name} activity.")
+                            print(f"Created exchange for {activity_name} activity.")
                         else :
                             pass
 
@@ -172,7 +173,7 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                         li_flow = bio_flow_objects['lithium']
                         create_exchanges(new_act,
                                          [(li_flow.key, exchange_row['per kg'], "kilogram", "biosphere", None, None)])
-                        #print(f"Created {li_flow} exchange for {activity_name} activity.")
+                        print(f"Created {li_flow} exchange for {activity_name} activity.")
 
                     elif var == f"elec_{activity_name}" :
                         elec_flow = activity_objects['elec_high_voltage']
@@ -182,7 +183,7 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             (elec_flow.key,exchange_row['per kg'],"kilowatt hour","technosphere",electricity_location,
                              None)
                             ])
-                        #print(f"Created {elec_flow} exchange for {activity_name} activity.")
+                        print(f"Created {elec_flow} exchange for {activity_name} activity.")
 
                     elif var == f"water_{activity_name}" :
                         act_search = next((act for act in db if act['name'] == f'Water_{abbrev_loc}'), None)
@@ -246,7 +247,7 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                                 create_exchanges(new_act, [
                                     (act_search.key, exchange_row['per kg'], "kilogram", "technosphere",
                                      details['location'], None)])
-                                #print(f"Created {act_search} exchange for {activity_name} activity.")
+                                print(f"Created {act_search} exchange for {activity_name} activity.")
                     elif var.startswith(f'steam') :
                         steam_flow = activity_objects['steam_chemical_industry']
                         create_exchanges(new_act, [
@@ -304,7 +305,10 @@ def create_database(database_name, country_location, eff, Li_conc, op_location, 
                             create_exchanges(new_act, [
                                 (act_search.key, -exchange_row['per kg']/1000, "cubic meter", "technosphere", None, None)])
 
-
+                    elif var.startswith(f'water_evaporated'):
+                        water_evaporated_flow = bio_flow_objects['water_evaporated']
+                        create_exchanges(new_act, [
+                            (water_evaporated_flow.key, exchange_row['per kg'], "cubic meter", "biosphere", None, ('air',))])
                     elif var.startswith(f'waste_heat') :
                         waste_heat_flow = bio_flow_objects['heat_waste']
                         create_exchanges(new_act, [

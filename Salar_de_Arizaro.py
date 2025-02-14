@@ -36,7 +36,8 @@ if __name__ == '__main__':
         else:
             print(f'Project {project_old} does not exist')
 
-    project = f'Site_{site_name}_20240703_sensitivity_analysis_2'
+    project = f'LocalSA_{site_name}_11022025_water'
+
 
     bd.projects.set_current(project)
     print(project)
@@ -123,50 +124,50 @@ if __name__ == '__main__':
         rotary_dryer()
         ]
 
-    # 4. Run the sensitivity analysis
+    # # # 4. Run the sensitivity analysis
     manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename,
-    constants=DEFAULT_CONSTANTS,
-    params=SENSITIVITY_RANGES)
-
+                            constants=DEFAULT_CONSTANTS,
+                            params=SENSITIVITY_RANGES)
+    # #
     eff = 0.77
     sensitivity_results = manager.run_sensitivity_analysis(filename, op_location, abbrev_loc, Li_conc, eff)
 
 
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
-                                                eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
+                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
 
     import_aware(ei_reg, bio, site_name, site_db)
-
-    #from src.BW2_calculations.lci_method_pm import import_PM
-
-    #import_PM(ei_reg, bio, site_name, site_db)
-
-    # Filter methods based on your criteria
+    # #
+    # # #from src.BW2_calculations.lci_method_pm import import_PM
+    # #
+    # # #import_PM(ei_reg, bio, site_name, site_db)
+    # #
+    # # # Filter methods based on your criteria
     method_cc = [m for m in bd.methods if 'IPCC 2021' in str(m) and 'climate change' in str(m)
-                 and 'global warming potential' in str(m)][-20]
-
+                  and 'global warming potential' in str(m)][-20]
+    # #
     method_water = [m for m in bd.methods if "AWARE" in str(m)][0]
-
-    #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
-    # print(method_PM)
-
+    # #
+    # # #method_PM = [m for m in bd.methods if "PM regionalized" in str(m)][0]
+    # # # print(method_PM)
+    # #
     method_list = [method_cc, method_water]
-
-    # Calculate impacts for the activity
+    # #
+    # # # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
 
-    # # 4. Run the sensitivity analysis
-    # manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,DEFAULT_CONSTANTS,
-    #                           params={})
-    # #
-    # eff = 0.77
+    # # # # 4. Run the sensitivity analysis
+    # # # manager = ProcessManager(initial_data[abbrev_loc],m_pumpbr,prod,process_sequence,filename,DEFAULT_CONSTANTS,
+    # # #                           params={})
+    # # # #
+    # # # eff = 0.77
     # sensitivity_results = manager.run_sensitivity_analysis(filename,op_location,abbrev_loc,Li_conc,eff)
-    #
+    # # #
     print(sensitivity_results)
     sensitivity_impacts = calculate_impacts_for_sensitivity_analysis(activity, method_list, sensitivity_results, site_name, ei_name, abbrev_loc)
-    #
-    #
+    # # #
+    # # #
     saving_sensitivity_results(sensitivity_impacts, abbrev_loc, save_dir= r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results')
-
+    # #

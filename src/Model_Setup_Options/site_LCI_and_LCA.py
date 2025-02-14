@@ -170,10 +170,10 @@ def run_operation_analysis_with_literature_data(project,site_name,site_location,
 
     # Battery assessment
     act_nmc_battery = \
-    [act for act in ei_reg if "battery production, Li-ion, NMC811, rechargeable, prismatic" in act['name']
+    [act for act in ei_reg if "battery cell production, Li-ion, NMC811" in act['name']
      and "CN" in act['location']][0]
     act_lfp_battery = \
-    [act for act in ei_reg if "battery production, Li-ion, LFP, rechargeable, prismatic" in act['name']
+    [act for act in ei_reg if "battery cell production, Li-ion, LFP" in act['name']
      and "CN" in act['location']][0]
     act_battery_list = [act_nmc_battery,act_lfp_battery]
     battery_directory = f"results/rawdata/battery_assessment"
@@ -354,7 +354,7 @@ def run_analysis_for_all_sites(excel_file_path,directory_path) :
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
         project_old = f'Site_{site_name}_21082024_adaptedwater_final_10'
-        project = f'Site_{site_name}_06112024'
+        project = f'01022025_{site_name}'
         print(f"Currently assessing: {project}")
         old_project_exists = project_old in bd.projects
         if old_project_exists :
@@ -423,7 +423,7 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path,directory_path) :
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
         old_project = f'{site_name}_databases_xx'
-        project = f'{site_name}_databases_26082024'
+        project = f'{site_name}_databases_11022025'
         print(f"Currently assessing: {project}")
 
         if old_project in bd.projects :
@@ -466,7 +466,7 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
     for site_name, abbreviation in site_abbreviations.items():
         print(f'Site_name: {site_name}, abbreviation: {abbreviation}')
 
-        project = f'Site_{site_name}_brinechemistry_final_13112024'
+        project = f'Brinechemistry_{site_name}_11022025'
         bd.projects.set_current(project)
 
         # Get the list of brine chemistry analyses for the site
@@ -497,7 +497,7 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
 
 
 
-def run_local_sensitivity_analysis_for_all_sites(excel_file_path,directory_path, project_name = "Local_sensitivity_analysis") :
+def run_local_sensitivity_analysis_for_all_sites(excel_file_path,directory_path, project_name = "LSA") :
     # Extract site names and their abbreviations
     site_abbreviations = extract_sites_and_abbreviations(excel_file_path)
 
@@ -507,17 +507,25 @@ def run_local_sensitivity_analysis_for_all_sites(excel_file_path,directory_path,
         site_data = extract_data(site_name,abbreviation)
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
-        project = f'{project_name}_{site_name}_3'
+        project = f'{project_name}_{site_name}_01022025'
         print(f"Currently assessing: {project}")
-        bd.projects.set_current(project)
 
-        # Extract process sequence and country location
-        process_sequence_setup = get_process_sequence(site_data[abbreviation]['process_sequence'], constants, params=None)
-        process_sequence_sensitivity = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params=None)
-        country_location = site_data[abbreviation]['country_location']
-        site_location = site_name
-        sensitivity_impacts = run_local_sensitivity_analysis(project,site_name,site_location,country_location, process_sequence_setup,
-                                                            process_sequence_sensitivity,abbreviation, directory_path)
+        project_exists = project in bd.projects
+
+        if not project_exists :
+
+            bd.projects.set_current(project)
+
+            # Extract process sequence and country location
+            process_sequence_setup = get_process_sequence(site_data[abbreviation]['process_sequence'], constants, params=None)
+            process_sequence_sensitivity = get_process_sequence(site_data[abbreviation]['process_sequence'],constants,params=None)
+            country_location = site_data[abbreviation]['country_location']
+            site_location = site_name
+            sensitivity_impacts = run_local_sensitivity_analysis(project,site_name,site_location,country_location, process_sequence_setup,
+                                                                process_sequence_sensitivity,abbreviation, directory_path)
+        else :
+            print(f'Project already exists. No need to run another sensitivity analysis')
+            pass
 
 
 def extract_site_info_from_excel(excel_file_path) :

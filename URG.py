@@ -1,10 +1,13 @@
-import bw2data as bd
 from pathlib import Path
-import pandas as pd
-# from Processes import *
-# from chemical_formulas import *
-# from operational_data_salton import *
-from src.BW2_calculations.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
+from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
+from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
+from src.BW2_calculations.setting_up_db_env import *
+from src.BW2_calculations.lci_method_aware import import_aware
+from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
+from src.BW2_calculations.impact_assessment import saving_sensitivity_results
+from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
+from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
+
 
 
 import os
@@ -15,7 +18,7 @@ if not os.path.exists("results") :
 # Databases
 ei_path = Path('data/ecoinvent 3.9.1_cutoff_ecoSpold02/datasets')
 ei_name = f"ecoinvent 3.9.1 cutoff"
-site_name = f"URG_39"
+site_name = f"Upper Rhine Graben"
 biosphere = f"biosphere3"
 deposit_type = "geothermal"
 
@@ -24,7 +27,7 @@ site_location = site_name[:3]
 # Biosphere
 if __name__ == '__main__' :
 
-    project = f'Site_{site_name}'
+    project = f'Site_{site_name}_updated_LCI_test45'
     bd.projects.set_current(project)
     print(project)
 
@@ -43,7 +46,7 @@ if __name__ == '__main__' :
     #else :
     #    print(f"{ei_name} database already exists!!! No import is needed")
 
-    locations = [("Salton Sea", "Sal"), ("Upper Rhine Graben", "URG")]
+    #locations = [("Salton Sea", "Sal"), ("Upper Rhine Graben", "URG")]
 
     #bio = bd.Database('biosphere3')
     # water = bd.Database(water_name)
@@ -71,10 +74,8 @@ if __name__ == '__main__' :
     op_location = "Upper Rhine Graben"
 
     # initialize the processing sequence
-    from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
 
     initial_data = extract_data(op_location, abbrev_loc, Li_conc)
-    from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 
     process_sequence = [
         SiFeRemovalLimestone(),
@@ -86,25 +87,25 @@ if __name__ == '__main__' :
         reverse_osmosis(),
         triple_evaporator(),
         Liprec_TG(),
-        CentrifugeTG(),
+        CentrifugeTG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
         washing_TG(),
         dissolution(),
         Liprec_BG(),
-        CentrifugeBG(),
+        CentrifugeBG(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
         washing_BG(),
-        CentrifugeWash(),
+        CentrifugeWash(DEFAULT_CONSTANTS,SENSITIVITY_RANGES),
         rotary_dryer()
         ]
 
     # 1. Define your initial parameters
-    prod, m_pumpbr = setup_site(eff, site_parameters=initial_data[abbrev_loc])
+    prod, m_pumpbr = setup_site(eff, initial_data[abbrev_loc], DEFAULT_CONSTANTS)
 
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}.txt"
 
     print(initial_data[abbrev_loc])
 
     # 2. Initialize the ProcessManager
-    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename)
+    manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, DEFAULT_CONSTANTS, params={})
 
     # 3. Run the processes
     dataframes_dict = manager.run(filename)
@@ -112,26 +113,24 @@ if __name__ == '__main__' :
 
 
     max_eff = 1.0
-    min_eff = 0.5
+    min_eff = 0.9
     eff_steps = 0.1
-    Li_conc_steps = 0.005
+    Li_conc_steps = 0.01
     Li_conc_max = 0.03
-    Li_conc_min = 0.005
+    Li_conc_min = 0.02
+
+    print(f'abbrev_loc: {abbrev_loc}')
 
     results, eff_range, Li_conc_range = manager.run_simulation(op_location, abbrev_loc, process_sequence, max_eff,
-                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min)
+                   min_eff, eff_steps, Li_conc_steps, Li_conc_max, Li_conc_min, DEFAULT_CONSTANTS, params=None)
 
     print(results)
 
-
-
-    from src.BW2_calculations.setting_up_db_env import database_environment
-
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
-                                                             eff, Li_conc, op_location, abbrev_loc, dataframes_dict)
+                                                             eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
     #from src.BW2_calculations.lci_method_aware import import_aware
-    #import_aware(ei_reg, bio)
+    import_aware(ei_reg, bio, site_name, site_db)
 
     #from src.BW2_calculations.lci_method_pm import import_PM
     #import_PM(ei_reg, bio)
@@ -169,15 +168,11 @@ if __name__ == '__main__' :
 
     method_list = [method_cc]
 
-    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
-
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
     impacts = calculate_impacts_for_selected_scenarios(activity, method_list, results,
-                                                       site_name, ei_name, eff_range, Li_conc_range,
-                                                       abbrev_loc)
+                                                       site_name, ei_name, abbrev_loc, eff_range, Li_conc_range)
 
-    from src.Postprocessing_results.visualization_functions import Visualization
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)
 
