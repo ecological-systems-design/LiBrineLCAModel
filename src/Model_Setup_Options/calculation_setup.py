@@ -6,19 +6,19 @@ import bw2io as bw2io
 import pandas as pd
 
 # Import necessary modules from your script
-from src.BW2_calculations.lithium_site_db import copy_database
+from src.BW2_calculations.lci_site_db import copy_database
 from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data,update_config_value
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
-from src.BW2_calculations.setting_up_db_env import *
-from src.BW2_calculations.lci_method_aware import import_aware
-from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios,saving_LCA_results, \
+from src.BW2_calculations.lci_setting_up_all_db import *
+from src.BW2_calculations.lcia_method_waterscarcity import import_aware
+from src.BW2_calculations.lcia_impact_assessment import calculate_impacts_for_selected_scenarios,saving_LCA_results, \
     saving_LCA_results_brinechemistry,calculate_impacts_for_brine_chemistry,calculate_battery_impacts, \
     save_battery_results_to_csv,print_recursive_calculation, calculate_impacts_for_sensitivity_analysis, saving_sensitivity_results
-from src.Postprocessing_results.visualization_functions import Visualization
-from src.BW2_calculations.modification_bw2 import change_energy_provision
+from src.Postprocessing_results.visualization import Visualization
+from src.BW2_calculations.lci_create_sitespecific_inven_BW2 import change_energy_provision
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS as constants, \
     SENSITIVITY_RANGES as params
-from src.BW2_calculations.iterating_LCIs import change_exchanges_in_database
+from src.BW2_calculations.lci_iterating_inventories import change_exchanges_in_database
 
 
 def get_process_sequence(process_names,constants,params) :
@@ -262,12 +262,11 @@ def run_operation_analysis_with_brine_chemistry(project, site_name, site_locatio
 
     prod, m_pumpbr = setup_site(eff, initial_data[abbrev_loc], constants)
     filename = f"{abbrev_loc}_eff{eff}_Li{Li_conc}"
+    print(filename)
 
     manager = ProcessManager(initial_data[abbrev_loc], m_pumpbr, prod, process_sequence, filename, constants, params=None)
 
     dataframes_dict = manager.run(filename)
-    print(f'Before calculation - initial data: {initial_data}')
-    print(Li_conc)
     #getting inventories for the brine chemistry
     results, eff, Li_conc = manager.run_simulation_with_brinechemistry_data(site_location, abbrev_loc, process_sequence, initial_data[abbrev_loc], constants, params =None)
     # Setting up databases for environmental impact calculation
@@ -287,8 +286,8 @@ def run_operation_analysis_with_brine_chemistry(project, site_name, site_locatio
     site_db = change_exchanges_in_database(eff,  Li_conc, site_name, abbrev_loc, results)
 
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
-    print(f'Literature Li conc: {Li_conc}')
     impacts = calculate_impacts_for_brine_chemistry(activity, method_list, results, site_name, ei_name, abbrev_loc, None, None, eff, Li_conc)
+    print(f'Impacts: {impacts}')
 
     saving_LCA_results_brinechemistry(impacts, abbrev_loc)
 
@@ -423,7 +422,7 @@ def run_analysis_for_all_sites_to_extract_dbs(excel_file_path,directory_path) :
         target_ini_Li = site_data[abbreviation]['ini_Li']
         target_eff = site_data[abbreviation]['Li_efficiency']
         old_project = f'{site_name}_databases_xx'
-        project = f'{site_name}_databases_11022025'
+        project = f'{site_name}_databases_19022025'
         print(f"Currently assessing: {project}")
 
         if old_project in bd.projects :
@@ -466,7 +465,7 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
     for site_name, abbreviation in site_abbreviations.items():
         print(f'Site_name: {site_name}, abbreviation: {abbreviation}')
 
-        project = f'Brinechemistry_{site_name}_11022025'
+        project = f'Brinechemistry_{site_name}_15022025'
         bd.projects.set_current(project)
 
         # Get the list of brine chemistry analyses for the site
@@ -480,7 +479,6 @@ def run_analysis_for_brinechemistry(excel_file_path, directory_path):
         # Iterate over the values of brine_chemistry_sets, which are the lists of analysis values
         for analysis_id, vec_ini_list in brine_chemistry_sets.items():
             print(f'New brine chemistry used: {analysis_id}')
-            print(vec_ini_list)
 
             # Call extract_data for each set of brine chemistry analyses
             site_data = extract_data(site_location=site_name, abbrev_loc=abbreviation, Li_conc=None, vec_ini=vec_ini_list)

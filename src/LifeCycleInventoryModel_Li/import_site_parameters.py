@@ -217,7 +217,7 @@ def update_required_concentrations( process_sequence, vec_end, vec_ini):
 def extract_data(site_location, abbrev_loc, Li_conc = None, vec_ini = None) :
     print(f'beginning of function: {vec_ini}')
     # Load the Excel file
-    op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites_manuscript.xlsx',
+    op_data = pd.read_excel(r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx',
                             sheet_name="Sheet1", index_col=0)
 
     # Transpose the data for easier row (site) access

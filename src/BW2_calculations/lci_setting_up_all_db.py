@@ -1,8 +1,8 @@
 import bw2data as bd
 import bw2io as bi
-from src.BW2_calculations.setting_up_bio_and_ei import import_biosphere, import_ecoinvent
-from src.BW2_calculations.lithium_site_db import *
-from src.BW2_calculations.modification_bw2 import *
+from src.BW2_calculations.lci_setting_up_bio_and_ei import import_biosphere, import_ecoinvent
+from src.BW2_calculations.lci_site_db import *
+from src.BW2_calculations.lci_create_sitespecific_inven_BW2 import *
 
 
 # create database environment for operational site

@@ -1,11 +1,11 @@
 from pathlib import Path
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
-from src.BW2_calculations.setting_up_db_env import *
-from src.BW2_calculations.lci_method_aware import import_aware
-from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
-from src.BW2_calculations.impact_assessment import saving_sensitivity_results
-from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
+from src.BW2_calculations.lci_setting_up_all_db import *
+from src.BW2_calculations.lcia_method_waterscarcity import import_aware
+from src.BW2_calculations.lcia_impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
+from src.BW2_calculations.lcia_impact_assessment import saving_sensitivity_results
+from src.BW2_calculations.lcia_impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
 
 if not os.path.exists("results") :

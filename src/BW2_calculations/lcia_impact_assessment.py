@@ -2,10 +2,10 @@ import pandas as pd
 import bw2calc as bc
 import bw2data as bd
 import os
-from src.BW2_calculations.iterating_LCIs import change_exchanges_in_database, change_exchanges_in_database_sensitivity
+from src.BW2_calculations.lci_iterating_inventories import change_exchanges_in_database, change_exchanges_in_database_sensitivity
 import datetime
 import csv
-from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import SENSITIVITY_RANGES
+
 
 
 def calculate_impacts(activity,methods) :
@@ -305,35 +305,6 @@ def saving_sensitivity_results(results,abbrev_loc,save_dir, renewable=None) :
         aware_df.to_excel(writer,sheet_name='AWARE',index=False)
 
     print(f"Data successfully saved to {filename}")
-
-
-def saving_sensitivity_results_old(results, abbrev_loc, renewable=None):
-    if isinstance(results, dict):
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{abbrev_loc}_sensitivity_analysis_{timestamp}"
-
-        # Transforming the dictionary into the desired DataFrame format
-        transformed_data = []
-        for param, values_dict in results.items():
-            for value_tuple, impact_dict in values_dict.items():
-                value = value_tuple if isinstance(value_tuple, (int, float)) else value_tuple[0]
-                row = {'param': param, 'value': float(value)}
-                for impact_category, impact_data in impact_dict['data_frames'].items():
-                    if impact_category.startswith('IPCC'):
-                        row['IPCC'] = impact_data
-                    elif impact_category.startswith('AWARE'):
-                        row['AWARE'] = impact_data
-                    elif impact_category.startswith('PM'):
-                        row['PM'] = impact_data
-                transformed_data.append(row)
-        results_df = pd.DataFrame(transformed_data)
-    else:
-        print("Results are not in dictionary format.")
-        return
-
-
-
-
 
 
 

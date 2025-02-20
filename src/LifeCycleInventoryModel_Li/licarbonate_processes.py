@@ -4,7 +4,7 @@ from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants impo
 
 from src.LifeCycleInventoryModel_Li.import_site_parameters import *
 
-from src.Postprocessing_results.visualization_functions import Visualization
+from src.Postprocessing_results.visualization import Visualization
 
 
 

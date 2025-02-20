@@ -1,11 +1,11 @@
 from pathlib import Path
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data, update_config_value
-from src.BW2_calculations.setting_up_db_env import *
-from src.BW2_calculations.lci_method_aware import import_aware
-from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
-from src.BW2_calculations.impact_assessment import saving_sensitivity_results
-from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
+from src.BW2_calculations.lci_setting_up_all_db import *
+from src.BW2_calculations.lcia_method_waterscarcity import import_aware
+from src.BW2_calculations.lcia_impact_assessment import calculate_impacts_for_selected_scenarios, calculate_impacts_for_sensitivity_analysis
+from src.BW2_calculations.lcia_impact_assessment import saving_sensitivity_results
+from src.BW2_calculations.lcia_impact_assessment import saving_LCA_results, print_recursive_calculation, calculate_battery_impacts,save_battery_results_to_csv
 from src.LifeCycleInventoryModel_Li.operational_and_environmental_constants import DEFAULT_CONSTANTS, SENSITIVITY_RANGES
 
 
@@ -145,7 +145,7 @@ if __name__ == '__main__' :
     eff = 0.9
     Li_conc = 0.03
 
-    from src.BW2_calculations.iterating_LCIs import change_exchanges_in_database
+    from src.BW2_calculations.lci_iterating_inventories import change_exchanges_in_database
     #site_db = change_exchanges_in_database(eff, Li_conc, site_name, abbrev_loc, results)
 
 

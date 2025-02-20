@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from src.LifeCycleInventoryModel_Li.import_site_parameters import standard_values
-from src.BW2_calculations.lithium_site_db import chemical_map
+from src.BW2_calculations.lci_site_db import chemical_map
 import ast
 import plotly.express as px
 import plotly.graph_objects as go

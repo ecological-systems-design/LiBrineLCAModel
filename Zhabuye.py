@@ -2,11 +2,11 @@ import bw2data as bd
 from pathlib import Path
 from src.LifeCycleInventoryModel_Li.import_site_parameters import extract_data,update_config_value
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
-from src.BW2_calculations.setting_up_db_env import *
-from src.BW2_calculations.lci_method_aware import import_aware
-from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
-from src.BW2_calculations.impact_assessment import saving_LCA_results,print_recursive_calculation
-from src.Postprocessing_results.visualization_functions import Visualization
+from src.BW2_calculations.lci_setting_up_all_db import *
+from src.BW2_calculations.lcia_method_waterscarcity import import_aware
+from src.BW2_calculations.lcia_impact_assessment import calculate_impacts_for_selected_scenarios
+from src.BW2_calculations.lcia_impact_assessment import saving_LCA_results,print_recursive_calculation
+from src.Postprocessing_results.visualization import Visualization
 
 import os
 

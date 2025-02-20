@@ -1,5 +1,4 @@
 import bw2data as bd
-#from src.LifeCycleInventoryModel_Li.licarbonate_processes import calculate_processingsequence
 
 
 

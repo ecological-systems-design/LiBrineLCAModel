@@ -1,7 +1,7 @@
 import pandas as pd
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import bw2data as bd
-from src.BW2_calculations.setting_up_db_env import database_environment
+from src.BW2_calculations.lci_setting_up_all_db import database_environment
 
 
 def create_inventory_map(abbrev_loc) :

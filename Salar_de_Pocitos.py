@@ -84,12 +84,12 @@ if __name__ == '__main__' :
 
     print(results)
 
-    from src.BW2_calculations.setting_up_db_env import *
+    from src.BW2_calculations.lci_setting_up_all_db import *
 
     ei_reg, site_db, bio = database_environment(biosphere, ei_path, ei_name, site_name, deposit_type, country_location,
                                                 eff, Li_conc, op_location, abbrev_loc, dataframes_dict, chemical_map)
 
-    from src.BW2_calculations.lci_method_aware import import_aware
+    from src.BW2_calculations.lcia_method_waterscarcity import import_aware
 
     import_aware(ei_reg, bio, site_name, site_db)
 
@@ -108,7 +108,7 @@ if __name__ == '__main__' :
 
     method_list = [method_cc, method_water]
 
-    from src.BW2_calculations.impact_assessment import calculate_impacts_for_selected_scenarios
+    from src.BW2_calculations.lcia_impact_assessment import calculate_impacts_for_selected_scenarios
 
     # Calculate impacts for the activity
     activity = [act for act in site_db if "df_rotary_dryer" in act['name']][0]
@@ -118,11 +118,11 @@ if __name__ == '__main__' :
     # print(impacts)
 
     # saving results
-    from src.BW2_calculations.impact_assessment import saving_LCA_results, print_recursive_calculation
+    from src.BW2_calculations.lcia_impact_assessment import saving_LCA_results, print_recursive_calculation
 
     saving_LCA_results(impacts, abbrev_loc)
 
-    from src.Postprocessing_results.visualization_functions import Visualization
+    from src.Postprocessing_results.visualization import Visualization
 
     # Plot the results
     Visualization.plot_impact_categories(impacts, abbrev_loc)

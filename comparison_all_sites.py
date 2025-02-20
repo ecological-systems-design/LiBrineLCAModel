@@ -2,8 +2,8 @@ from pathlib import Path
 import pickle
 import os
 from src.Postprocessing_results.preparing_data import preparing_data_for_LCA_results_comparison, process_data_based_on_excel, process_battery_scores, prepare_table_for_energy_provision_comparison
-from src.Postprocessing_results.visualization_functions import *
-from src.Model_Setup_Options.site_LCI_and_LCA import *
+from src.Postprocessing_results.visualization import *
+from src.Model_Setup_Options.calculation_setup import *
 from src.LifeCycleInventoryModel_Li.licarbonate_processes import *
 import bw2data as bd
 if not os.path.exists("results") :
@@ -33,7 +33,7 @@ if __name__ == '__main__' :
     # # #
     # prepare_table_for_energy_provision_comparison(file_path, renewable_directory_path, renewable_save_dir)
     # # # #
-    # #run_analysis_for_all_sites_to_extract_dbs(file_path, directory_path)
+    run_analysis_for_all_sites_to_extract_dbs(file_path, directory_path)
     # # # #
     # ResourceCalculator.compile_resources(resources_dir, file_path)
     # # # #
@@ -51,7 +51,7 @@ if __name__ == '__main__' :
     # # # # # #
     # Visualization.plot_LCA_results_comparison_based_on_production_and_impurities(file_path,directory_path,save_path)
     #
-    Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,renewable_energy_directory_path,save_path)
+    #Visualization.plot_LCA_results_comparison_based_on_production_and_Liconc(file_path,directory_path,save_path)
     # # # # # #
     # Visualization.create_absolute_horizontal_bars(file_path, base_dir, save_dir)
 
