@@ -23,7 +23,7 @@ if __name__ == '__main__' :
     NMC_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\battery_assessment\NMC811_results_non_renewable.csv'
     LFP_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\battery_assessment\LFP_results_non_renewable.csv'
 
-
+    #Run the code
     run_analysis_for_all_sites(file_path, directory_path)
     run_local_sensitivity_analysis_for_all_sites(file_path, sensitivity_directory_path)
     run_analysis_for_all_sites_to_extract_dbs(file_path, directory_path)
