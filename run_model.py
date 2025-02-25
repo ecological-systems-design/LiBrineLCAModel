@@ -8,24 +8,26 @@ if not os.path.exists("results") :
 
 if __name__ == '__main__' :
 
-    file_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\data\new_file_lithiumsites.xlsx'
-    directory_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\LCA_results'
-    sensitivity_directory_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\sensitivity_results'
-    renewable_directory_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata'
-    renewable_energy_directory_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\Renewable_assessment'
-    save_path = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\global_comparison'
-    save_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\recursive_calculation'
-    renewable_save_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\Renewables'
-    base_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation'
-    resources_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\ResourceCalculator'
-    battery_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\recursive_calculation\battery'
+    file_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\data\new_file_lithiumsites.xlsx'
+    directory_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\LCA_results'
+    sensitivity_directory_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\sensitivity_results'
+    renewable_directory_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata'
+    renewable_energy_directory_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\Renewable_assessment'
+    save_path = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\figures\global_comparison'
+    save_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\figures\recursive_calculation'
+    renewable_save_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\figures\Renewables'
+    base_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\recursive_calculation'
+    resources_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\ResourceCalculator'
+    battery_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\recursive_calculation\battery'
 
-    NMC_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\battery_assessment\NMC811_results_non_renewable.csv'
-    LFP_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\rawdata\battery_assessment\LFP_results_non_renewable.csv'
+    NMC_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\battery_assessment\NMC811_results_non_renewable.csv'
+    LFP_nonrenew_dir = r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\rawdata\battery_assessment\LFP_results_non_renewable.csv'
 
     #Run the code
     run_analysis_for_all_sites(file_path, directory_path)
+
     run_local_sensitivity_analysis_for_all_sites(file_path, sensitivity_directory_path)
+
     run_analysis_for_all_sites_to_extract_dbs(file_path, directory_path)
 
     ResourceCalculator.compile_resources(resources_dir, file_path)
@@ -44,7 +46,7 @@ if __name__ == '__main__' :
     Visualization.create_absolute_horizontal_bars(file_path, base_dir, save_dir)
 
     process_battery_scores(NMC_nonrenew_dir,file_path,
-                           r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\LCA_battery')
+                           r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\figures\LCA_battery')
 
     process_battery_scores(LFP_nonrenew_dir,file_path,
-                            r'C:\Users\Schenker\PycharmProjects\Geothermal_brines\results\figures\LCA_battery')
+                            r'C:\Users\Schenker\PycharmProjects\LiBrineLCAModel\results\figures\LCA_battery')
