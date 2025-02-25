@@ -165,8 +165,4 @@ Silver Peak.py
 global_map.py
 brine_chemistry_salars.py
 comparison_all_sites.py
-data/CF_PM_Geothermal.csv
-data/CF_PM_lakes.csv
-data/new_file_lithiumsites.csv
-data/new_file_lithiumsites_Chinese_pLCA.xlsx
-data/new_file_lithiumsites_manuscript.xlsxw
+data/other_data
