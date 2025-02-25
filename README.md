@@ -20,6 +20,8 @@ The model is based on the following publication: Schenker and Pfister (accepted)
 7. Calculation of life cycle impacts -> \src\BW2_calculations\lcia_impact_assessment.py
 8. Visualization of results -> \src\Postprocessing_results\visualization.py
 
+![Alt text](data/Overview_of_python_code_SI_16072024.png)
+
 ## How to use the model
 
 Assessment of all sites in this publication can be performed using the comparison_all_sites.py
