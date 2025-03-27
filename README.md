@@ -7,7 +7,9 @@ This repository contains a model to quantify life cycle impacts of lithium carbo
 The model uses the calculated mass flow and estimate technosphere and biosphere flows for each process. 
 The model calculates the life cycle inventory and then, uses Brightway 2 to perform the life cycle assessment (see more information https://github.com/brightway-lca). 
 
-The model is based on the following publication: Schenker and Pfister (accepted) - Current and Future Impacts of Lithium Carbonate from Brines: A Global Regionalized Life Cycle Assessment Model 
+The model is based on the following publication: Schenker and Pfister (2025) - Current and Future Impacts of Lithium Carbonate from Brines: A Global Regionalized Life Cycle Assessment Model 
+
+https://doi.org/10.1021/acs.est.4c12619
 
 ## How the model creates LCI and performs LCA
 
