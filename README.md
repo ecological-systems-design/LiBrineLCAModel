@@ -25,5 +25,8 @@ https://doi.org/10.1021/acs.est.4c12619
 ![Alt text](data/Overview_of_python_code_SI_16072024.png)
 
 ## How to use the model
-
-Assessment of all sites in this publication can be performed using the comparison_all_sites.py
+1. Use input_data_lithiumsites.xlsx to add sites if required
+2. Choose technology pathway in input_data_lithiumsites.xlsx
+3. Add site-specific AWARE CF in AWARE file in \data
+5. Run the code with run_model.py for all sites
+6. Create graphs
